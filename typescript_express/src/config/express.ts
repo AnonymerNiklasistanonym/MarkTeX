@@ -1,14 +1,11 @@
-
-import dotenv from "dotenv";
 import express from "express";
 import path from "path";
-import { Server } from "http";
 import exphbs from "express-handlebars";
 
 import * as routesAccount from "../routes/account";
 import * as routesHome from "../routes/home";
 
-export const startExpressServer = (): Server => {
+export const startExpressServer = () => {
     // Express setup
     const app = express();
     // Express view engine setup
