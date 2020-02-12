@@ -1,25 +1,46 @@
-.PHONY: clean build_image run_docker
+.PHONY: clean docker_build docker_build_image docker_run docker_run_image
+.PHONY: docker_build_fallback
 
-IMAGE_NAME="prototype/typescript-express"
+DOCKER_FILE_BUILD=./docker/build/Dockerfile
+DOCKER_FILE_RUN=./docker/run/Dockerfile
 
-all: run_docker
+DOCKER_IMAGE_NAME_BUILD="prototype/typescript-express-build"
+DOCKER_IMAGE_NAME_RUN="prototype/typescript-express-run"
 
-build_image: build_app
-	echo "SERVER_PORT=8080" > .env.docker
-	docker build --no-cache -t $(IMAGE_NAME) .
-	rm .env.docker
+DOCKER_ARGS=--no-cache
 
-build_app:
-	# TODO: Do these two steps in a Docker instance and then extract the dist directory from there
+SERVER_PORT=8080
+
+all: docker_build docker_run
+
+fallback: docker_build_fallback docker_run
+
+docker_build_image:
+	docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME_BUILD) -f $(DOCKER_FILE_BUILD) .
+	# TODO: Run successful
+
+docker_build: docker_build_image
+	docker run -d $(DOCKER_IMAGE_NAME_BUILD)
+	TODO: Extract built files
+
+# FALLBACK
+docker_build_fallback:
 	npm install
 	export NODE_ENV="production"; \
 	npm run build
+# FALLBACK
 
-run_docker: build_image
-	docker run -p 8080:8080 -d $(IMAGE_NAME)
+docker_run_image:
+	echo "SERVER_PORT=8080" > .env.docker
+	docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME_RUN) -f $(DOCKER_FILE_RUN) .
+	rm .env.docker
 
-clean:
-	@echo "TODO"
+docker_run: docker_run_image
+	docker run -p 8080:8080 -d $(DOCKER_IMAGE_NAME_RUN)
 
 remove_all_stopped_docker_containers:
 	docker container prune -f
+
+clean:
+	rm -rf dist node_modules
+	rm -f .env .env.docker
