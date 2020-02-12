@@ -10,13 +10,13 @@
         "outDir": "dist",
         "baseUrl": ".",
         "allowJs": false,
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
+        "strict": true,
+        "strictNullChecks": true
     },
     "include": [
-        "src/**/*"
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }
