@@ -1,5 +1,9 @@
 FROM node:latest
 
+# TODO: Routing seemes not to work: `8080/profile` results in error
+
+# TODO: Copy the `.env` file or better copy the `.env.docker` file as `.env`
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -9,6 +13,7 @@ COPY package*.json ./
 RUN npm install --only=production
 
 # Bundle app source??
+# TODO: This will use the cache even when things were changed which should not be
 COPY dist .
 
 # Expose server port
