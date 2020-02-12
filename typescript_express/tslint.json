@@ -1,0 +1,13 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "rules": {
+        "trailing-comma": false,
+        "max-line-length": {
+            "options": 120
+        }
+    },
+    "rulesDirectory": []
+}
