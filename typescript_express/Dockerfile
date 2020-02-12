@@ -15,4 +15,4 @@ COPY dist .
 EXPOSE 8080
 
 # Run server
-RUN npm run dist:start
+RUN npm run start
