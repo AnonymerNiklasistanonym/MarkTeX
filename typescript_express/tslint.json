@@ -12,7 +12,8 @@
         "no-irregular-whitespace": true,
         "no-trailing-whitespace": true,
         "encoding": true,
-        "linebreak-style": true
+        "linebreak-style": [true, "LF"],
+        "indent": [true, "spaces", 4]
     },
     "rulesDirectory": []
 }
