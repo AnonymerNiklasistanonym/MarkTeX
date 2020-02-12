@@ -1,5 +1,20 @@
 # Express server written in TypeScript
 
+## TODO list
+
+- [x] Setup TypeScript (linting, auto fixing, error messaging, auto updater)
+- [x] Express server (in TypeScript)
+- [x] Client side independent usage of node modules (in TypeScript)
+- [x] Documentation
+- [x] Handlebar view rendering
+- [ ] Client side keyboard controller with a list example (add new items and indent only using keyboard shortcuts)
+- [ ] Include image resources (icons, fonts)
+- [ ] Implement socket connection
+- [ ] Implement express session
+- [ ] Add SQLite database
+- [ ] Make final product runnable in Docker container
+- [ ] Make final product build in Docker container and extract built files
+
 ## Sources
 
 - https://developer.okta.com/blog/2018/11/15/node-express-typescript
