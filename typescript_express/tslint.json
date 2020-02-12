@@ -7,7 +7,12 @@
         "trailing-comma": false,
         "max-line-length": {
             "options": 120
-        }
+        },
+        "semicolon": true,
+        "no-irregular-whitespace": true,
+        "no-trailing-whitespace": true,
+        "encoding": true,
+        "linebreak-style": true
     },
     "rulesDirectory": []
 }

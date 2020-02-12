@@ -5,4 +5,4 @@ export const loadEnvFile = () => {
   const result = dotenv.config();
   // When there is an error stop
   if (result.error) { throw result.error; }
-}
+};

@@ -9,6 +9,6 @@ export const register = (app: express.Application) => {
         // tslint:disable-next-line:no-console
         console.info("home");
         // TODO: Do everything
-        res.send("Hello world! :o");
+        res.render('index', {});
     });
 };

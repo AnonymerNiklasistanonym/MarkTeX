@@ -11,7 +11,7 @@
             "protocol": "inspector",
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
-            ],
+            ]
         }
     ]
 }

@@ -1,0 +1,23 @@
+{{!--
+--------------------------------------------------------------------------------
+Header favicons partial
+--------------------------------------------------------------------------------
+Parameters:
+{
+  faviconPngPrefix: string, // Favicon `.png` path prefix
+  faviconPngPostfix: string, // Favicon `.png` path postfix
+  faviconPngSizes: number[], // Favicon png sizes
+  faviconIco: string, // Favicon `.ico` path
+  faviconSvg: string, // Favicon `.svg` path
+}
+--------------------------------------------------------------------------------
+--}}
+
+{{!-- SVG and ICO icons --}}
+<link rel="shortcut icon" type="image/x-icon" href="{{faviconIco}}" />
+<link rel="icon" type="image/svg+xml" href="{{faviconSvg}}">
+
+{{!-- Normal png favicons --}}
+{{#each faviconSizes}}
+<link rel="icon" type="image/png" href="{{faviconPngPrefix}}{{this}}{{faviconPngPostfix}}" sizes="{{this}}x{{this}}" />
+{{/each}}
