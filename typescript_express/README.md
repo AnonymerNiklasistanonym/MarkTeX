@@ -24,7 +24,6 @@ The built files can be found in the `dist` directory and the entry point is call
 | ------ | ----------- |
 | `ts-node` | Run TypeScript files directly (otherwise they must first be compiled to JavaScript files). |
 | `shelljs` | Use to execute shell commands such as to copy files and remove directories. |
-| `rimraf` | Use to recursively remove folders. |
 | `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel. |
 | `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development. |
 
@@ -35,4 +34,4 @@ Run docker file with: (`sudo`) `make`
 | Command |  Description |
 | ------- | ------------ |
 | (`sudo`) `docker ps` | Get the container ID and port |
-| (`sudo`) `docker inspect <CONTAINER_ID>` (`| grep IPAddress`) | Get IP address of docker machine |
+| (`sudo`) `docker inspect <CONTAINER_ID>` | Get IP address (`grep IPAddress`) and other information of docker machine |
