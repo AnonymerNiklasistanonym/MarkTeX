@@ -20,6 +20,9 @@ export const startExpressServer = () => {
         partialsDir: path.join(DIR_VIEWS, 'partials')
     }));
 
+    // Configure static files
+    app.use(express.static(path.join(__dirname, '..', 'public')));
+
     // Configure routes
     routesAccount.register(app);
     routesHome.register(app);
@@ -41,6 +44,11 @@ export const startExpressServer = () => {
                 message: err.message,
                 stack: err.stack,
                 explanation: res.locals.explanation
+            },
+            header: {
+                scripts: [
+                    { path: 'scripts/test.js' }
+                ]
             }
         });
     });

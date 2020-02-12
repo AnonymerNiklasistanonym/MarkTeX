@@ -4,11 +4,13 @@ Header scripts partial
 --------------------------------------------------------------------------------
 Parameters:
 {
-  scripts: { path: string }[] // JavaScript paths
+  header: {
+    scripts: { path: string }[] // JavaScript paths
+  }
 }
 --------------------------------------------------------------------------------
 --}}
 
-{{#each scripts}}
+{{#each header.scripts}}
 <script src="{{this.path}}"></script>
 {{/each}}
