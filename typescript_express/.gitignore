@@ -1,5 +1,6 @@
 node_modules
 dist
 docs/site
+docs/todos.md
 package-lock.json
 .env

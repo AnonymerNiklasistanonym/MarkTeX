@@ -12,6 +12,8 @@
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "start": "node .",
     "tsc": "tsc",
+    "docs": "npm-run-all todo typedoc",
+    "todo": "ts-node ./docs/createTodoPage",
     "typedoc": "ts-node ./docs/createDocs"
   },
   "keywords": [],
@@ -24,11 +26,13 @@
     "express-session": "^1.17.0"
   },
   "devDependencies": {
-    "@types/express-session": "^1.15.16",
-    "@types/express-handlebars": "^3.1.0",
     "@types/dotenv": "^8.2.0",
+    "@types/express-handlebars": "^3.1.0",
+    "@types/express-session": "^1.15.16",
     "@types/express": "^4.17.2",
     "@types/shelljs": "^0.8.6",
+    "glob": "^7.1.6",
+    "leasot": "^10.0.0",
     "nodemon": "^2.0.2",
     "npm-run-all": "^4.1.5",
     "shelljs": "^0.8.3",
