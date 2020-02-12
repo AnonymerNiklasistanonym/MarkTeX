@@ -1,4 +1,5 @@
 node_modules
 dist
+docs/site
 package-lock.json
 .env

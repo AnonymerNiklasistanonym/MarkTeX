@@ -11,11 +11,12 @@
     "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "start": "node .",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "typedoc": "ts-node ./docs/createDocs"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -33,6 +34,7 @@
     "shelljs": "^0.8.3",
     "ts-node": "^8.6.2",
     "tslint": "^6.0.0",
+    "typedoc": "^0.16.9",
     "typescript": "^3.7.5"
   }
 }
