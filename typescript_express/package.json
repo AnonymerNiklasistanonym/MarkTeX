@@ -4,7 +4,7 @@
   "description": "Express server written in Nodejs and TypeScript.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm-run-all clean lint tsc copy-assets",
+    "build": "npm-run-all clean lint tsc webpack copy-assets",
     "clean": "ts-node tools/cleanFiles",
     "copy-assets": "ts-node tools/copyAssets",
     "dev:start": "npm-run-all build start",
@@ -14,7 +14,8 @@
     "tsc": "tsc",
     "docs": "npm-run-all todo typedoc",
     "todo": "ts-node ./docs/createTodoPage",
-    "typedoc": "ts-node ./docs/createDocs"
+    "typedoc": "ts-node ./docs/createDocs",
+    "webpack": "webpack --config webpack.config.js"
   },
   "keywords": [],
   "author": "",
@@ -34,15 +35,20 @@
     "@types/express-session": "^1.15.16",
     "@types/handlebars": "^4.1.0",
     "@types/http-errors": "^1.6.3",
+    "@types/lodash": "^4.14.149",
     "@types/shelljs": "^0.8.6",
     "glob": "^7.1.6",
     "leasot": "^10.0.0",
+    "lodash": "^4.17.15",
     "nodemon": "^2.0.2",
     "npm-run-all": "^4.1.5",
     "shelljs": "^0.8.3",
+    "ts-loader": "^6.2.1",
     "ts-node": "^8.6.2",
     "tslint": "^6.0.0",
     "typedoc": "^0.16.9",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   }
 }

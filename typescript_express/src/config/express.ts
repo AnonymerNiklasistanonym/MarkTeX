@@ -57,7 +57,7 @@ export const startExpressServer = () => {
             },
             header: {
                 scripts: [
-                    { path: "scripts/test.js" }
+                    { path: "scripts/bundle.js" }
                 ]
             }
         });
