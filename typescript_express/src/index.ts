@@ -1,24 +1,17 @@
-import dotenv from "dotenv";
-import express from "express";
-import * as routesAccount from "./routes/account";
-import * as routesHome from "./routes/home";
+import { loadEnvFile } from "./config/env";
+import { startExpressServer } from "./config/express";
 
-import path from "path";
+// Load Env File
+loadEnvFile();
 
-// Initialize environment from `.env` file
-dotenv.config();
+// Start sever
+const server = startExpressServer();
 
-// Use custom port if defined, otherwise use 8080
-const port: number = Number(process.env.SERVER_PORT) || 8080;
-
-const app = express();
-
-// Configure routes
-routesAccount.register(app);
-routesHome.register(app);
-
-// Start the Express server
-app.listen(port, () => {
-    // tslint:disable-next-line:no-console
-    console.log(`server started at http://localhost:${port}`);
+// Handling terminate gracefully
+process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received."); // tslint:disable-line
+    console.log("Closing Express Server"); // tslint:disable-line
+    server.close(() => {
+        console.log("Express server closed."); // tslint:disable-line
+    });
 });
