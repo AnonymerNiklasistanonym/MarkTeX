@@ -1,5 +1,45 @@
 # Express server written in TypeScript
 
+## Quickstart
+
+- Server side entry point: `src/index.ts` (source files are in `src` without the directory `src/public/`)
+  - Compiled to JavaScript via `ts-node`  (`dist/index.js`)
+- Client side entry point: `src/public/scripts/index.ts` (source files are in `src/public/scripts`)
+  - Compiled to JavaScript file via `webpack` (`dist/public/scripts/bundle.js`)
+
+---
+
+Install all dependencies:
+
+```sh
+npm install
+```
+
+### Development
+
+The following command automatically updates the server when you change something or you can do it manually be entering `rs` + `ENTER`:
+
+```sh
+npm run dev
+```
+
+### Production
+
+The following command builds all files into the directory `dist`:
+
+```sh
+npm run build
+```
+
+Then optionally the `node_modules` directory can be removed and you can run `npm install --only=prod`.
+Then the built files can be run with only a small amount of dependencies (for example on a web server):
+
+```sh
+# rm -rf node_modules
+# npm install --only=prod
+npm run start
+```
+
 ## TODO list
 
 - [x] Setup TypeScript (linting, auto fixing, error messaging, auto updater)
@@ -27,21 +67,32 @@ The built files can be found in the `dist` directory and the entry point is call
 
 | Command |  Description |
 | ------- | ------------ |
-| `dev:start` | Build the application and then run it |
 | `build` | Build the application |
-| `start` | Run the built application (requires an existing build) |
-| `dev` | Run the application and restart it automatically if source code is updated |
 | `clean` | Remove all built files |
+| `copy-assets` | Copy any external resources to the `dist` directory |
+| `dev:start` | Build the application and then run it |
+| `dev` | Run the application and restart it automatically if source code is updated |
+| `docs` | Create source code documentation in `docs/site` |
+| `lint` | Lint TypeScript files for errors and code style (auto fixes all auto fixable problems) |
+| `start` | Run the built application (requires an existing build) |
+| `todo` | Create a TODO page over all source files to find open TODOs in`docs/todos.md` |
+| `tsc` | Build server side part of the application (but don't copy external resources yet) |
+| `webpack` | Build client side part of the application |
 
 ## Dependencies
 
 | Module | Description |
 | ------ | ----------- |
 | `dotenv` | Read bash environment variables from an `.env` file. |
+| `glob` | Get all files given a regex and directory |
+| `handlebars` | Compile HTML code with different inputs quickly and simple |
+| `leasot` | Find TODOs in files of different types |
 | `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development. |
 | `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel. |
 | `shelljs` | Use to execute shell commands such as to copy files and remove directories. |
 | `ts-node` | Run TypeScript files directly (otherwise they must first be compiled to JavaScript files). |
+| `typedoc` | Create HTML documentation of TypeScript files |
+| `webpack` | Bundle node modules (and compile TypeScript files) for client side JavaScript usage |
 
 ## Docker
 
