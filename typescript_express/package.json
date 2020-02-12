@@ -17,12 +17,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/express-session": "^1.15.16",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0"
   },
   "devDependencies": {
+    "@types/express-session": "^1.15.16",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.2",
     "@types/shelljs": "^0.8.6",
