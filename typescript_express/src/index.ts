@@ -1,5 +1,8 @@
 import dotenv from "dotenv";
 import express from "express";
+import * as routesAccount from "./routes/account";
+import * as routesHome from "./routes/home";
+
 import path from "path";
 
 // Initialize environment from `.env` file
@@ -10,10 +13,9 @@ const port: number = Number(process.env.SERVER_PORT) || 8080;
 
 const app = express();
 
-// Define a route handler for the default home page
-app.get("/", (req, res) => {
-    res.send("Hello world! :o");
-});
+// Configure routes
+routesAccount.register(app);
+routesHome.register(app);
 
 // Start the Express server
 app.listen(port, () => {
