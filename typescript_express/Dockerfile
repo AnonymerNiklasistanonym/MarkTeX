@@ -15,6 +15,7 @@ RUN npm install --only=production
 # Bundle app source??
 # TODO: This will use the cache even when things were changed which should not be
 COPY dist .
+COPY .env.docker .env
 
 # Expose server port
 EXPOSE 8080

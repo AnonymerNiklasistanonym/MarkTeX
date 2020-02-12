@@ -107,3 +107,12 @@ TODO: Currently there is a problem when forwarding the port from the docker mach
 Until this is resolved you can access the website via the IP address from `docker inspect <CONTAINER_ID> | grep IPAddress` and the original port (`8080`).
 
 TODO: Move docker file in directory `docker` for a better structure.
+
+---
+
+Clean docker files for the latest version if the normal way is always using the first build:
+
+```sh
+# This removes all stopped containers
+sudo docker container prune -y
+```
