@@ -8,7 +8,7 @@
     "clean": "ts-node tools/cleanFiles",
     "copy-assets": "ts-node tools/copyAssets",
     "dev:start": "npm-run-all build start",
-    "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start",
+    "dev": "nodemon --watch src -e ts,hbs --exec npm run dev:start",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "start": "node .",
     "tsc": "tsc",
