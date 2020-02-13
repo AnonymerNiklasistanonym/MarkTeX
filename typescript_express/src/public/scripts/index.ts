@@ -1,6 +1,6 @@
 import handlebars from "handlebars";
 
-import { writeHelloWorld } from "./test";
+import { writeHelloWorld, keyboardListener } from "./test";
 import { connectToSocket } from "./sockets";
 
 const component = (content?: string): HTMLDivElement => {
@@ -20,6 +20,8 @@ window.onload = (): void => {
     connectToSocket();
 
     document.body.appendChild(component());
+
+    keyboardListener();
 
     handlebars.registerHelper("customHelper", (input) => {
         return `"${input}"`;

@@ -60,7 +60,6 @@ module.exports = {
             "any",
             "Number",
             "number",
-            "String",
             "string",
             "Boolean",
             "boolean"
