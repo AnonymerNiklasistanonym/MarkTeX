@@ -3,6 +3,9 @@ FROM node:latest
 # Create app directory
 WORKDIR /usr/src/app
 
+# Mark node build environment as production
+ENV NODE_ENV="production"
+
 # Install app dependencies (only the production ones)
 # (copy package.json AND package-lock.json)
 COPY package.json .
