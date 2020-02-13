@@ -4,10 +4,10 @@ import { parse, report } from "leasot";
 import glob from "glob";
 
 interface Entry {
-    file: string;
-    tag: string;
-    line: number;
-    text: string;
+    file: string
+    tag: string
+    line: number
+    text: string
 }
 
 glob("**/*.{hbs,ts,html,css,yml}", {
@@ -41,9 +41,9 @@ glob("**/*.{hbs,ts,html,css,yml}", {
     /**
      * Render an entry
      */
-    const renderTag = (entry: Entry) => `| ${entry.tag} | ${entry.text} | ` +
+    const renderTag = (entry: Entry): string => `| ${entry.tag} | ${entry.text} | ` +
         `${path.extname(entry.file)} | [Link to ${path.basename(entry.file)}](` +
-        `https://github.com/AnonymerNiklasistanonym/ProgrammingForMediainformatic` +
+        "https://github.com/AnonymerNiklasistanonym/ProgrammingForMediainformatic" +
         `sWs1819FinalProject/blob/master/SourceCode/${entry.file}#L${entry.line}) |`;
 
     const todoTags = mappedFiles.filter(a => a.tag === "TODO");

@@ -9,7 +9,7 @@
     "copy-assets": "ts-node tools/copyAssets",
     "dev:start": "npm-run-all build start",
     "dev": "nodemon --watch src -e ts,hbs --exec npm run dev:start",
-    "lint": "eslint -c .eslintrc.js --ext .ts src --fix",
+    "lint": "eslint -c .eslintrc.js --ext .ts src tools docs --fix",
     "start": "node .",
     "tsc": "tsc",
     "docs": "npm-run-all todo typedoc",

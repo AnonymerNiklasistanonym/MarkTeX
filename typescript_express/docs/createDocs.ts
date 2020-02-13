@@ -1,6 +1,6 @@
-import { Application, TSConfigReader, TypeDocReader, SourceFileMode } from 'typedoc';
-import { ScriptTarget, ModuleKind } from 'typescript';
-import path from 'path';
+import { Application, TSConfigReader, TypeDocReader, SourceFileMode } from "typedoc";
+import { ScriptTarget, ModuleKind } from "typescript";
+import path from "path";
 
 const app = new Application();
 
@@ -15,21 +15,21 @@ app.bootstrap({
     experimentalDecorators: true,
     ignoreCompilerErrors: false,
     exclude: [
-      "node_modules/**/*",
-      "docs/**/*",
-      "dist/**/*",
-      "tests/**/*"
+        "node_modules/**/*",
+        "docs/**/*",
+        "dist/**/*",
+        "tests/**/*"
     ],
     name: "Typescript Express Server Modules",
     readme: "./docs/typedocReadme.md"
 });
 
-const project = app.convert(app.expandInputFiles(['src']));
+const project = app.convert(app.expandInputFiles(["src"]));
 
 if (project) {
     // Rendered docs
-    const outputDir = path.join('docs', 'site');
+    const outputDir = path.join("docs", "site");
     app.generateDocs(project, outputDir);
 } else {
-    throw Error("TypeDoc documentation was not successful")
+    throw Error("TypeDoc documentation was not successful");
 }

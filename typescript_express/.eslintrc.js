@@ -9,12 +9,11 @@ module.exports = {
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
-        "sourceType": "module",
-        "include": [
-            "tools/**/*",
-            "docs/**/*"
-        ]
+        "project": [
+            "tsconfig.json",
+            "tsconfig.internal.json"
+        ],
+        "sourceType": "module"
     },
     "plugins": [
         "@typescript-eslint",
