@@ -7,6 +7,8 @@
 - Client side entry point: `src/public/scripts/index.ts` (source files are in `src/public/scripts`)
   - Compiled to JavaScript file via `webpack` (`dist/public/scripts/bundle.js`)
 
+The server port can be configured by coping the file `.env.sample` to `.env` and customizing it.
+
 ---
 
 Install all dependencies:
@@ -99,6 +101,8 @@ The built files can be found in the `dist` directory and the entry point is call
 
 Run docker file with: (`sudo`) `make`
 
+*Currently only `sudo make fallback` is working which builds locally the files for production and then creates a very lightweight image that can be hosted.*
+
 | Command |  Description |
 | ------- | ------------ |
 | (`sudo`) `docker ps` | Get the container ID and port |
@@ -107,8 +111,6 @@ Run docker file with: (`sudo`) `make`
 TODO: Currently there is a problem when forwarding the port from the docker machine to the host computer.
 Until this is resolved you can access the website via the IP address from `docker inspect <CONTAINER_ID> | grep IPAddress` and the original port (`8080`).
 
-TODO: Move docker file in directory `docker` for a better structure.
-
 ---
 
 Clean docker files for the latest version if the normal way is always using the first build:
@@ -116,4 +118,12 @@ Clean docker files for the latest version if the normal way is always using the 
 ```sh
 # This removes all stopped containers
 sudo docker container prune -y
+```
+
+---
+
+When you get an error like `Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?`,you can try the following command to start the docker daemon:
+
+```sh
+sudo systemctl start docker
 ```
