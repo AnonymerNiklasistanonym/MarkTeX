@@ -35,7 +35,6 @@ docker_run_image:
 		cp ".env.sample" ".env.docker"; \
 	fi
 	docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME_RUN) -f $(DOCKER_FILE_RUN) .
-	rm .env.docker
 
 docker_run: docker_run_image
 	docker run -p 8080:8080 -d $(DOCKER_IMAGE_NAME_RUN)
@@ -44,8 +43,8 @@ remove_all_stopped_docker_containers:
 	docker container prune -f
 
 clean:
-	rm -rf dist node_modules
-	rm -f .env .env.docker
+	rm -rf dist node_modules docs/site
+	rm -f .env .env.docker docs/todos.md
 
 dev:
 	npm install
