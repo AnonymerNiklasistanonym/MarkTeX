@@ -10,11 +10,14 @@ module.exports = {
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": "tsconfig.json",
-        "sourceType": "module"
+        "sourceType": "module",
+        "include": [
+            "tools/**/*",
+            "docs/**/*"
+        ]
     },
     "plugins": [
         "@typescript-eslint",
-        "@typescript-eslint/tslint",
         "prefer-arrow"
     ],
     "rules": {
