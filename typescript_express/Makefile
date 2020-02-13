@@ -31,7 +31,9 @@ docker_build_fallback:
 # FALLBACK
 
 docker_run_image:
-	echo "SERVER_PORT=8080" > .env.docker
+	if [[ ! -e .env.docker ]]; then \
+		cp ".env.sample" ".env.docker"; \
+	fi
 	docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME_RUN) -f $(DOCKER_FILE_RUN) .
 	rm .env.docker
 
