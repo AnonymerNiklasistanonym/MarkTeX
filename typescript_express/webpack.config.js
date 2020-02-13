@@ -1,12 +1,20 @@
 const path = require("path");
 
+const production = process.env.NODE_ENV === "production";
+
 // eslint-disable-next-line no-console
-console.log(`process.env.NODE_ENV=${process.env.NODE_ENV}`)
+console.log(`Mode: ${production
+    ? "production" : "development"
+    } (process.env.NODE_ENV=${process.env.NODE_ENV})`)
 
 module.exports = {
-    entry: "./src/public/scripts/index.ts",
-    devtool: "inline-source-map",
-    mode: process.env.NODE_ENV || "development",
+    entry: {
+        main: "./src/public/scripts/index.ts",
+        error: "./src/public/scripts/error.ts",
+        testing: "./src/public/scripts/testing.ts"
+    },
+    devtool: production ? undefined : "inline-source-map",
+    mode: production ? "production" : "development",
     module: {
         rules: [
             {
@@ -20,7 +28,7 @@ module.exports = {
         extensions: [ ".tsx", ".ts", ".js" ],
     },
     output: {
-        filename: "bundle.js",
+        filename: "[name]_bundle.js",
         path: path.resolve(__dirname, "dist", "public", "scripts"),
     },
 };

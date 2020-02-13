@@ -6,6 +6,7 @@ import { Server } from "http";
 
 import { hbsHelpers } from "./hbs";
 import * as routesAccount from "../routes/account";
+import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
 
 export const startExpressServer = (): Server => {
@@ -36,6 +37,7 @@ export const startExpressServer = (): Server => {
     // Configure routes
     routesAccount.register(app);
     routesHome.register(app);
+    routesTesting.register(app);
 
     // Catch URL not found (404) and forward to error handler
     app.use((req, res, next) => {
@@ -57,7 +59,7 @@ export const startExpressServer = (): Server => {
             },
             header: {
                 scripts: [
-                    { path: "scripts/bundle.js" }
+                    { path: "scripts/error_bundle.js" }
                 ]
             }
         });
