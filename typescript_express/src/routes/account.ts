@@ -1,21 +1,19 @@
 import * as express from "express";
 
-export const register = (app: express.Application) => {
+export const register = (app: express.Application): void => {
 
     // TODO: const auth = app.locals.authenticator;
 
     // Account page
     app.get("/profile", (req, res) => {
-        // tslint:disable-next-line:no-console
-        console.info("account");
+        console.info("account"); // eslint-disable-line no-console
         // TODO: Render real page
         res.send("account");
     });
 
     app.get("/login", /* auth.getCurrentAccount(), */(req, res) => {
         // TODO: login();
-        // tslint:disable-next-line:no-console
-        console.info("login");
+        console.info("login"); // eslint-disable-line no-console
         // Redirect to home page
         res.redirect("/");
         // TODO: Edge case when login false do not redirect
@@ -23,8 +21,7 @@ export const register = (app: express.Application) => {
 
     app.get("/logout", /* auth.getCurrentAccount(), */ (req, res) => {
         // TODO: logout();
-        // tslint:disable-next-line:no-console
-        console.info("logout");
+        console.info("logout"); // eslint-disable-line no-console
         // Redirect to home page
         res.redirect("/");
     });

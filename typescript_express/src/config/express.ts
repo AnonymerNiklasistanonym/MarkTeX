@@ -1,13 +1,14 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import path from "path";
 import exphbs from "express-handlebars";
 import createError, { HttpError } from "http-errors";
+import { Server } from "http";
 
 import { hbsHelpers } from "./hbs";
 import * as routesAccount from "../routes/account";
 import * as routesHome from "../routes/home";
 
-export const startExpressServer = () => {
+export const startExpressServer = (): Server => {
     // Express setup
     const app = express();
     // Express view engine setup
@@ -21,8 +22,7 @@ export const startExpressServer = () => {
         partialsDir: path.join(DIR_VIEWS, "partials"),
         helpers: hbsHelpers.reduce((map: any, obj) => {
             map[obj.name] = obj.callback;
-            // tslint:disable-next-line: no-console
-            console.log(`Register ${obj.name} as hbs helper`);
+            // console.log(`Register ${obj.name} as hbs helper`);
             return map;
         }, {})
     }));
@@ -44,7 +44,7 @@ export const startExpressServer = () => {
     });
 
     // Page for errors
-    app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
+    app.use((err: HttpError, req: Request, res: Response) => {
         // set locals, only providing error in development
         res.status(err.status || 500);
         res.render("error", {
@@ -68,7 +68,7 @@ export const startExpressServer = () => {
 
     // Start the Express server
     return app.listen(PORT, () => {
-        // tslint:disable-next-line:no-console
+        // eslint-disable-next-line no-console
         console.log(`server started at http://localhost:${PORT}`);
     });
 };

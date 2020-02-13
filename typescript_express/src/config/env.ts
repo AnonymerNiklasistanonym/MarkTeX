@@ -1,8 +1,16 @@
 import dotenv from "dotenv";
 
-export const loadEnvFile = () => {
-  // Load .env file if existing
-  const result = dotenv.config();
-  // When there is an error stop
-  if (result.error) { throw result.error; }
+export const loadEnvFile = (): void => {
+    // Load .env file if existing
+    const result = dotenv.config();
+    // When there is an error stop
+    const castBecauseThisIsDumb: any = result.error;
+    const error: NodeJS.ErrnoException = castBecauseThisIsDumb;
+    // eslint-disable-next-line
+    if (error && error.code !== "ENOENT") {
+        throw result.error;
+    } else if (error && error.code === "ENOENT") {
+        // eslint-disable-next-line no-console
+        console.log("No .env file was found");
+    }
 };

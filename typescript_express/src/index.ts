@@ -9,9 +9,9 @@ const server = startExpressServer();
 
 // Handling terminate gracefully
 process.on("SIGTERM", () => {
-    console.log("SIGTERM signal received."); // tslint:disable-line
-    console.log("Closing Express Server"); // tslint:disable-line
+    console.log("SIGTERM signal received."); // eslint-disable-line no-console
+    console.log("Closing Express Server"); // eslint-disable-line no-console
     server.close(() => {
-        console.log("Express server closed."); // tslint:disable-line
+        console.log("Express server closed."); // eslint-disable-line no-console
     });
 });

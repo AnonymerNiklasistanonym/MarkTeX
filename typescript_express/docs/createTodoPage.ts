@@ -24,7 +24,7 @@ glob("**/*.{hbs,ts,html,css,yml}", {
      */
     const mappedFiles: Entry[] = files
         .map(file => {
-            // tslint:disable-next-line: no-console
+            // eslint-disable-next-line no-console
             console.log("Found file: " + file);
             const fileContents = fs.readFileSync(file, "utf8");
             // get the filetype of the file, or force a special parser

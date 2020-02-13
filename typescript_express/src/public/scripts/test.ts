@@ -1,7 +1,7 @@
-export const writeHelloWorld = () => {
+export const writeHelloWorld = (): void => {
     const words: string[] = ["Hello", "World"];
     for (const word of words) {
-        // tslint:disable-next-line: no-console
+        // eslint-disable-next-line no-console
         console.log(word);
     }
 };

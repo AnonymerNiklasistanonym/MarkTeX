@@ -54,7 +54,7 @@ npm run start
 - [ ] Add SQLite database
 - [ ] Make final product runnable in Docker container
 - [ ] Make final product build in Docker container and extract built files
-- [ ] Switch to eslint because tslint is seemingly deprecated
+- [x] Switch to eslint because tslint is seemingly deprecated
 
 ## Sources
 

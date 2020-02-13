@@ -44,3 +44,11 @@ remove_all_stopped_docker_containers:
 clean:
 	rm -rf dist node_modules
 	rm -f .env .env.docker
+
+dev:
+	npm install
+	npm run dev
+
+build:
+	npm install
+	npm run build

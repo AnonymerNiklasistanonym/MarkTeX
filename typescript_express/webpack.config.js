@@ -1,6 +1,6 @@
 const path = require("path");
 
-// tslint:disable-next-line: no-console
+// eslint-disable-next-line no-console
 console.log(`process.env.NODE_ENV=${process.env.NODE_ENV}`)
 
 module.exports = {

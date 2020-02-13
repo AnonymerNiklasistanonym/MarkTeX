@@ -2,7 +2,7 @@ import handlebars from "handlebars";
 
 import { writeHelloWorld } from "./test";
 
-function component(content?: string) {
+const component = (content?: string): HTMLDivElement => {
     const element = document.createElement("div");
     if (content !== undefined) {
         element.innerHTML = content;
@@ -10,9 +10,9 @@ function component(content?: string) {
         element.innerHTML = ["Hello", "webpack"].join(" ");
     }
     return element;
-}
+};
 
-window.onload = () => {
+window.onload = (): void => {
 
     writeHelloWorld();
 

@@ -4,36 +4,25 @@ export interface HbsHelperItem {
     /**
      * Identifier of helper in other partials/templates
      */
-    name: string;
+    name: string
     /**
      * Function that should be executed
      */
-    callback: (input: string | undefined | null) => SafeString | undefined;
+    callback: (input: string | undefined | null) => SafeString
 }
 
 /**
  * Custom hbs helpers
  */
 export const hbsHelpers: HbsHelperItem[] = [{
-  /**
-   * Replace all line breaks with a paragraph
-   * @param {string} input
-   * @example
-   * ```hbs
-   * {{error_explanation_helper "explanation"}}
-   * ```
-   * ```html
-   * <p id="explanation">explanation</p>
-   * ```
-   */
-  callback: input => {
-    if (input !== undefined && input !== null && input !== "") {
-      return new SafeString(`${input}<br>Yes it is!`);
-    } else {
-      return undefined;
-    }
-  },
-  /*
+    callback: (input): SafeString => {
+        if (input !== undefined && input !== null && input !== "") {
+            return new SafeString(`${input}<br>Yes it is!`);
+        } else {
+            return new SafeString("");
+        }
+    },
+    /*
    * Replace all line breaks with a paragraph:
    * ```hbs
    * <p>{{customHelper "test"}}</p>
@@ -42,5 +31,5 @@ export const hbsHelpers: HbsHelperItem[] = [{
    * <p>test<br>Yes it is!</p>
    * ```
    */
-  name: "customHelper"
+    name: "customHelper"
 }];
