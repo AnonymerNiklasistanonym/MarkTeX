@@ -1,23 +1,7 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "target": "ES2016",
-        "noImplicitAny": true,
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "removeComments": true,
-        "outDir": "dist",
-        "baseUrl": ".",
-        "allowJs": false,
-        "strict": true,
-        "strictNullChecks": true
-    },
+    "extends": "./tsconfig",
     "include": [
         "tools/**/*.ts",
         "docs/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
     ]
 }
