@@ -8,6 +8,14 @@ export const register = (app: express.Application): void => {
     app.get("/", (req, res) => {
         console.info("home"); // eslint-disable-line no-console
         // TODO: Do everything
-        res.render("index", {});
+        res.render("index", {
+            layout: "default",
+            header: {
+                scripts: [
+                    { path: "scripts/bundle.js" },
+                    { path: "/socket.io/socket.io.js" }
+                ]
+            }
+        });
     });
 };

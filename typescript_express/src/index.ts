@@ -1,11 +1,15 @@
 import { loadEnvFile } from "./config/env";
 import { startExpressServer } from "./config/express";
+import { bindSocketServer } from "./config/sockets";
 
 // Load Env File
 loadEnvFile();
 
 // Start sever
 const server = startExpressServer();
+
+// Bind socket server
+bindSocketServer(server);
 
 // Handling terminate gracefully
 process.on("SIGTERM", () => {

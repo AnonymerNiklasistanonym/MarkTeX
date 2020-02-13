@@ -1,6 +1,7 @@
 import handlebars from "handlebars";
 
 import { writeHelloWorld } from "./test";
+import { connectToSocket } from "./sockets";
 
 const component = (content?: string): HTMLDivElement => {
     const element = document.createElement("div");
@@ -15,6 +16,8 @@ const component = (content?: string): HTMLDivElement => {
 window.onload = (): void => {
 
     writeHelloWorld();
+
+    connectToSocket();
 
     document.body.appendChild(component());
 
