@@ -53,3 +53,16 @@ dev:
 build:
 	npm install
 	npm run build
+
+build_prod:
+	unset NODE_ENV
+	rm -rf dist node_modules
+	npm install
+	export NODE_ENV="production"; \
+	npm run build
+	rm -rf node_modules
+	export NODE_ENV="production"; \
+	npm install --only=prod
+
+run_prod: build_prod
+	npm run start
