@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
 
 const production = process.env.NODE_ENV === "production";
@@ -5,7 +6,7 @@ const production = process.env.NODE_ENV === "production";
 // eslint-disable-next-line no-console
 console.log(`Mode: ${production
     ? "production" : "development"
-    } (process.env.NODE_ENV=${process.env.NODE_ENV})`)
+} (process.env.NODE_ENV=${process.env.NODE_ENV})`);
 
 module.exports = {
     entry: {
@@ -20,15 +21,15 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 use: "ts-loader",
-                exclude: /node_modules/,
-            },
-        ],
+                exclude: /node_modules/
+            }
+        ]
     },
     resolve: {
-        extensions: [ ".tsx", ".ts", ".js" ],
+        extensions: [ ".tsx", ".ts", ".js" ]
     },
     output: {
         filename: "[name]_bundle.js",
-        path: path.resolve(__dirname, "dist", "public", "scripts"),
-    },
+        path: path.resolve(__dirname, "dist", "public", "scripts")
+    }
 };

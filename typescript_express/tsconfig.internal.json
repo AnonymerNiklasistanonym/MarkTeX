@@ -3,5 +3,9 @@
     "include": [
         "tools/**/*.ts",
         "docs/**/*.ts"
+    ],
+    "files": [
+        "webpack.config.js",
+        ".eslintrc.js"
     ]
 }
