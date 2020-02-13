@@ -51,7 +51,7 @@ npm run start
 - [x] Handlebar view rendering
 - [ ] Client side keyboard controller with a list example (add new items and indent only using keyboard shortcuts)
 - [ ] Include image resources (icons, fonts)
-- [ ] Implement socket connection
+- [x] Implement socket connection
 - [ ] Implement express session
 - [ ] Add SQLite database
 - [ ] Make final product runnable in Docker container
@@ -61,6 +61,7 @@ npm run start
 ## Sources
 
 - https://developer.okta.com/blog/2018/11/15/node-express-typescript
+- https://webpack.js.org/concepts/
 
 ## Node Commands
 
@@ -116,7 +117,7 @@ Until this is resolved you can access the website via the IP address from `docke
 Clean docker files for the latest version if the normal way is always using the first build:
 
 ```sh
-# This removes all stopped containers
+# Remove all stopped containers
 sudo docker container prune -y
 ```
 
@@ -125,5 +126,6 @@ sudo docker container prune -y
 When you get an error like `Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?`,you can try the following command to start the docker daemon:
 
 ```sh
+# Start docker daemon
 sudo systemctl start docker
 ```
