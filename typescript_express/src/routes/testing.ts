@@ -5,14 +5,14 @@ export const register = (app: express.Application): void => {
     // TODO: const auth = app.locals.authenticator;
 
     // Home page
-    app.get("/", (req, res) => {
-        console.info("home"); // eslint-disable-line no-console
+    app.get("/testing", (req, res) => {
+        console.info("testing"); // eslint-disable-line no-console
         // TODO: Do everything
         res.render("index", {
             layout: "default",
             header: {
                 scripts: [
-                    { path: "scripts/bundle.js" },
+                    { path: "scripts/testing_bundle.js" },
                     { path: "/socket.io/socket.io.js" }
                 ]
             }
