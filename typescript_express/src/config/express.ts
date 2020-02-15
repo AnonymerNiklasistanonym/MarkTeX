@@ -40,7 +40,7 @@ export const startExpressServer = (): Server => {
     routesTesting.register(app);
 
     // Catch URL not found (404) and forward to error handler
-    app.use("*", (req, res, next) => {
+    app.use((req, res, next) => {
         // eslint-disable-next-line no-console
         console.log(`Resource was not found (${req.originalUrl})`);
         res.locals.explanation = `The requested resource (${req.originalUrl}) was not found.`;
@@ -49,7 +49,7 @@ export const startExpressServer = (): Server => {
 
     // Page for errors
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
         // set locals, only providing error in development
         res.status(err.status || 500);
         res.render("error", {
