@@ -57,6 +57,7 @@ npm run start
 - [ ] Make final product runnable in Docker container
 - [ ] Make final product build in Docker container and extract built files
 - [x] Switch to eslint because tslint is seemingly deprecated
+- [ ] Add debugger integration
 
 ## Sources
 
