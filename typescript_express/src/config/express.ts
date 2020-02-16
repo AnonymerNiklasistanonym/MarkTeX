@@ -9,6 +9,33 @@ import * as routesAccount from "../routes/account";
 import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
 
+interface ContentErrorLink {
+    link: string
+    text: string
+};
+interface ContentError {
+    status: number
+    message: string
+    stack?: string
+    explanation?: string
+    links?: ContentErrorLink[]
+};
+interface ContentHeader {
+    scripts: ContentHeaderScripts[]
+    stylesheets: ContentHeaderStylesheets[]
+};
+interface ContentHeaderScripts {
+    path: string
+};
+interface ContentHeaderStylesheets {
+    path: string
+};
+interface Content {
+    layout: string
+    error: ContentError
+    header: ContentHeader
+};
+
 export const startExpressServer = (): Server => {
     // Express setup
     const app = express();
@@ -52,20 +79,28 @@ export const startExpressServer = (): Server => {
     app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
         // set locals, only providing error in development
         res.status(err.status || 500);
-        res.render("error", {
+        const errorRenderContent: Content = {
             layout: "default",
             error: {
                 status: err.status || 500,
                 message: err.message,
                 stack: err.stack,
-                explanation: res.locals.explanation
+                explanation: res.locals.explanation,
+                links: [
+                    { link: "/", text: "Home" }
+                ]
             },
             header: {
                 scripts: [
                     { path: "scripts/error_bundle.js" }
+                ],
+                stylesheets: [
+                    { path: "stylesheets/global.css" },
+                    { path: "stylesheets/error.css" }
                 ]
             }
-        });
+        };
+        res.render("error", errorRenderContent);
     });
 
     // Use custom port if defined, otherwise use 8080

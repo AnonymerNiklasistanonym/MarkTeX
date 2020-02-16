@@ -1,0 +1,99 @@
+/*
+ * Local CSS variables
+ */
+ :root {
+    --error-color-theme: #cc0000;
+    /* Text */
+    --error-color-text: #ffffff;
+    --error-color-text-code: #ffffff;
+    /* Button */
+    --error-color-text-button: var(--error-color-text);
+    --error-color-text-button-hovered: var(--error-color-theme);
+    --error-color-background-button: var(--error-color-theme);
+    --error-color-background-button-hovered: var(--error-color-text);
+    --error-color-transition-speed-button: 150ms;
+}
+
+body {
+    background-color: var(--global-color-background);
+    font-family: var(--global-font-family);
+    color: var(--global-color-text);
+}
+
+div.container-error {
+    /* Center container in the middle of the site with a maximum width */
+    margin: auto;
+    max-width: var(--global-responsive-maximum-width);
+    /* This hides long stack traces on smaller screens */
+    overflow-y: hidden;
+    /* Default background and text colors */
+    background-color: var(--error-color-theme);
+    color: var(--error-color-text);
+    /* Card properties */
+    border-radius: var(--global-responsive-border-radius-card);
+    /* TODO font-family: var(--global-font-family); */
+    /* TODO box-shadow: var(--global-card-box-shadow); */
+    /* TODO border-radius: var(--global-responsive-border-radius); */
+    /* TODO transition: border-radius 500ms ease; Create global variable for this */
+}
+
+div.container-error>div.container-error-message {
+    padding: var(--global-responsive-padding-card);
+    margin: 0;
+}
+
+div.container-error>div.container-error-message>h1#error-message {
+    font-weight: bold;
+    font-size: 3em;
+    margin: 0;
+}
+
+div.container-error>div.container-error-message>h2#error-status {
+    font-size: 2em;
+    margin: 1em 0 1em 0;
+}
+
+div.container-error>div.container-error-message>p#error-explanation {
+    font-size: 1em;
+    margin: 1em 0 1em 0;
+}
+
+div.container-error>div.container-error-message>div.container-error-links {
+    /* TODO */
+    padding: 1rem;
+}
+
+div.container-error>div.container-error-message>div.container-error-links>a.button-error-redirect {
+    text-decoration: none;
+    color: var(--error-color-text-button);
+    border: 2px solid var(--error-color-text-button);
+    background: var(--error-color-background-button);
+
+    border-radius: var(--global-responsive-border-radius-button);
+    padding: 0.5rem;
+    margin: 0 1em 0 1em;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color var(--error-color-transition-speed-button) ease, background-color var(--error-color-transition-speed-button) ease;
+}
+
+div.container-error>div.container-error-message>div.container-error-links>a.button-error-redirect:hover,
+div.container-error>div.container-error-message>div.container-error-links>a.button-error-redirect:focus {
+    color: var(--error-color-theme);
+    background-color: var(--error-color-text-button);
+}
+
+div.container-error>div.container-error-message>div.container-error-stack {
+    /* TODO */
+    padding: 1rem;
+}
+
+div.container-error>div.container-error-message>div.container-error-stack>pre#error-stack {
+    /* TODO font-family: var(--font-family-code); */
+    margin: 0;
+    font-size: 1em;
+    /* Allow scrolling when screen too small for error message */
+    overflow-x: scroll;
+    display: block;
+    color: var(--error-color-text-code);
+}

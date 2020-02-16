@@ -1,0 +1,74 @@
+/* TODO Load OpenSans latin font (https://github.com/googlefonts/opensans)
+@font-face {
+    font-family: 'Local Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Open Sans Regular'), local('OpenSans-Regular'),
+        url('/fonts/open-sans-v15-latin-regular.woff2') format('woff2');
+}*/
+
+/* TODO Add git submodule to load Fira Code font (https://github.com/tonsky/FiraCode)
+@font-face {
+    font-family: 'Local Fira Code';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Fira Code'), local('Fira Code Regular'),
+        url('/fonts/FiraCode-Regular.woff2') format('woff2');
+}*/
+
+/*
+ * Global CSS variables
+ */
+:root {
+    --global-responsive-maximum-width: 1200px; /* TODO Make it responsive */
+    --global-color-theme-primary: #5658e9;
+    --global-color-theme-accent: #ffd000;
+    --global-color-background: #f7f7f7;
+    --global-color-text: #000000;
+    --global-font-family: Helvetica;
+    /* --global-font-family: 'Local Open Sans'; */
+    /* --global-font-family-code: 'Local Fira Code'; */
+    --global-responsive-padding-card: 2rem; /* TODO Make it responsive */
+    --global-responsive-border-radius-button: 4px;
+    --global-responsive-border-radius-card: 10px;
+}
+
+/*
+ * @media screen sizes copied from gokulkrishh/media-query.css
+ * https://gist.github.com/gokulkrishh/242e68d1ee94ad05f488
+ */
+
+
+/*
+ * ##Device = Laptops, Desktops
+ * ##Screen = B/w 1025px to 1280px
+ */
+@media (min-width: 1025px) {}
+
+/*
+ * ##Device = Tablets, IPads (portrait)
+ * ##Screen = B/w 768px to 1024px
+ */
+@media (min-width: 768px) and (max-width: 1024px) {}
+
+/*
+ * ##Device = Tablets, IPads (landscape)
+ * ##Screen = B/w 768px to 1024px
+ */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {}
+
+/*
+ * ##Device = Low Resolution Tablets, Mobiles (Landscape)
+ * ##Screen = B/w 481px to 767px
+ */
+@media (min-width: 481px) and (max-width: 767px) {
+    :root {
+        /* --variable-to-overwrite-in-this-config: 1em; */
+    }
+}
+
+/*
+ * ##Device = Most of the Smartphones Mobiles (Portrait)
+ * ##Screen = B/w 320px to 479px
+ */
+@media (max-width: 480px) {}

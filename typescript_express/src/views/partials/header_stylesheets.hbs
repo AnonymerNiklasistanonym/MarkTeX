@@ -4,13 +4,13 @@ Header stylesheets partial
 --------------------------------------------------------------------------------
 Parameters:
 {
-  stylesheets: [{
-    path: string
-  }]
+  header: {
+    stylesheets: { path: string }[] // CSS paths
+  }
 }
 --------------------------------------------------------------------------------
 --}}
 
-{{#each stylesheets}}
+{{#each header.stylesheets}}
 <link href="{{this.path}}" type="text/css" rel="stylesheet" />
 {{/each}}
