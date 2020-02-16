@@ -31,9 +31,7 @@ div.container-error {
     color: var(--error-color-text);
     /* Card properties */
     border-radius: var(--global-responsive-border-radius-card);
-    /* TODO font-family: var(--global-font-family); */
-    /* TODO box-shadow: var(--global-card-box-shadow); */
-    /* TODO border-radius: var(--global-responsive-border-radius); */
+    box-shadow: var(--global-box-shadow-card);
     /* TODO transition: border-radius 500ms ease; Create global variable for this */
 }
 
@@ -60,7 +58,7 @@ div.container-error>div.container-error-message>p#error-explanation {
 
 div.container-error>div.container-error-message>div.container-error-links {
     /* TODO */
-    padding: 1rem;
+    padding: 1em 0 1em 0;
 }
 
 div.container-error>div.container-error-message>div.container-error-links>a.button-error-redirect {
@@ -71,7 +69,7 @@ div.container-error>div.container-error-message>div.container-error-links>a.butt
 
     border-radius: var(--global-responsive-border-radius-button);
     padding: 0.5rem;
-    margin: 0 1em 0 1em;
+    margin: 0 1em 0 0em;
     font-size: 1.25rem;
     cursor: pointer;
     transition: color var(--error-color-transition-speed-button) ease, background-color var(--error-color-transition-speed-button) ease;
@@ -86,6 +84,8 @@ div.container-error>div.container-error-message>div.container-error-links>a.butt
 div.container-error>div.container-error-message>div.container-error-stack {
     /* TODO */
     padding: 1rem;
+    /* Block when in development */
+    display: none;
 }
 
 div.container-error>div.container-error-message>div.container-error-stack>pre#error-stack {
@@ -94,6 +94,5 @@ div.container-error>div.container-error-message>div.container-error-stack>pre#er
     font-size: 1em;
     /* Allow scrolling when screen too small for error message */
     overflow-x: scroll;
-    display: block;
     color: var(--error-color-text-code);
 }

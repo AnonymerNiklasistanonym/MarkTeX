@@ -1,0 +1,16 @@
+div.debug-container {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    border-radius: 0 20px 0 0;
+    background: grey;
+}
+
+div.debug-container>p#debug-responsive-state {
+    margin: 1em;
+    color: #ffffff;
+}
+
+div.debug-container>p#debug-responsive-state:after {
+    content: var(--global-responsive-state-string);
+}

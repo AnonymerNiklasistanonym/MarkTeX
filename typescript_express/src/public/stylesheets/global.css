@@ -20,7 +20,7 @@
  * Global CSS variables
  */
 :root {
-    --global-responsive-maximum-width: 1200px; /* TODO Make it responsive */
+    --global-responsive-maximum-width: 1200px;
     --global-color-theme-primary: #5658e9;
     --global-color-theme-accent: #ffd000;
     --global-color-background: #f7f7f7;
@@ -31,6 +31,8 @@
     --global-responsive-padding-card: 2rem; /* TODO Make it responsive */
     --global-responsive-border-radius-button: 4px;
     --global-responsive-border-radius-card: 10px;
+    --global-box-shadow-card: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    --global-responsive-state-string: 'error';
 }
 
 /*
@@ -43,19 +45,34 @@
  * ##Device = Laptops, Desktops
  * ##Screen = B/w 1025px to 1280px
  */
-@media (min-width: 1025px) {}
+@media (min-width: 1025px) {
+    :root {
+        --global-responsive-state-string: '@media (min-width: 1025px) [Laptop, Desktop]';
+        --global-responsive-maximum-width: 1200px;
+    }
+}
 
 /*
  * ##Device = Tablets, IPads (portrait)
  * ##Screen = B/w 768px to 1024px
  */
-@media (min-width: 768px) and (max-width: 1024px) {}
+@media (min-width: 768px) and (max-width: 1024px) {
+    :root {
+        --global-responsive-state-string: '@media (min-width: 768px) and (max-width: 1024px) [Tablet (portrait)]';
+        --global-responsive-maximum-width: 800px;
+    }
+}
 
 /*
  * ##Device = Tablets, IPads (landscape)
  * ##Screen = B/w 768px to 1024px
  */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {}
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    :root {
+        --global-responsive-state-string: '@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) [Tablet (landscape)]';
+        --global-responsive-maximum-width: 800px;
+    }
+}
 
 /*
  * ##Device = Low Resolution Tablets, Mobiles (Landscape)
@@ -63,7 +80,8 @@
  */
 @media (min-width: 481px) and (max-width: 767px) {
     :root {
-        /* --variable-to-overwrite-in-this-config: 1em; */
+        --global-responsive-state-string: '@media (min-width: 481px) and (max-width: 767px) [Smartphone (landscape)]';
+        --global-responsive-maximum-width: 100%;
     }
 }
 
@@ -71,4 +89,9 @@
  * ##Device = Most of the Smartphones Mobiles (Portrait)
  * ##Screen = B/w 320px to 479px
  */
-@media (max-width: 480px) {}
+@media (max-width: 480px) {
+    :root {
+        --global-responsive-state-string: '@media (max-width: 480px) [Smartphone (portrait)]';
+        --global-responsive-maximum-width: 100%;
+    }
+}

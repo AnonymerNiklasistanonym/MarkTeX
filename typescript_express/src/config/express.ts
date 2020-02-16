@@ -4,7 +4,10 @@ import exphbs from "express-handlebars";
 import createError, { HttpError } from "http-errors";
 import { Server } from "http";
 
-import { hbsHelpers, HbsHeader, HbsLayoutError } from "./hbs";
+import { hbsHelpers } from "./hbs";
+import { HbsLayoutError } from "../view_rendering/error";
+import { HbsHeader } from "../view_rendering/header";
+
 import * as routesAccount from "../routes/account";
 import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
@@ -69,6 +72,7 @@ export const startExpressServer = (): Server => {
             ],
             stylesheets: [
                 { path: "stylesheets/global.css" },
+                { path: "stylesheets/debug.css" },
                 { path: "stylesheets/error.css" }
             ],
             title: `Error ${err.status || 500}: ${err.message}`,
