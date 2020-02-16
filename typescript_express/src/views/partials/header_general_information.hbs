@@ -4,9 +4,11 @@ General information partial
 --------------------------------------------------------------------------------
 Parameters:
 {
-  title: string
-  description: string
-  author: string
+  header: {
+    title: string
+    description: string
+    author: string
+  }
 }
 --------------------------------------------------------------------------------
 --}}
@@ -18,8 +20,8 @@ Parameters:
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
 
 {{!-- Title --}}
-<title>{{title}}</title>
+<title>{{header.title}}</title>
 
 {{!-- Description and author of website --}}
-<meta name="description" content="{{description}}">
-<meta name="author" content="{{author}}">
+<meta name="description" content="{{header.description}}">
+<meta name="author" content="{{header.author}}">

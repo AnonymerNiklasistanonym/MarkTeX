@@ -4,20 +4,26 @@ Header favicons partial
 --------------------------------------------------------------------------------
 Parameters:
 {
-  faviconPngPrefix: string, // Favicon `.png` path prefix
-  faviconPngPostfix: string, // Favicon `.png` path postfix
-  faviconPngSizes: number[], // Favicon png sizes
-  faviconIco: string, // Favicon `.ico` path
-  faviconSvg: string, // Favicon `.svg` path
+  header: {
+    favicon: {
+      png: {
+        prefix: string, // Favicon `.png` path prefix
+        postfix: string, // Favicon `.png` path postfix
+        sizes: number[] // Favicon png sizes
+      },
+      ico: string, // Favicon `.ico` path
+      svg: string, // Favicon `.svg` path
+    }
+  }
 }
 --------------------------------------------------------------------------------
 --}}
 
 {{!-- SVG and ICO icons --}}
-<link rel="shortcut icon" type="image/x-icon" href="{{faviconIco}}" />
-<link rel="icon" type="image/svg+xml" href="{{faviconSvg}}">
+<link rel="shortcut icon" type="image/x-icon" href="{{header.favicon.ico}}" />
+<link rel="icon" type="image/svg+xml" href="{{header.favicon.svg}}">
 
 {{!-- Normal png favicons --}}
-{{#each faviconSizes}}
-<link rel="icon" type="image/png" href="{{faviconPngPrefix}}{{this}}{{faviconPngPostfix}}" sizes="{{this}}x{{this}}" />
+{{#each header.favicon.png.sizes}}
+<link rel="icon" type="image/png" href="{{../header.favicon.png.prefix}}{{this}}{{../header.favicon.png.postfix}}" sizes="{{this}}x{{this}}" />
 {{/each}}

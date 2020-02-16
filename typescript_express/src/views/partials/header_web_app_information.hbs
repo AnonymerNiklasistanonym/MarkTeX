@@ -4,10 +4,12 @@ Header web app information partial
 --------------------------------------------------------------------------------
 Parameters:
 {
-  webApp: {
-    name: string, // The name of the web app
-    themeColor: string, // HEX color of the web app (chrome specific)
-    manifestPath: string // Path to web app manifest
+  header: {
+    webApp: {
+      name: string, // The name of the web app
+      themeColor: string, // HEX color of the web app (chrome specific)
+      manifestPath: string // Path to web app manifest
+    }
   }
 }
 --------------------------------------------------------------------------------
@@ -15,8 +17,8 @@ Parameters:
 
 
 {{!-- Special Chrome tags --}}
-<meta name="application-name" content="{{webApp.name}}" />
-<meta name="theme-color" content="{{webApp.themeColor}}" />
+<meta name="application-name" content="{{header.webApp.name}}" />
+<meta name="theme-color" content="{{header.webApp.themeColor}}" />
 
 {{!-- Web app manifest --}}
-<link rel="manifest" href="{{webApp.manifestPath}}">
+<link rel="manifest" href="{{header.webApp.manifestPath}}">

@@ -4,37 +4,10 @@ import exphbs from "express-handlebars";
 import createError, { HttpError } from "http-errors";
 import { Server } from "http";
 
-import { hbsHelpers } from "./hbs";
+import { hbsHelpers, HbsHeader, HbsLayoutError } from "./hbs";
 import * as routesAccount from "../routes/account";
 import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
-
-interface ContentErrorLink {
-    link: string
-    text: string
-};
-interface ContentError {
-    status: number
-    message: string
-    stack?: string
-    explanation?: string
-    links?: ContentErrorLink[]
-};
-interface ContentHeader {
-    scripts: ContentHeaderScripts[]
-    stylesheets: ContentHeaderStylesheets[]
-};
-interface ContentHeaderScripts {
-    path: string
-};
-interface ContentHeaderStylesheets {
-    path: string
-};
-interface Content {
-    layout: string
-    error: ContentError
-    header: ContentHeader
-};
 
 export const startExpressServer = (): Server => {
     // Express setup
@@ -79,8 +52,7 @@ export const startExpressServer = (): Server => {
     app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
         // set locals, only providing error in development
         res.status(err.status || 500);
-        const errorRenderContent: Content = {
-            layout: "default",
+        const errorRenderContent: HbsLayoutError = {
             error: {
                 status: err.status || 500,
                 message: err.message,
@@ -89,18 +61,39 @@ export const startExpressServer = (): Server => {
                 links: [
                     { link: "/", text: "Home" }
                 ]
-            },
-            header: {
-                scripts: [
-                    { path: "scripts/error_bundle.js" }
-                ],
-                stylesheets: [
-                    { path: "stylesheets/global.css" },
-                    { path: "stylesheets/error.css" }
-                ]
             }
         };
-        res.render("error", errorRenderContent);
+        const errorRenderContentHeader: HbsHeader = {
+            scripts: [
+                { path: "scripts/error_bundle.js" }
+            ],
+            stylesheets: [
+                { path: "stylesheets/global.css" },
+                { path: "stylesheets/error.css" }
+            ],
+            title: `Error ${err.status || 500}: ${err.message}`,
+            favicon: {
+                ico: "TODO.ico",
+                svg: "TODO.svg",
+                png: {
+                    prefix: "TODO_",
+                    postfix: ".png",
+                    sizes: [ 128, 256 ]
+                }
+            },
+            webApp: {
+                name: "TODO",
+                themeColor: "#0289ff",
+                manifestPath: "TODO.json"
+            },
+            description: "WIP",
+            author: "AnonymerNiklasistanonym"
+        };
+        res.render("error", {
+            layout: "default",
+            ...errorRenderContent,
+            header: errorRenderContentHeader
+        });
     });
 
     // Use custom port if defined, otherwise use 8080
