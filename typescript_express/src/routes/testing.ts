@@ -8,7 +8,7 @@ export const register = (app: express.Application): void => {
     app.get("/testing", (req, res) => {
         console.info("testing"); // eslint-disable-line no-console
         // TODO: Do everything
-        res.render("index", {
+        res.render("testing", {
             layout: "default",
             header: {
                 scripts: [

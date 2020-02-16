@@ -1,4 +1,6 @@
-FROM node:latest
+FROM alpine:latest
+
+RUN apk add --update npm
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -17,6 +19,9 @@ COPY .env.docker .env
 
 # Expose server port
 EXPOSE 8080
+
+#ARG DO_NOT_RUN_WEBSERVER=false
+#ENV DO_NOT_RUN_WEBSERVER=$DO_NOT_RUN_WEBSERVER
 
 # Run server
 RUN npm run start

@@ -1,4 +1,6 @@
-FROM node:latest
+FROM alpine:latest
+
+RUN apk add --update npm
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -11,8 +13,12 @@ RUN npm install
 ENV NODE_ENV="production"
 
 # Copy source files
-COPY src .
-COPY tools .
+COPY src ./src
+COPY tools ./tools
+COPY .eslintrc.js ./.eslintrc.js
+COPY tsconfig.json ./tsconfig.json
+COPY tsconfig.internal.json ./tsconfig.internal.json
+COPY webpack.config.js ./webpack.config.js
 
 # Build files
 RUN npm run build
