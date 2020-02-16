@@ -32,12 +32,11 @@ div.container-error {
     /* Card properties */
     border-radius: var(--global-responsive-border-radius-card);
     box-shadow: var(--global-box-shadow-card);
-    /* TODO transition: border-radius 500ms ease; Create global variable for this */
 }
 
 div.container-error>div.container-error-message {
     padding: var(--global-responsive-padding-card);
-    margin: 0;
+    margin: 1em;
 }
 
 div.container-error>div.container-error-message>h1#error-message {
@@ -57,7 +56,6 @@ div.container-error>div.container-error-message>p#error-explanation {
 }
 
 div.container-error>div.container-error-message>div.container-error-links {
-    /* TODO */
     padding: 1em 0 1em 0;
 }
 
@@ -82,14 +80,12 @@ div.container-error>div.container-error-message>div.container-error-links>a.butt
 }
 
 div.container-error>div.container-error-message>div.container-error-stack {
-    /* TODO */
     padding: 1rem;
     /* Block when in development */
     display: none;
 }
 
 div.container-error>div.container-error-message>div.container-error-stack>pre#error-stack {
-    /* TODO font-family: var(--font-family-code); */
     margin: 0;
     font-size: 1em;
     /* Allow scrolling when screen too small for error message */
