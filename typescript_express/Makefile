@@ -4,11 +4,11 @@
 DOCKER_FILE_BUILD=./docker/build/Dockerfile
 DOCKER_FILE_RUN=./docker/run/Dockerfile
 
-DOCKER_IMAGE_NAME_BUILD="prototype/typescript-express-build"
-DOCKER_IMAGE_NAME_RUN="prototype/typescript-express-run"
+DOCKER_IMAGE_NAME_BUILD=prototype/typescript-express-build
+DOCKER_IMAGE_NAME_RUN=prototype/typescript-express-run
 
-DOCKER_IMAGE_BUILD_FILE_NAME="docker-image-typescript-express-build.tar"
-DOCKER_IMAGE_RUN_FILE_NAME="docker-image-typescript-express-run.tar"
+DOCKER_IMAGE_BUILD_FILE_NAME=docker-image-typescript-express-build.tar
+DOCKER_IMAGE_RUN_FILE_NAME=docker-image-typescript-express-run.tar
 
 DOCKER_ARGS_BUILD=#--no-cache
 DOCKER_ARGS_RUN_IMAGE_RUN=-d \
@@ -37,18 +37,20 @@ docker_run: docker_run_image
 	docker run $(DOCKER_ARGS_RUN_IMAGE_RUN) $(DOCKER_IMAGE_NAME_RUN)
 
 docker_export_build: docker_build_image
-	docker save $(DOCKER_IMAGE_NAME_BUILD) > $(DOCKER_IMAGE_BUILD_FILE_NAME)
+	mkdir -p docker/dist
+	docker save $(DOCKER_IMAGE_NAME_BUILD) > docker/dist/$(DOCKER_IMAGE_BUILD_FILE_NAME)
 	# Load with `docker load < xyz.tar`
 
 docker_export_run: docker_build docker_run_image
-	docker save $(DOCKER_IMAGE_NAME_RUN) > $(DOCKER_IMAGE_RUN_FILE_NAME)
+	mkdir -p docker/dist
+	docker save $(DOCKER_IMAGE_NAME_RUN) > docker/dist/$(DOCKER_IMAGE_RUN_FILE_NAME)
 	# Load with `docker load < xyz.tar`
 
 remove_all_stopped_docker_containers:
 	docker container prune -f
 
 clean:
-	rm -rf dist node_modules docs/site
+	rm -rf dist node_modules docs/site docker/dist
 	rm -f .env .env.docker docs/todos.md
 
 dev:

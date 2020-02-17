@@ -1,5 +1,6 @@
 FROM alpine:latest
 
+# Install npm/nodejs
 RUN apk add --update npm
 
 # Create app directory
