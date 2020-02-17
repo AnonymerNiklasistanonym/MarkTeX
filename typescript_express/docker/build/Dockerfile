@@ -20,7 +20,5 @@ COPY tsconfig.json ./tsconfig.json
 COPY tsconfig.internal.json ./tsconfig.internal.json
 COPY webpack.config.js ./webpack.config.js
 
-# Build files
-RUN npm run build
-
-# docker cp foo.txt XYZ:/foo.txt
+# Build files (but only when the container is run)
+CMD [ "npm", "run", "build" ]

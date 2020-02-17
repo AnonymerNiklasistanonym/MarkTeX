@@ -20,8 +20,5 @@ COPY .env.docker .env
 # Expose server port
 EXPOSE 8080
 
-#ARG DO_NOT_RUN_WEBSERVER=false
-#ENV DO_NOT_RUN_WEBSERVER=$DO_NOT_RUN_WEBSERVER
-
-# Run server
-RUN npm run start
+# Run server (but only when the container is run)
+CMD [ "npm", "run", "start" ]

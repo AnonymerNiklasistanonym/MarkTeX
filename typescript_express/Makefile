@@ -10,18 +10,19 @@ DOCKER_IMAGE_NAME_RUN="prototype/typescript-express-run"
 DOCKER_IMAGE_BUILD_FILE_NAME="docker-image-typescript-express-build.tar"
 DOCKER_IMAGE_RUN_FILE_NAME="docker-image-typescript-express-run.tar"
 
-DOCKER_ARGS=--no-cache
-DOCKER_ARGS_IMAGE_RUN=--build-arg DO_NOT_RUN_WEBSERVER=true
+DOCKER_ARGS_BUILD=#--no-cache
+DOCKER_ARGS_RUN_IMAGE_RUN=-d \
+                          -p 8080:8080
 
 SERVER_PORT=8080
 
 all: docker_build docker_run
 
 docker_build_image:
-	docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME_BUILD) -f $(DOCKER_FILE_BUILD) .
+	docker build $(DOCKER_ARGS_BUILD) -t $(DOCKER_IMAGE_NAME_BUILD) -f $(DOCKER_FILE_BUILD) .
 
 docker_build: docker_build_image
-	docker create -ti --name temp $(DOCKER_IMAGE_NAME_BUILD) bash
+	docker run -ti --name temp $(DOCKER_IMAGE_NAME_BUILD)
 	rm -rf dist
 	docker cp temp:/usr/src/app/dist ./
 	docker rm -f temp
@@ -30,17 +31,16 @@ docker_run_image:
 	if [[ ! -e .env.docker ]]; then \
 		cp ".env.sample" ".env.docker"; \
 	fi
-	docker build $(DOCKER_ARGS) $(DOCKER_ARGS_IMAGE_RUN) -t $(DOCKER_IMAGE_NAME_RUN) -f $(DOCKER_FILE_RUN) .
+	docker build $(DOCKER_ARGS_BUILD) -t $(DOCKER_IMAGE_NAME_RUN) -f $(DOCKER_FILE_RUN) .
 
 docker_run: docker_run_image
-	docker run -p 8080:8080 -d $(DOCKER_IMAGE_NAME_RUN)
+	docker run $(DOCKER_ARGS_RUN_IMAGE_RUN) $(DOCKER_IMAGE_NAME_RUN)
 
 docker_export_build: docker_build_image
 	docker save $(DOCKER_IMAGE_NAME_BUILD) > $(DOCKER_IMAGE_BUILD_FILE_NAME)
 	# Load with `docker load < xyz.tar`
 
 docker_export_run: docker_build docker_run_image
-	# TODO This will run the image and thus never built it
 	docker save $(DOCKER_IMAGE_NAME_RUN) > $(DOCKER_IMAGE_RUN_FILE_NAME)
 	# Load with `docker load < xyz.tar`
 

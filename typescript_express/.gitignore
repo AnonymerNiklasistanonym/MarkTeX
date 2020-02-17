@@ -5,3 +5,4 @@ docs/todos.md
 package-lock.json
 .env
 .env.docker
+docker-image-*.tar
