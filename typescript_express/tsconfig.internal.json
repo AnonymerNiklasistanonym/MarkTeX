@@ -2,6 +2,7 @@
     "extends": "./tsconfig",
     "include": [
         "tools/**/*.ts",
+        "tests/**/*.ts",
         "docs/**/*.ts"
     ],
     "files": [
