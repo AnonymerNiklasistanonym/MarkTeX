@@ -101,9 +101,7 @@ The built files can be found in the `dist` directory and the entry point is call
 
 ## Docker
 
-Run docker file with: (`sudo`) `make`
-
-*Currently only `sudo make fallback` is working which builds locally the files for production and then creates a very lightweight image that can be hosted.*
+Run and build this project via docker with: (`sudo`) `make`
 
 | Command |  Description |
 | ------- | ------------ |
