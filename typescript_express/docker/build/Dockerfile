@@ -16,6 +16,7 @@ ENV NODE_ENV="production"
 # Copy source files
 COPY src ./src
 COPY tools ./tools
+COPY res ./res
 COPY .eslintrc.js ./.eslintrc.js
 COPY tsconfig.json ./tsconfig.json
 COPY tsconfig.internal.json ./tsconfig.internal.json

@@ -77,18 +77,18 @@ export const startExpressServer = (): Server => {
             ],
             title: `Error ${err.status || 500}: ${err.message}`,
             favicon: {
-                ico: "TODO.ico",
-                svg: "TODO.svg",
+                ico: "favicon/favicon.ico",
+                svg: "favicon/favicon.svg",
                 png: {
-                    prefix: "TODO_",
+                    prefix: "favicon/favicon_",
                     postfix: ".png",
-                    sizes: [ 128, 256 ]
+                    sizes: [ 16, 48, 128, 180, 196, 256, 512 ]
                 }
             },
             webApp: {
-                name: "TODO",
+                name: "TypeScript Express Prototype",
                 themeColor: "#0289ff",
-                manifestPath: "TODO.json"
+                manifestPath: "manifest.json"
             },
             description: "WIP",
             author: "AnonymerNiklasistanonym"

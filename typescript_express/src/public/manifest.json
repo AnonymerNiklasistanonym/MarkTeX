@@ -1,0 +1,31 @@
+{
+    "name": "TypeScript Express Prototype",
+    "short_name": "Express Prototype",
+    "icons": [
+        {
+            "src": "/favicon/favicon,svg",
+            "type": "image/svg"
+        },
+        {
+            "src": "/favicon/favicon_196.png",
+            "type": "image/png",
+            "sizes": "196x196"
+        },
+        {
+            "src": "/favicon/favicon_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        },
+        {
+            "src": "/favicon/favicon_256.png",
+            "type": "image/png",
+            "sizes": "256x256"
+        }
+    ],
+    "lang": "en",
+    "dir": "ltr",
+    "background_color": "#0289ff",
+    "display": "standalone",
+    "theme_color": "#ffc000",
+    "start_url": "/"
+}
