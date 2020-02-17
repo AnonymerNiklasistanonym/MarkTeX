@@ -50,7 +50,7 @@ remove_all_stopped_docker_containers:
 	docker container prune -f
 
 clean:
-	rm -rf dist node_modules docs/site docker/dist .nyc_output
+	rm -rf dist node_modules docs/site docker/dist .nyc_output coverage
 	rm -f .env .env.docker docs/todos.md
 
 dev:
