@@ -70,22 +70,20 @@ class ListHandler {
     createListElement(): HTMLLIElement {
         const newListLi = document.createElement("li");
         newListLi.textContent = "new";
-        // eslint-disable-next-line complexity
-        newListLi.addEventListener("keydown", e => {
-            console.log(`Key "${e.key}" pressed  [event: keydown]`); // eslint-disable-line no-console
-            // eslint-disable-next-line no-console
-            console.log(`e.key==='\t' "${e.key === "\t"}, e.key==='	' "${e.key === "	"}`);
-            if (e.key === "\t" && !e.repeat) {
-                this.indentList(newListLi, 1);
-            }
-            if (e.ctrlKey && e.key === "\t" && !e.repeat) {
-                this.indentList(newListLi, -1);
-            }
-        });
-        newListLi.addEventListener("click", e => {
+        // TODO Do this via keyboard controls and not with clicking
+        newListLi.addEventListener("click", () => {
             this.indentList(newListLi, ctrlKeyPressed ? -1 : 1);
         });
+        // TODO Make it able to change content as soon as one element is selected
         return newListLi;
+    }
+    switchListType(ulElement: HTMLUListElement): void {
+        // TODO Switch list indentation type (checkbox, 1...99, -)
+    }
+    // TODO: Allow different kinds of lists (top list elements are the section with a special class)
+    convertListToMd(ulElement: HTMLUListElement): string {
+        // TODO Convert list to markdown document
+        return "";
     }
 };
 
@@ -103,18 +101,9 @@ window.onload = (): void => {
             listHandler.addList(listElement);
         }
     });
-    document.addEventListener("keyup", e => {
+    document.addEventListener("keyup", () => {
         ctrlKeyPressed = false;
     });
-
-    window.addEventListener("keydown", keyboardEvent => {
-        if (keyboardEvent.metaKey) {
-            // eslint-disable-next-line no-console
-            console.log(`a: key pressed: ${String.fromCharCode(keyboardEvent.keyCode)}`);
-        }
-        // eslint-disable-next-line no-console
-        console.log(`key pressed: ${String.fromCharCode(keyboardEvent.keyCode)}`);
-    }, false);
 
     const listContainer = document.getElementById("testing");
     if (listContainer) {
