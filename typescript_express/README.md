@@ -113,11 +113,12 @@ Until this is resolved you can access the website via the IP address from `docke
 
 ---
 
-Clean docker files for the latest version if the normal way is always using the first build:
+Clean **ALL** docker files (to get 10GB or more free space but also **removes external docker files!**):
 
 ```sh
-# Remove all stopped containers
-sudo docker container prune -y
+# Remove all docker containers and images
+sudo docker container prune -f
+sudo docker image prune -af
 ```
 
 ---
