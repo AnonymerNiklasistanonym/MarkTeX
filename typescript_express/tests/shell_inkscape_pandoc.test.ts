@@ -16,7 +16,7 @@ describe("inkscape <-> pandoc", () => {
             {
                 filename: "b.md",
                 directories: ["blab"],
-                data: "# Really\n\nOMG\n$$a \\mathbb{O}$$\n",
+                data: "# Really\n\nOMG\n$$\\mathbb{O} = \\dfrac{22 + 100}{\\infty}$$\n",
                 sourceFile: true
             }
         ];

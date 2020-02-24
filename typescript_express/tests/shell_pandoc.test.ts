@@ -19,13 +19,13 @@ describe("pandoc api", () => {
             {
                 filename: "a.md",
                 directories: ["blub"],
-                data: "# It works\n\nTest $\omega$\n",
+                data: "# It works\n\nTest $\\omega$\n",
                 sourceFile: true
             },
             {
                 filename: "b.md",
                 directories: ["blab"],
-                data: "# Really\n\nOMG\n$$a \mathb$$\n",
+                data: "# Really\n\nOMG\n$$\\mathbb{O} = \\dfrac{22 + 100}{\\infty}$$\n",
                 sourceFile: true
             }
         ];
