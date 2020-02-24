@@ -77,7 +77,7 @@ export interface PandocInputOptionsMd2Latex {
 export const convertMd2Latex = async (files: PandocInputFile[],
     command: PandocInputCommandMd2Latex,
     options?: PandocInputOptionsMd2Latex): Promise<PandocOutputMd2Latex> => {
-    const fastExecution = options?.fast || false;
+    const fastExecution = (options !== undefined && options.fast);
     // Create working directory
     const workingDirName = String(Date.now());
     await fs.mkdir(workingDirName);
@@ -197,11 +197,11 @@ export const convertMd2Latex = async (files: PandocInputFile[],
                             zipFile: data[1]
                         });
                         // Remove working directory
-                        rmDirRecursive(workingDirName);
+                        return rmDirRecursive(workingDirName);
                     }).catch(err => {
                         reject(err);
                         // Remove working directory
-                        rmDirRecursive(workingDirName);
+                        return rmDirRecursive(workingDirName);
                     });
                 } else {
                     Promise.all([
@@ -212,11 +212,11 @@ export const convertMd2Latex = async (files: PandocInputFile[],
                             pdfFile: data[0]
                         });
                         // Remove working directory
-                        rmDirRecursive(workingDirName);
+                        return rmDirRecursive(workingDirName);
                     }).catch(err => {
                         reject(err);
                         // Remove working directory
-                        rmDirRecursive(workingDirName);
+                        return rmDirRecursive(workingDirName);
                     });
                 }
             } else {

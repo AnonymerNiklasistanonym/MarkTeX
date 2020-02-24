@@ -14,7 +14,5 @@ describe("inkscape api", () => {
         chai.expect(version.versionMajor % 1).to.equal(0);
         chai.expect(version.versionMinor).to.be.a("number");
         chai.expect(version.versionMinor % 1).to.equal(0);
-        chai.expect(version.versionPatch).to.be.a("number");
-        chai.expect(version.versionPatch % 1).to.equal(0);
     });
 });

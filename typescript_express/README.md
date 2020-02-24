@@ -1,5 +1,11 @@
 # Express server written in TypeScript
 
+## Requirements
+
+- `nodejs` 13.7.0
+- `pandoc` 2.8
+- `inkscape` 1.1 (dev version, not yet released)
+
 ## Quickstart
 
 - Server side entry point: `src/index.ts` (source files are in `src` without the directory `src/public/`)
