@@ -22,6 +22,7 @@ docker_build_image:
 	docker build $(DOCKER_ARGS_BUILD) -t $(DOCKER_IMAGE_NAME_BUILD) -f $(DOCKER_FILE_BUILD) .
 
 docker_build: docker_build_image
+	docker rm -f temp
 	docker run -ti --name temp $(DOCKER_IMAGE_NAME_BUILD)
 	rm -rf dist
 	docker cp temp:/usr/src/app/dist ./

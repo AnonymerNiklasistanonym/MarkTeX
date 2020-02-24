@@ -43,7 +43,9 @@ class ListHandler {
             }
             // TODO These are too simple -> Use insert before for correct insetions
             // TODO Find out why sometimes nodes are completely removed
-            if (liElement.parentNode?.nextSibling?.nodeName.toLowerCase() === "ul") {
+            if (liElement.parentNode !== null &&
+                liElement.parentNode.nextSibling !== null &&
+                liElement.parentNode.nextSibling.nodeName.toLowerCase() === "ul") {
                 // Merge
                 const lowerList = liElement.parentNode.nextSibling;
                 const oldList = liElement.parentNode;
@@ -54,7 +56,9 @@ class ListHandler {
                     lowerList.parentNode.removeChild(lowerList);
                 }
             }
-            if (liElement.parentNode?.previousSibling?.nodeName.toLowerCase() === "ul") {
+            if (liElement.parentNode !== null &&
+                liElement.parentNode.previousSibling !== null &&
+                liElement.parentNode.previousSibling.nodeName.toLowerCase() === "ul") {
                 // Merge
                 const upperList = liElement.parentNode.previousSibling;
                 const oldList = liElement.parentNode;

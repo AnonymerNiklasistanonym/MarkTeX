@@ -1,7 +1,7 @@
-FROM alpine:3.11.3
+FROM pandoc/latex:2.9.2
 
 # Install npm/nodejs
-RUN apk add --update npm
+RUN apk add --update npm inkscape
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -22,4 +22,5 @@ COPY .env.docker .env
 EXPOSE 8080
 
 # Run server (but only when the container is run)
-CMD [ "npm", "run", "start" ]
+ENTRYPOINT [ "npm" ]
+CMD [ "run", "start" ]

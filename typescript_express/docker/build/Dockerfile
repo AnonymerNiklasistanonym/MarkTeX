@@ -23,4 +23,5 @@ COPY tsconfig.internal.json ./tsconfig.internal.json
 COPY webpack.config.js ./webpack.config.js
 
 # Build files (but only when the container is run)
-CMD [ "npm", "run", "build" ]
+ENTRYPOINT [ "npm" ]
+CMD [ "run", "build" ]
