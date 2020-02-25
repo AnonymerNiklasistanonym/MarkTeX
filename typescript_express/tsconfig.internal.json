@@ -3,7 +3,8 @@
     "include": [
         "tools/**/*.ts",
         "tests/**/*.ts",
-        "docs/**/*.ts"
+        "docs/**/*.ts",
+        "src/public/**/*.ts"
     ],
     "files": [
         "webpack.config.js",

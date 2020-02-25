@@ -11,9 +11,10 @@ app.options.addReader(new TypeDocReader());
 app.bootstrap({
     mode: SourceFileMode.Modules,
     target: ScriptTarget.ES2016,
-    module: ModuleKind.CommonJS,
+    // module: ModuleKind.ES2015,
     experimentalDecorators: true,
     ignoreCompilerErrors: false,
+    categorizeByGroup: true,
     exclude: [
         "node_modules/**/*",
         "docs/**/*",
@@ -21,7 +22,7 @@ app.bootstrap({
         "tests/**/*"
     ],
     name: "Typescript Express Server Modules",
-    readme: "./docs/typedocReadme.md"
+    readme: path.join("docs", "typedocReadme.md")
 });
 
 const project = app.convert(app.expandInputFiles(["src"]));

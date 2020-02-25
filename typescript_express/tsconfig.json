@@ -14,7 +14,12 @@
         "strictNullChecks": true
     },
     "include": [
-        "src/**/*.ts"
+        "src/config/**/*.ts",
+        "src/middleware/**/*.ts",
+        "src/routes/**/*.ts",
+        "src/view_rendering/**/*.ts",
+        "src/shell/**/*.ts",
+        "src/index.ts"
     ],
     "exclude": [
         "node_modules"

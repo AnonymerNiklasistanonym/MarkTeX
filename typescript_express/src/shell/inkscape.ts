@@ -4,11 +4,11 @@ import * as path from "path";
 import { rmDirRecursive } from "./helper";
 
 export interface InkscapeVersion {
-    output: string
-    versionMajor: number
-    versionMinor: number
-    versionCommit: string
-    versionDate: Date
+    fullText: string
+    major: number
+    minor: number
+    commit: string
+    date: Date
 }
 
 export const getVersion = async (): Promise<InkscapeVersion> => {
@@ -26,11 +26,11 @@ export const getVersion = async (): Promise<InkscapeVersion> => {
             const regex = /^Inkscape (.*?)\.(.*?).*? ([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])/g;
             for (const match of versionString.matchAll(regex)) {
                 return resolve({
-                    output: versionString,
-                    versionMajor: Number(match[1]),
-                    versionMinor: Number(match[2]),
-                    versionCommit: match[3],
-                    versionDate: new Date(match[4])
+                    fullText: versionString,
+                    major: Number(match[1]),
+                    minor: Number(match[2]),
+                    commit: match[3],
+                    date: new Date(match[4])
                 });
             }
             return reject(Error(`Parse error: Output did not contain the version. (stdout=${versionString})`));
@@ -48,12 +48,13 @@ export interface InkscapePdf2SvgInput {
     inkscapeOptions?: InkscapePdf2SvgInputOptions
 }
 
-export interface InkscapePdf2SvgOutput {
+export interface InkscapePdf2Svg {
     stdout: string
+    stderr: string
     svgData: string
 }
 
-export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2SvgOutput> => {
+export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2Svg> => {
     // Create working directory
     const workingDirName = String(Date.now());
     await fs.mkdir(workingDirName);
@@ -66,7 +67,6 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
         temporaryPdf,
         `--export-filename=${temporarySvg}`,
         ...(input.inkscapeOptions !== undefined && input.inkscapeOptions.usePoppler ? ["--pdf-poppler"] : [  ]),
-        // "--pdf-poppler",
         `--pdf-page=${input.pageNumber ? input.pageNumber : 1}`
     ]);
     const bufferStdout: Buffer[] = [];
@@ -75,21 +75,15 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
     child.stderr.on("data", (chunk: Buffer) => { bufferStderr.push(chunk); });
     return new Promise((resolve, reject) => {
         child.on("close", code => {
+            const stderr = bufferStderr.toString();
             if (code !== 0) {
-                return reject(Error(`Child process exited with code ${code} (stderr=${bufferStderr.toString()})`));
+                rmDirRecursive(workingDirName);
+                return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
             }
-            fs.readFile(temporarySvg, { encoding: "utf8" }).then(data => {
-                resolve({
-                    stdout: bufferStdout.toString(),
-                    svgData: data
-                });
-                // Remove working directory
-                return rmDirRecursive(workingDirName);
-            }).catch(err => {
-                reject(err);
-                // Remove working directory
-                return rmDirRecursive(workingDirName);
-            });
+            const stdout = bufferStdout.toString();
+            fs.readFile(temporarySvg, { encoding: "utf8" }).then(svgData => {
+                resolve({ stderr, stdout, svgData });
+            }).catch(reject).then(() => rmDirRecursive(workingDirName));
         });
     });
 };

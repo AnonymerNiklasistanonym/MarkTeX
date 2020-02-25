@@ -1,10 +1,10 @@
 import { spawn } from "child_process";
-import { promises as fs, createWriteStream } from "fs";
+import { promises as fs } from "fs";
 import * as path from "path";
 import { rmDirRecursive, createZipFile } from "./helper";
 
 export interface PandocVersion {
-    output: string
+    fullText: string
     versionMajor: number
     versionMinor: number
 }
@@ -23,7 +23,7 @@ export const getVersion = async (): Promise<PandocVersion> => {
             const versionString = bufferStdout.toString();
             for (const match of versionString.matchAll(/pandoc (.*?)\.(.*?)/g)) {
                 return resolve({
-                    output: versionString,
+                    fullText: versionString,
                     versionMajor: Number(match[1]),
                     versionMinor: Number(match[2])
                 });
@@ -33,7 +33,13 @@ export const getVersion = async (): Promise<PandocVersion> => {
     });
 };
 
-export interface PandocInputFile {
+export const PandocInputCommandMd2LatexDefaultArgs = {
+    pageSize: ["-V", "geometry:a4paper", "-V", "geometry:margin=2cm"],
+    tableOfContents: ["--table-of-contents", "--toc-depth=3"],
+    pdfEngine: ["--pdf-engine=xelatex"]
+};
+
+export interface PandocMd2PdfInputFile {
     /** List of all relative directories in which the file can be found */
     directories?: string[]
     /** Name of the file */
@@ -51,40 +57,37 @@ export interface PandocInputCommandMd2LatexArgGroup {
     args: string[]
 }
 
-export interface PandocInputCommandMd2Latex {
-    pandocArgs: PandocInputCommandMd2LatexArgGroup[]
-    pdfFileName: string
+export interface PandocMd2PdfInputPandocOptions {
+    pandocArgs?: PandocInputCommandMd2LatexArgGroup[]
 }
 
-export const PandocInputCommandMd2LatexDefaultArgs = {
-    pageSize: ["-V", "geometry:a4paper", "-V", "geometry:margin=2cm"],
-    tableOfContents: ["--table-of-contents", "--toc-depth=3"],
-    pdfEngine: ["--pdf-engine=xelatex"]
-};
+export interface PandocMd2PdfInputOptions {
+    createSourceZipFile?: boolean
+}
 
-export interface PandocOutputMd2Latex {
-    output: string
+export interface PandocMd2PdfInput {
+    files: PandocMd2PdfInputFile[]
+    pandocOptions?: PandocMd2PdfInputPandocOptions
+    options?: PandocMd2PdfInputOptions
+}
+
+export interface PandocMd2Pdf {
+    stdout: string
+    stderr: string
     pdfFile: Buffer
     zipFile?: Buffer
 }
 
-
-export interface PandocInputOptionsMd2Latex {
-    fast?: boolean
-}
-
 // eslint-disable-next-line complexity
-export const convertMd2Latex = async (files: PandocInputFile[],
-    command: PandocInputCommandMd2Latex,
-    options?: PandocInputOptionsMd2Latex): Promise<PandocOutputMd2Latex> => {
-    const fastExecution = (options !== undefined && options.fast);
+export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> => {
+    const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
     // Create working directory
     const workingDirName = String(Date.now());
     await fs.mkdir(workingDirName);
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
     const allSourceFiles: string[] = [];
-    for (const file of files) {
+    for (const file of input.files) {
         const directories = file.directories;
         let fileDirPath = workingDirName;
         let fileDirPathRelative = ".";
@@ -105,19 +108,21 @@ export const convertMd2Latex = async (files: PandocInputFile[],
         if (file.sourceFile) {
             pandocSourceFiles.push(path.join(fileDirPathRelative, file.filename));
         }
-        if (!fastExecution) {
+        if (createSourceZipFile) {
             allSourceFiles.push(path.join(fileDirPath, file.filename));
         }
     }
-    if (!fastExecution) {
+    const pandocArgs = (input.pandocOptions !== undefined && input.pandocOptions.pandocArgs !== undefined)
+        ? input.pandocOptions.pandocArgs : [];
+    if (createSourceZipFile) {
         // Create Makefile (only for reproduction)
         const makefileContent = [
-            `OUTPUT_FILE = ${command.pdfFileName}\n`,
+            "OUTPUT_FILE = out.pdf\n",
             `SOURCE_FILES = ${pandocSourceFiles.join(" ")}\n`,
-            ...command.pandocArgs.reduce((args: string[], argGroup) => args.concat([
+            ...pandocArgs.reduce((args: string[], argGroup) => args.concat([
                 `PANDOC_ARGS_${argGroup.name} = ${argGroup.args.join(" ")}`
             ]), []),
-            `PANDOC_ARGS = ${command.pandocArgs.reduce((args: string[], argGroup) => args.concat([
+            `PANDOC_ARGS = ${pandocArgs.reduce((args: string[], argGroup) => args.concat([
                 `$(PANDOC_ARGS_${argGroup.name})`
             ]), []).join(" ")}`,
             "PANDOC = pandoc\n",
@@ -160,9 +165,9 @@ export const convertMd2Latex = async (files: PandocInputFile[],
         allSourceFiles.push(dockerfilePath);
     }
     // Run command
-    const pdfOutFilePath = path.join(workingDirName, command.pdfFileName);
+    const pdfOutFilePath = path.join(workingDirName, "out.pdf");
     const child = spawn("pandoc", [
-        ...command.pandocArgs.reduce((args: string[], argGroup) => args.concat(argGroup.args), []),
+        ...pandocArgs.reduce((args: string[], argGroup) => args.concat(argGroup.args), []),
         "--from", "markdown", ...pandocSourceFiles.map(file => path.join(workingDirName, file)),
         "--to", "latex", "-o", pdfOutFilePath
     ]);
@@ -181,48 +186,37 @@ export const convertMd2Latex = async (files: PandocInputFile[],
     });
     return new Promise((resolve, reject) => {
         child.on("close", (code) => {
-            if (code === 0) {
-                const stdout = bufferStdout.toString();
-                if (!fastExecution) {
-                    const zipOutFilePath = path.join(workingDirName, `${workingDirName}.zip`);
-                    createZipFile({
-                        files: allSourceFiles
-                    }, zipOutFilePath).then(() => Promise.all([
-                        fs.readFile(pdfOutFilePath),
-                        fs.readFile(zipOutFilePath)
-                    ])).then(data => {
-                        resolve({
-                            output: stdout,
-                            pdfFile: data[0],
-                            zipFile: data[1]
-                        });
-                        // Remove working directory
-                        return rmDirRecursive(workingDirName);
-                    }).catch(err => {
-                        reject(err);
-                        // Remove working directory
-                        return rmDirRecursive(workingDirName);
-                    });
-                } else {
-                    Promise.all([
-                        fs.readFile(pdfOutFilePath)
-                    ]).then(data => {
-                        resolve({
-                            output: stdout,
-                            pdfFile: data[0]
-                        });
-                        // Remove working directory
-                        return rmDirRecursive(workingDirName);
-                    }).catch(err => {
-                        reject(err);
-                        // Remove working directory
-                        return rmDirRecursive(workingDirName);
-                    });
-                }
-            } else {
-                reject(`Child process exited with code ${code} (output=${bufferStderr.toString()})`);
-                // Remove working directory
+            const stderr = bufferStderr.toString();
+            if (code !== 0) {
                 rmDirRecursive(workingDirName);
+                return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
+            }
+            const stdout = bufferStdout.toString();
+            if (createSourceZipFile) {
+                const zipOutFilePath = path.join(workingDirName, `${workingDirName}.zip`);
+                createZipFile({
+                    files: allSourceFiles
+                }, zipOutFilePath).then(() => Promise.all([
+                    fs.readFile(pdfOutFilePath),
+                    fs.readFile(zipOutFilePath)
+                ])).then(data => {
+                    resolve({
+                        stdout,
+                        stderr,
+                        pdfFile: data[0],
+                        zipFile: data[1]
+                    });
+                }).catch(reject).then(() => rmDirRecursive(workingDirName));
+            } else {
+                Promise.all([
+                    fs.readFile(pdfOutFilePath)
+                ]).then(data => {
+                    resolve({
+                        stdout,
+                        stderr,
+                        pdfFile: data[0]
+                    });
+                }).catch(reject).then(() => rmDirRecursive(workingDirName));
             }
         });
     });

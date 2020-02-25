@@ -6,8 +6,8 @@ import { promises as fs } from "fs";
 describe("pandoc api", () => {
     it("version", async () => {
         const version = await pandoc.getVersion();
-        chai.expect(version.output).to.be.a("string");
-        chai.assert(version.output.length > 0);
+        chai.expect(version.fullText).to.be.a("string");
+        chai.assert(version.fullText.length > 0);
         chai.expect(version.versionMajor).to.be.a("number");
         chai.expect(version.versionMajor % 1).to.equal(0);
         chai.expect(version.versionMinor).to.be.a("number");
@@ -15,7 +15,7 @@ describe("pandoc api", () => {
     });
 
     it("convert md to pdf", async () => {
-        const inputFiles: pandoc.PandocInputFile[] = [
+        const files: pandoc.PandocMd2PdfInputFile[] = [
             {
                 filename: "a.md",
                 directories: ["blub"],
@@ -29,8 +29,7 @@ describe("pandoc api", () => {
                 sourceFile: true
             }
         ];
-        const command: pandoc.PandocInputCommandMd2Latex = {
-            pdfFileName: "out.pdf",
+        const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
             pandocArgs: [
                 {
                     name: "PAGE_SIZE",
@@ -44,22 +43,28 @@ describe("pandoc api", () => {
                 }
             ]
         };
-        const output = await pandoc.convertMd2Latex(inputFiles, command);
-        chai.expect(output.output).to.be.a("string");
+        const output = await pandoc.md2Pdf({ files, pandocOptions });
+        chai.expect(output.stdout).to.be.a("string");
+        chai.expect(output.stderr).to.be.a("string");
         chai.expect(output.pdfFile).to.be.a("Uint8Array");
-        chai.expect(output.zipFile).to.be.a("Uint8Array");
+        chai.assert(output.pdfFile !== undefined);
+        chai.assert(output.zipFile === undefined);
 
         await fs.writeFile("out.pdf", output.pdfFile);
         await fs.unlink("out.pdf");
-        await fs.writeFile("out.zip", output.zipFile);
-        await fs.unlink("out.zip");
 
-        const outputFast = await pandoc.convertMd2Latex(inputFiles, command, { fast: true });
-        chai.expect(outputFast.output).to.be.a("string");
-        chai.expect(outputFast.pdfFile).to.be.a("Uint8Array");
+        const outputWithZip = await pandoc.md2Pdf({ files, pandocOptions, options: { createSourceZipFile: true } });
+        chai.expect(outputWithZip.stdout).to.be.a("string");
+        chai.expect(outputWithZip.stderr).to.be.a("string");
+        chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");
+        chai.assert(outputWithZip.pdfFile !== undefined);
+        chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
+        chai.assert(outputWithZip.zipFile !== undefined);
 
-        await fs.writeFile("out_fast.pdf", outputFast.pdfFile);
+        await fs.writeFile("out_fast.pdf", outputWithZip.pdfFile);
         await fs.unlink("out_fast.pdf");
+        await fs.writeFile("out.zip", outputWithZip.zipFile);
+        await fs.unlink("out.zip");
 
     }).timeout(20000);
 });

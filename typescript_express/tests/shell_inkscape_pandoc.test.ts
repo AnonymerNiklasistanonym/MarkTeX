@@ -6,7 +6,7 @@ import { promises as fs } from "fs";
 
 describe("inkscape <-> pandoc", () => {
     it("convert pdf to svg", async () => {
-        const inputFiles: pandoc.PandocInputFile[] = [
+        const files: pandoc.PandocMd2PdfInputFile[] = [
             {
                 filename: "a.md",
                 directories: ["blub"],
@@ -20,8 +20,7 @@ describe("inkscape <-> pandoc", () => {
                 sourceFile: true
             }
         ];
-        const command: pandoc.PandocInputCommandMd2Latex = {
-            pdfFileName: "out.pdf",
+        const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
             pandocArgs: [
                 {
                     name: "PAGE_SIZE",
@@ -35,13 +34,13 @@ describe("inkscape <-> pandoc", () => {
                 }
             ]
         };
-        const output = await pandoc.convertMd2Latex(inputFiles, command, { fast: true });
+        const outputPdf = await pandoc.md2Pdf({ files, pandocOptions });
+        const outputSvg = await inkscape.pdf2Svg({ pdfData: outputPdf.pdfFile });
+        const outputSvgPoppler = await inkscape.pdf2Svg({
+            pdfData: outputPdf.pdfFile,
+            inkscapeOptions: { usePoppler: true }
+        });
 
-        const inkscapeOptions: inkscape.InkscapePdf2SvgInputOptions = {
-            usePoppler: true
-        };
-        const outputSvg = await inkscape.pdf2Svg({ pdfData: output.pdfFile });
-        const outputSvgPoppler = await inkscape.pdf2Svg({ pdfData: output.pdfFile, inkscapeOptions });
         chai.expect(outputSvg.stdout).to.be.a("string");
         chai.expect(outputSvg.svgData).to.be.a("string");
         chai.assert(outputSvg.svgData.length > 0);
@@ -51,7 +50,7 @@ describe("inkscape <-> pandoc", () => {
 
         await fs.writeFile("out_inkscape_pandoc.svg", outputSvg.svgData);
         await fs.writeFile("out_inkscape_pandoc_poppler.svg", outputSvgPoppler.svgData);
-        await fs.writeFile("out_inkscape_pandoc.pdf", output.pdfFile);
+        await fs.writeFile("out_inkscape_pandoc.pdf", outputPdf.pdfFile);
         await fs.unlink("out_inkscape_pandoc.svg");
         await fs.unlink("out_inkscape_pandoc_poppler.svg");
         await fs.unlink("out_inkscape_pandoc.pdf");
