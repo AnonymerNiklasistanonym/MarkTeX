@@ -80,6 +80,9 @@ export interface PandocMd2Pdf {
 
 // eslint-disable-next-line complexity
 export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> => {
+    // TODO beamer example
+    // TODO add options for author, date, title
+    // TODO test images in all formats
     const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
     // Create working directory
     const workingDirName = String(Date.now());

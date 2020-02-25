@@ -56,14 +56,14 @@ npm run start
 - [x] Documentation
 - [x] Handlebar view rendering
 - [ ] Client side keyboard controller with a list example (add new items and indent only using keyboard shortcuts)
-- [ ] Include image resources (icons, fonts)
+- [x] Include image resources (icons, fonts)
 - [x] Implement socket connection
 - [ ] Implement express session
 - [ ] Add SQLite database
-- [ ] Make final product runnable in Docker container
-- [ ] Make final product build in Docker container and extract built files
+- [x] Make final product runnable in Docker container
+- [x] Make final product build in Docker container and extract built files
 - [x] Switch to eslint because tslint is seemingly deprecated
-- [ ] Add debugger integration
+- [x] Add debugger integration
 
 ## Sources
 
