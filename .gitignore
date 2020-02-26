@@ -1,2 +1,10 @@
+node_modules
 dist
-build*
+docs/site
+docs/todos.md
+package-lock.json
+.env
+.env.docker
+docker-image-*.tar
+.nyc_output
+coverage
