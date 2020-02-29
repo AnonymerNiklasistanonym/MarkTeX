@@ -6,13 +6,6 @@ import * as make from "../make";
 import * as docker from "../docker";
 import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
 
-
-export const PandocInputCommandMd2LatexDefaultArgs = {
-    pageSize: ["-V", "geometry:a4paper", "-V", "geometry:margin=2cm"],
-    tableOfContents: ["--table-of-contents", "--toc-depth=3"],
-    pdfEngine: ["--pdf-engine=xelatex"]
-};
-
 export interface PandocMd2PdfInputFile {
     /** List of all relative directories in which the file can be found */
     directories?: string[]
