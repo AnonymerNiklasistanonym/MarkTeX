@@ -4,7 +4,7 @@ import * as inkscape from "../src/modules/inkscape";
 import * as pandoc from "../src/modules/pandoc";
 import { promises as fs } from "fs";
 
-describe("inkscape <-> pandoc", () => {
+describe("inkscape <-> pandoc [shell]", () => {
     it("convert pdf to svg", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [
             {
@@ -21,18 +21,15 @@ describe("inkscape <-> pandoc", () => {
             }
         ];
         const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
-            pandocArgs: [
-                {
-                    name: "PAGE_SIZE",
-                    args: pandoc.PandocInputCommandMd2LatexDefaultArgs.pageSize
-                }, {
-                    name: "TABLE_OF_CONTENTS",
-                    args: pandoc.PandocInputCommandMd2LatexDefaultArgs.tableOfContents
-                }, {
-                    name: "LATEX_PDF_ENGINE",
-                    args: pandoc.PandocInputCommandMd2LatexDefaultArgs.pdfEngine
-                }
-            ]
+            pandocArgs: {
+                variables: [{
+                    name: "geometry",
+                    value: [{ name: "a4paper"}, { name: "margin=2cm"}]
+                }],
+                toc: true,
+                tocDepth: 3,
+                pdfEngine: "xelatex"
+            }
         };
         const outputPdf = await pandoc.md2Pdf({ files, pandocOptions });
         const outputSvg = await inkscape.pdf2Svg({ pdfData: outputPdf.pdfFile });

@@ -4,6 +4,8 @@ import * as path from "path";
 import { rmDirRecursive, createZipFile } from "../helper";
 import * as make from "../make";
 import * as docker from "../docker";
+import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
+
 
 export const PandocInputCommandMd2LatexDefaultArgs = {
     pageSize: ["-V", "geometry:a4paper", "-V", "geometry:margin=2cm"],
@@ -30,7 +32,7 @@ export interface PandocInputCommandMd2LatexArgGroup {
 }
 
 export interface PandocMd2PdfInputPandocOptions {
-    pandocArgs?: PandocInputCommandMd2LatexArgGroup[]
+    pandocArgs?: PandocConfigYmlInput
 }
 
 export interface PandocMd2PdfInputOptions {
@@ -88,25 +90,26 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         }
     }
     const pandocArgs = (input.pandocOptions !== undefined && input.pandocOptions.pandocArgs !== undefined)
-        ? input.pandocOptions.pandocArgs : [];
+        ? input.pandocOptions.pandocArgs : {};
+    pandocArgs.inputFiles = pandocSourceFiles;
+    const pandocConfigContent = createPandocConfigFile(pandocArgs);
+    const pandocConfigPath = path.join(workingDirName, "pandoc.yml");
+    await fs.writeFile(pandocConfigPath, pandocConfigContent);
+    allSourceFiles.push(pandocConfigPath);
     if (createSourceZipFile) {
         // Create Makefile (only for reproduction)
         const makefileContent = make.createMakefile({
             definitions: [
                 { name: "OUTPUT_FILE", value: "out.pdf" },
                 {
-                    name: "SOURCE_FILES",
-                    value: pandocSourceFiles.join(" ")
-                }, ...pandocArgs.reduce((definitions: make.MakeInputDefinition[], argGroup) => definitions.concat([{
-                    name: `PANDOC_ARGS_${argGroup.name}`,
-                    value: `${argGroup.args.join(" ")}`
-                }]), []), {
                     name: "PANDOC_ARGS",
-                    value: `${pandocArgs.reduce((args: string[], argGroup) => args.concat([
-                        `$(PANDOC_ARGS_${argGroup.name})`
-                    ]), []).join(" ")}`
+                    value: "--defaults pandoc.yml"
                 },
                 { name: "PANDOC", value: "pandoc" },
+                {
+                    name: "SOURCE_FILES",
+                    value: pandocSourceFiles.join(" ")
+                },
                 { name: "DOCKER_IMAGE_NAME", value: "local/build_pdf" },
                 { name: "DOCKER_FILE", value: "Dockerfile" },
                 { name: "DOCKER", value: "docker" }
@@ -115,7 +118,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                 name: "pdf",
                 default: true,
                 dependencies: [ "$(SOURCE_FILES)" ],
-                commands: ["$(PANDOC) $(PANDOC_ARGS) --from markdown $(SOURCE_FILES) --to latex -o $(OUTPUT_FILE)"]
+                commands: ["$(PANDOC) $(PANDOC_ARGS) -o $(OUTPUT_FILE)"]
             },{
                 name: "docker_image",
                 commands: ["docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME) -f $(DOCKER_FILE) ."]
@@ -161,10 +164,8 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     // Run command
     const pdfOutFilePath = path.join(workingDirName, "out.pdf");
     const child = spawn("pandoc", [
-        ...pandocArgs.reduce((args: string[], argGroup) => args.concat(argGroup.args), []),
-        "--from", "markdown", ...pandocSourceFiles.map(file => path.join(workingDirName, file)),
-        "--to", "latex", "-o", pdfOutFilePath
-    ]);
+        "--defaults", "pandoc.yml", "-o", "out.pdf"
+    ], { cwd: workingDirName });
     const bufferStdout: Buffer[] = [];
     const bufferStderr: Buffer[] = [];
     // use child.stdout.setEncoding('utf8'); if you want text chunks

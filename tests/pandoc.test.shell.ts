@@ -3,7 +3,7 @@ import { describe } from "mocha";
 import * as pandoc from "../src/modules/pandoc";
 import { promises as fs } from "fs";
 
-describe("pandoc api", () => {
+describe("pandoc api [shell]", () => {
     it("version", async () => {
         const version = await pandoc.getVersion();
         chai.expect(version.fullText).to.be.a("string");
@@ -13,7 +13,6 @@ describe("pandoc api", () => {
         chai.expect(version.versionMinor).to.be.a("number");
         chai.expect(version.versionMinor % 1).to.equal(0);
     });
-
     it("convert md to pdf", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [
             {
@@ -30,18 +29,15 @@ describe("pandoc api", () => {
             }
         ];
         const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
-            pandocArgs: [
-                {
-                    name: "PAGE_SIZE",
-                    args: pandoc.PandocInputCommandMd2LatexDefaultArgs.pageSize
-                }, {
-                    name: "TABLE_OF_CONTENTS",
-                    args: pandoc.PandocInputCommandMd2LatexDefaultArgs.tableOfContents
-                }, {
-                    name: "LATEX_PDF_ENGINE",
-                    args: pandoc.PandocInputCommandMd2LatexDefaultArgs.pdfEngine
-                }
-            ]
+            pandocArgs: {
+                variables: [{
+                    name: "geometry",
+                    value: [{ name: "a4paper" }, { name: "margin=2cm" }]
+                }],
+                toc: true,
+                tocDepth: 3,
+                pdfEngine: "xelatex"
+            }
         };
         const output = await pandoc.md2Pdf({ files, pandocOptions });
         chai.expect(output.stdout).to.be.a("string");
@@ -61,10 +57,10 @@ describe("pandoc api", () => {
         chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
         chai.assert(outputWithZip.zipFile !== undefined);
 
-        await fs.writeFile("out_fast.pdf", outputWithZip.pdfFile);
-        await fs.unlink("out_fast.pdf");
-        await fs.writeFile("out.zip", outputWithZip.zipFile);
-        await fs.unlink("out.zip");
+        await fs.writeFile("out_zip.pdf", outputWithZip.pdfFile);
+        await fs.unlink("out_zip.pdf");
+        await fs.writeFile("out_zip.zip", outputWithZip.zipFile);
+        await fs.unlink("out_zip.zip");
 
     }).timeout(20000);
 });

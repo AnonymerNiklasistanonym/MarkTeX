@@ -2,7 +2,7 @@ import * as chai from "chai";
 import { describe } from "mocha";
 import * as inkscape from "../src/modules/inkscape";
 
-describe("inkscape api", () => {
+describe("inkscape api [shell]", () => {
     it("version", async () => {
         const version = await inkscape.getVersion();
         chai.expect(version.fullText).to.be.a("string");
