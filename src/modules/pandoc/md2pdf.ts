@@ -2,6 +2,8 @@ import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import * as path from "path";
 import { rmDirRecursive, createZipFile } from "../helper";
+import * as make from "../make";
+import * as docker from "../docker";
 
 export const PandocInputCommandMd2LatexDefaultArgs = {
     pageSize: ["-V", "geometry:a4paper", "-V", "geometry:margin=2cm"],
@@ -89,52 +91,71 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         ? input.pandocOptions.pandocArgs : [];
     if (createSourceZipFile) {
         // Create Makefile (only for reproduction)
-        const makefileContent = [
-            "OUTPUT_FILE = out.pdf\n",
-            `SOURCE_FILES = ${pandocSourceFiles.join(" ")}\n`,
-            ...pandocArgs.reduce((args: string[], argGroup) => args.concat([
-                `PANDOC_ARGS_${argGroup.name} = ${argGroup.args.join(" ")}`
-            ]), []),
-            `PANDOC_ARGS = ${pandocArgs.reduce((args: string[], argGroup) => args.concat([
-                `$(PANDOC_ARGS_${argGroup.name})`
-            ]), []).join(" ")}`,
-            "PANDOC = pandoc\n",
-            "DOCKER_IMAGE_NAME = local/build_pdf",
-            "DOCKER_FILE = Dockerfile",
-            "DOCKER_ARGS =",
-            "DOCKER = docker\n",
-            "all: pdf\n",
-            "pdf: $(SOURCE_FILES)",
-            "\t$(PANDOC) $(PANDOC_ARGS) --from markdown $(SOURCE_FILES) --to latex -o $(OUTPUT_FILE)\n",
-            "docker_image:",
-            "\tdocker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME) -f $(DOCKER_FILE) .\n",
-            "docker: docker_image",
-            "\tdocker rm -f temp || true",
-            "\tdocker run -ti --name temp $(DOCKER_IMAGE_NAME)",
-            "\trm -f $(OUTPUT_FILE)",
-            "\tdocker cp temp:/usr/src/$(OUTPUT_FILE) ./",
-            "\tdocker rm -f temp\n",
-            "view:",
-            "\tif [ -x \"$$(command -v xdg-open)\" ]; then \\",
-            "\t\txdg-open $(OUTPUT_FILE) >/dev/null 2>&1; \\",
-            "\telse \\",
-            "\t\tstart $(OUTPUT_FILE) >/dev/null 2>&1; \\",
-            "\tfi\n"
-        ];
+        const makefileContent = make.createMakefile({
+            definitions: [
+                { name: "OUTPUT_FILE", value: "out.pdf" },
+                {
+                    name: "SOURCE_FILES",
+                    value: pandocSourceFiles.join(" ")
+                }, ...pandocArgs.reduce((definitions: make.MakeInputDefinition[], argGroup) => definitions.concat([{
+                    name: `PANDOC_ARGS_${argGroup.name}`,
+                    value: `${argGroup.args.join(" ")}`
+                }]), []), {
+                    name: "PANDOC_ARGS",
+                    value: `${pandocArgs.reduce((args: string[], argGroup) => args.concat([
+                        `$(PANDOC_ARGS_${argGroup.name})`
+                    ]), []).join(" ")}`
+                },
+                { name: "PANDOC", value: "pandoc" },
+                { name: "DOCKER_IMAGE_NAME", value: "local/build_pdf" },
+                { name: "DOCKER_FILE", value: "Dockerfile" },
+                { name: "DOCKER", value: "docker" }
+            ],
+            jobs: [{
+                name: "pdf",
+                default: true,
+                dependencies: [ "$(SOURCE_FILES)" ],
+                commands: ["$(PANDOC) $(PANDOC_ARGS) --from markdown $(SOURCE_FILES) --to latex -o $(OUTPUT_FILE)"]
+            },{
+                name: "docker_image",
+                commands: ["docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME) -f $(DOCKER_FILE) ."]
+            },{
+                name: "docker",
+                dependencies: [ "docker_image" ],
+                commands: [
+                    "docker rm -f temp || true",
+                    "docker run -ti --name temp $(DOCKER_IMAGE_NAME)",
+                    "rm -f $(OUTPUT_FILE)",
+                    "docker cp temp:/usr/src/$(OUTPUT_FILE) ./",
+                    "docker rm -f temp"
+                ]
+            },{
+                name: "viewPdf",
+                commands: [
+                    "if [ -x \"$$(command -v xdg-open)\" ]; then \\",
+                    "\txdg-open $(OUTPUT_FILE) >/dev/null 2>&1; \\",
+                    "else \\",
+                    "\tstart $(OUTPUT_FILE) >/dev/null 2>&1; \\",
+                    "fi"
+                ]
+            }]
+        });
         const makefilePath = path.join(workingDirName, "Makefile");
-        await fs.writeFile(makefilePath, makefileContent.join("\n"));
+        await fs.writeFile(makefilePath, makefileContent);
         allSourceFiles.push(makefilePath);
         // Create Dockerfile (only for reproduction)
-        const dockerfileContent = [
-            "FROM pandoc/latex:2.9.2\n",
-            "RUN apk add --update make\n",
-            "WORKDIR /usr/src\n",
-            "COPY ./ ./\n",
-            "ENTRYPOINT [ \"make\" ]",
-            "CMD [ \"pdf\" ]\n"
-        ];
+        const dockerfileContent = docker.createDockerfile({
+            image: "pandoc/latex:2.9.2",
+            workdir: "/usr/src",
+            commands: [
+                "RUN apk add --update make",
+                "COPY ./ ./"
+            ],
+            entrypoint: [ "make" ],
+            cmd: [ "pdf" ]
+        });
         const dockerfilePath = path.join(workingDirName, "Dockerfile");
-        await fs.writeFile(dockerfilePath, dockerfileContent.join("\n"));
+        await fs.writeFile(dockerfilePath, dockerfileContent);
         allSourceFiles.push(dockerfilePath);
     }
     // Run command

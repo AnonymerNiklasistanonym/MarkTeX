@@ -3,7 +3,6 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import { rmDirRecursive } from "../helper";
 
-
 export interface InkscapePdf2SvgInputOptions {
     usePoppler?: boolean
 }
