@@ -1,37 +1,7 @@
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import * as path from "path";
-import { rmDirRecursive, createZipFile } from "./helper";
-
-export interface PandocVersion {
-    fullText: string
-    versionMajor: number
-    versionMinor: number
-}
-
-export const getVersion = async (): Promise<PandocVersion> => {
-    const child = spawn("pandoc", ["--version"]);
-    const bufferStdout: Buffer[] = [];
-    const bufferStderr: Buffer[] = [];
-    child.stdout.on("data", (chunk: Buffer) => { bufferStdout.push(chunk); });
-    child.stderr.on("data", (chunk: Buffer) => { bufferStderr.push(chunk); });
-    return new Promise((resolve, reject) => {
-        child.on("close", code => {
-            if (code !== 0) {
-                reject(Error(`Child process exited with code ${code} (stderr=${bufferStderr.toString()})`));
-            }
-            const versionString = bufferStdout.toString();
-            for (const match of versionString.matchAll(/pandoc (.*?)\.(.*?)/g)) {
-                return resolve({
-                    fullText: versionString,
-                    versionMajor: Number(match[1]),
-                    versionMinor: Number(match[2])
-                });
-            }
-            reject(Error(`Parse error: Output did not contain the version. (stdout=${versionString})`));
-        });
-    });
-};
+import { rmDirRecursive, createZipFile } from "../helper";
 
 export const PandocInputCommandMd2LatexDefaultArgs = {
     pageSize: ["-V", "geometry:a4paper", "-V", "geometry:margin=2cm"],

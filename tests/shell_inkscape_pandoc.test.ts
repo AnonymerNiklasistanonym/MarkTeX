@@ -1,7 +1,7 @@
 import * as chai from "chai";
 import { describe } from "mocha";
-import * as inkscape from "../src/shell/inkscape";
-import * as pandoc from "../src/shell/pandoc";
+import * as inkscape from "../src/modules/inkscape";
+import * as pandoc from "../src/modules/pandoc";
 import { promises as fs } from "fs";
 
 describe("inkscape <-> pandoc", () => {

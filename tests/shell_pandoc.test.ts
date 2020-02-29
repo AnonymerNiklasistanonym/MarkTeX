@@ -1,6 +1,6 @@
 import * as chai from "chai";
 import { describe } from "mocha";
-import * as pandoc from "../src/shell/pandoc";
+import * as pandoc from "../src/modules/pandoc";
 import { promises as fs } from "fs";
 
 describe("pandoc api", () => {

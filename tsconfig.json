@@ -18,7 +18,7 @@
         "src/middleware/**/*.ts",
         "src/routes/**/*.ts",
         "src/view_rendering/**/*.ts",
-        "src/shell/**/*.ts",
+        "src/modules/**/*.ts",
         "src/index.ts"
     ],
     "exclude": [
