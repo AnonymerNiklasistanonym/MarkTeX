@@ -35,6 +35,18 @@ export const removeDocument = (): void => {
     // TODO Only admin can do this
 };
 
+export const addDocumentResource = (): void => {
+    // TODO images, pdf, text, ...
+};
+
+export const updateDocumentResource = (): void => {
+    // TODO images, pdf, text, ...
+};
+
+export const removeDocumentResource = (): void => {
+    // TODO images, pdf, text, ...
+};
+
 /** @returns The document if existing and permission */
 export const getGroup = async (accountId: number, groupId: number): Promise<group.GroupInfo> => {
     // eslint-disable-next-line no-console

@@ -35,7 +35,7 @@ To see the debug output through the internal node util package run in the termin
 export NODE_DEBUG=app*
 ```
 
-The following command automatically updates the server when you change something or you can do it manually be entering `rs` + `ENTER`:
+The following command automatically updates the server when you change something or you can do it manually by entering `rs` + `ENTER`:
 
 ```sh
 npm run dev
