@@ -34,8 +34,11 @@
     "express-handlebars": "^3.1.0",
     "express-session": "^1.17.0",
     "handlebars": "^4.7.3",
+    "highlight.js": "^9.18.1",
     "http-errors": "^1.7.3",
     "js-yaml": "^3.13.1",
+    "katex": "^0.11.1",
+    "markdown-it": "^10.0.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
     "sqlite3": "^4.1.1"
