@@ -1,12 +1,12 @@
 import * as express from "express";
+import { StartExpressServerOptions } from "../config/express";
 
-export const register = (app: express.Application): void => {
+export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
     // TODO: const auth = app.locals.authenticator;
 
     // Home page
     app.get("/", (req, res) => {
-        console.info("home"); // eslint-disable-line no-console
         // TODO: Do everything
         res.render("index", {
             layout: "default",

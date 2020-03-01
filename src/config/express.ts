@@ -3,6 +3,7 @@ import path from "path";
 import exphbs from "express-handlebars";
 import createError, { HttpError } from "http-errors";
 import { Server } from "http";
+import { debuglog } from "util";
 
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
@@ -12,7 +13,13 @@ import * as routesAccount from "../routes/account";
 import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
 
-export const startExpressServer = (): Server => {
+const debug = debuglog("app-express");
+
+export interface StartExpressServerOptions {
+    databasePath: string
+}
+
+export const startExpressServer = (options: StartExpressServerOptions): Server => {
     // Express setup
     const app = express();
     // Express view engine setup
@@ -37,15 +44,20 @@ export const startExpressServer = (): Server => {
     // Configure static files
     app.use(express.static(path.join(__dirname, "..", "public")));
 
+    // Catch requests
+    app.use((req, res, next) => {
+        debug("access resource '%s'", req.originalUrl);
+        next();
+    });
+
     // Configure routes
-    routesAccount.register(app);
-    routesHome.register(app);
-    routesTesting.register(app);
+    routesAccount.register(app, options);
+    routesHome.register(app, options);
+    routesTesting.register(app, options);
 
     // Catch URL not found (404) and forward to error handler
     app.use((req, res, next) => {
-        // eslint-disable-next-line no-console
-        console.log(`Resource was not found (${req.originalUrl})`);
+        debug("resource was not found '%s'", req.originalUrl);
         res.locals.explanation = `The requested resource (${req.originalUrl}) was not found.`;
         next(createError(404));
     });
@@ -66,6 +78,7 @@ export const startExpressServer = (): Server => {
                 ]
             }
         };
+        debug("display error page '%s'", errorRenderContent.error);
         const errorRenderContentHeader: HbsHeader = {
             scripts: [
                 { path: "scripts/error_bundle.js" }

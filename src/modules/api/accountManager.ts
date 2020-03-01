@@ -1,5 +1,5 @@
 
-import { UserOptions } from "./types/user";
+import * as user from "./types/user";
 
 /** REMOVE LATER WHEN IMPLEMENTATION FINISHED */
 const timeout = async (ms: number): Promise<void> => {
@@ -40,7 +40,7 @@ export const deleteAccount = async (accountId: number, password: string): Promis
 
 /** @returns Account id if creation was successful */
 export const createAccount = async (accountId: number, password: string,
-    options: UserOptions): Promise<number> => {
+    options: user.UserOptions): Promise<number> => {
     // eslint-disable-next-line no-console
     console.log(`changePassword with accountId='${accountId}' and password='${password}' and options='${options}'`);
     await timeout(10);

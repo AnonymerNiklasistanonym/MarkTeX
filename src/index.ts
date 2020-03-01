@@ -1,30 +1,45 @@
 import { loadEnvFile } from "./config/env";
 import { startExpressServer } from "./config/express";
 import { bindSocketServer } from "./config/sockets";
+import * as api from "./modules/api";
+import { debuglog } from "util";
 
-// Check if web server should be started (docker create run image compatibility)
-// eslint-disable-next-line no-console
-console.log(`DO_NOT_RUN_WEBSERVER=${process.env.DO_NOT_RUN_WEBSERVER}`);
-if (process.env.DO_NOT_RUN_WEBSERVER) {
-    if (process.env.DO_NOT_RUN_WEBSERVER === "true") {
-        process.exit(0);
-    }
-}
+const debug = debuglog("app");
 
 // Load Env File
 loadEnvFile();
 
-// Start sever
-const server = startExpressServer();
+// Load database
+const databasePath = "./database.db";
+api.database.checkIfDatabaseExists(databasePath)
+    .then(exists => {
+        // Setup database if non is found
+        if (!exists) {
+            debug("setup database='%s' as it does not exist", databasePath);
+            return api.setupDatabase();
+        } else {
+            debug("database found");
+        }
+    })
+    .then(() => {
+        // Start sever
+        const server = startExpressServer({
+            databasePath
+        });
+        debug("server was started");
 
-// Bind socket server
-bindSocketServer(server);
+        // Bind socket server
+        const socketServer = bindSocketServer(server);
+        debug("socket server was bound to server");
 
-// Handling terminate gracefully
-process.on("SIGTERM", () => {
-    console.log("SIGTERM signal received."); // eslint-disable-line no-console
-    console.log("Closing Express Server"); // eslint-disable-line no-console
-    server.close(() => {
-        console.log("Express server closed."); // eslint-disable-line no-console
+        // Handling terminate gracefully
+        process.on("SIGTERM", () => {
+            debug("SIGTERM signal was received");
+            server.close(() => {
+                debug("server was closed");
+            });
+            socketServer.close(() => {
+                debug("socket server was closed");
+            });
+        });
     });
-});

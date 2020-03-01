@@ -29,6 +29,12 @@ npm install
 
 ### Development
 
+To see the debug output through the internal node util package run in the terminal:
+
+```sh
+export NODE_DEBUG=app*
+```
+
 The following command automatically updates the server when you change something or you can do it manually be entering `rs` + `ENTER`:
 
 ```sh

@@ -45,6 +45,8 @@ export interface PandocMd2Pdf {
     zipFile?: Buffer
 }
 
+// TODO Latex beamer/document demo
+
 // eslint-disable-next-line complexity
 export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> => {
     // TODO beamer example

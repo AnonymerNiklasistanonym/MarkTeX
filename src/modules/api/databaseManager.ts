@@ -1,4 +1,17 @@
 // import * as database from "./database";
+import { promises as fs } from "fs";
+
+/**
+ * Check if database already exists.
+ */
+export const checkIfDatabaseExists = async (databasePath: string): Promise<boolean> => {
+    try {
+        await fs.access(databasePath);
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
 
 /**
  * Initialize/Load database.

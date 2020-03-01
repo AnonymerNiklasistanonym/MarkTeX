@@ -1,7 +1,10 @@
 import { Server as SocketServer } from "socket.io";
 import { Server } from "http";
+import { debuglog } from "util";
 
-export const bindSocketServer = (httpServer: Server): void => {
+const debug = debuglog("app-socketio");
+
+export const bindSocketServer = (httpServer: Server): SocketServer => {
 
     // set up socket.io and bind it to our
     // http server.
@@ -11,7 +14,10 @@ export const bindSocketServer = (httpServer: Server): void => {
     // whenever a user connects on port 3000 via
     // a websocket, log that a user has connected
     io.on("connection", socket => {
-        // eslint-disable-next-line no-console
-        console.log(`a user connected: ${socket.client.id}`);
+        debug("'connection' event: new user (id='%s')", socket.client.id);
     });
+    io.on("connect", socket => {
+        debug("'connect' event: new user (id='%s')", socket.client.id);
+    });
+    return io;
 };
