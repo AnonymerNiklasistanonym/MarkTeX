@@ -9,9 +9,9 @@
         "removeComments": true,
         "outDir": "dist",
         "baseUrl": ".",
-        "allowJs": false,
         "strict": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "forceConsistentCasingInFileNames": true
     },
     "include": [
         "src/config/**/*.ts",

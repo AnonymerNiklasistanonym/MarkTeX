@@ -8,3 +8,4 @@ package-lock.json
 docker-image-*.tar
 .nyc_output
 coverage
+.vscode/settings.json
