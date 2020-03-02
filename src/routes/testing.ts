@@ -16,7 +16,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     { path: "/socket.io/socket.io.js" }
                 ],
                 stylesheets: [
-                    { path: "/katex/katex.min.css" }
+                    { path: "/katex/katex.min.css" },
+                    { path: "/hljs/default.css" }
                 ]
             }
         });

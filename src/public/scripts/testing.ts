@@ -82,7 +82,11 @@ window.onload = (): void => {
 
     // Actual default values
     const md: MarkdownIt = new MarkdownIt({
-        highlight: (str, lang) => {
+        linkify: true,
+        quotes: "„“‚‘",
+        highlight: (str, lang): string | void => {
+            // eslint-disable-next-line no-console
+            console.log(`highlight: (str=${str}, lang=${lang})`);
             if (lang && hljs.getLanguage(lang)) {
                 try {
                     return `<pre class="hljs"><code> ${hljs.highlight(lang, str, true).value}</code></pre>`;
@@ -95,5 +99,9 @@ window.onload = (): void => {
         }
     });
     // TODO .use(plugin1)
-    markdownTest.innerHTML =  md.render("**hey you** *you are looking amazing* :D");
+    markdownTest.innerHTML =  md.render(
+        "**hey you** *you are looking amazing* :D\n" +
+        "\n" +
+        "Inline code `std::cout << \"cool\"` and big code thing:\n" +
+        "```cpp\nstd::cout << \"cool\" << std::endl;\n```");
 };
