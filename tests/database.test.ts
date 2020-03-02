@@ -84,13 +84,40 @@ describe("database query api", () => {
         chai.expect(queryCreateTable1).to.be.a("string");
         chai.assert(queryCreateTable1.length > 0, "Query not empty");
         chai.expect(queryCreateTable1).to.deep.equal("CREATE TABLE test "
-         + "(blob ,integer INT,numeric NUM,real REAL,text TEXT);");
+        + "(blob BLOB,integer INTEGER,numeric NUMERIC,real REAL,text TEXT);");
 
         const queryCreateTable2 = database.queries.createTable("test", columns, true);
         chai.expect(queryCreateTable2).to.be.a("string");
         chai.assert(queryCreateTable2.length > 0, "Query not empty");
         chai.expect(queryCreateTable2).to.deep.equal("CREATE TABLE IF NOT EXISTS test "
-        + "(blob ,integer INT,numeric NUM,real REAL,text TEXT);");
+        + "(blob BLOB,integer INTEGER,numeric NUMERIC,real REAL,text TEXT);");
+
+        const queryCreateTable3 = database.queries.createTable("contact_groups", [
+            {
+                foreign: {
+                    column: "contact_id",
+                    options: [ "ON DELETE CASCADE ON UPDATE NO ACTION" ],
+                    tableName: "contacts"
+                },
+                name: "contact_id",
+                type: database.queries.CreateTableColumnType.INTEGER
+            },
+            {
+                foreign: {
+                    column: "group_id",
+                    options: [ "ON DELETE CASCADE ON UPDATE NO ACTION" ],
+                    tableName: "groups"
+                },
+                name: "group_id",
+                type: database.queries.CreateTableColumnType.INTEGER
+            }
+        ], true);
+        chai.expect(queryCreateTable3).to.be.a("string");
+        chai.assert(queryCreateTable3.length > 0, "Query not empty");
+        chai.expect(queryCreateTable3).to.deep.equal("CREATE TABLE IF NOT EXISTS contact_groups "
+        + "(contact_id INTEGER,group_id INTEGER,"
+        + "FOREIGN KEY (contact_id) REFERENCES contacts (contact_id) ON DELETE CASCADE ON UPDATE NO ACTION,"
+        + "FOREIGN KEY (group_id) REFERENCES groups (group_id) ON DELETE CASCADE ON UPDATE NO ACTION);");
 
         const queryDropTable1 = database.queries.dropTable("test");
         chai.expect(queryDropTable1).to.be.a("string");

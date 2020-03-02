@@ -143,10 +143,10 @@ export const select = (tableName: string, columns: string[], options?: SelectQue
  */
 export enum CreateTableColumnType {
     TEXT = "TEXT",
-    NUMERIC = "NUM",
-    INTEGER = "INT",
+    NUMERIC = "NUMERIC",
+    INTEGER = "INTEGER",
     REAL = "REAL",
-    BLOB = ""
+    BLOB = "BLOB"
 };
 
 export interface CreateTableColumn {
