@@ -43,6 +43,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
 
     // Configure static files
     app.use(express.static(path.join(__dirname, "..", "public")));
+    app.use("/katex", express.static(path.join(__dirname, "..", "..", "node_modules", "katex", "dist")));
 
     // Catch requests
     app.use((req, res, next) => {

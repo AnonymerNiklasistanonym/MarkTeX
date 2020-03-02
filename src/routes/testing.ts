@@ -14,6 +14,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 scripts: [
                     { path: "scripts/testing_bundle.js" },
                     { path: "/socket.io/socket.io.js" }
+                ],
+                stylesheets: [
+                    { path: "/katex/katex.min.css" }
                 ]
             }
         });
