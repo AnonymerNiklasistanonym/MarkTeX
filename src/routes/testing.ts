@@ -12,7 +12,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             layout: "default",
             header: {
                 scripts: [
-                    { path: "/scripts/testing_bundle.js.gz" },
+                    { path: `/scripts/testing_bundle.js${options.production ? ".gz" : ""}` },
                     { path: "/socket.io/socket.io.js" }
                 ],
                 stylesheets: [
