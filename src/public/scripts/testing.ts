@@ -1,8 +1,7 @@
 import { ListHandler, NewListHandler, ListNodeType,ListNodeChildrenType } from "./testing_list_handler";
-import * as katex from "katex";
-import * as hljs from "highlight.js";
-import MarkdownIt from "markdown-it";
+import { md, katex } from "./documentRenderer/markdownRenderer";
 
+// eslint-disable-next-line complexity
 window.onload = (): void => {
     const listHandler = new ListHandler();
 
@@ -80,28 +79,38 @@ window.onload = (): void => {
         console.error(error);
     }
 
-    // Actual default values
-    const md: MarkdownIt = new MarkdownIt({
-        linkify: true,
-        quotes: "„“‚‘",
-        highlight: (str, lang): string | void => {
-            // eslint-disable-next-line no-console
-            console.log(`highlight: (str=${str}, lang=${lang})`);
-            if (lang && hljs.getLanguage(lang)) {
-                try {
-                    return `<pre class="hljs"><code> ${hljs.highlight(lang, str, true).value}</code></pre>`;
-                } catch (error) {
-                    // eslint-disable-next-line no-console
-                    console.error(error);
-                }
-            }
-            return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
-        }
-    });
-    // TODO .use(plugin1)
-    markdownTest.innerHTML =  md.render(
+    markdownTest.innerHTML = md.render(
         "**hey you** *you are looking amazing* :D\n" +
         "\n" +
+        "=abcdefg=\n" +
+        "abc\n\ndefg\n" +
+        "=abc\n\ndefg=\n" +
+        "=a ==b =c= ==d==\n" +
+        "\n" +
         "Inline code `std::cout << \"cool\"` and big code thing:\n" +
-        "```cpp\nstd::cout << \"cool\" << std::endl;\n```");
+        "```cpp\nstd::cout << \"cool\" << std::endl;\n```" +
+        "\n" +
+        "Inline math $c = \\pm\\sqrt{a^2 + b^2}$ and big math block:\n" +
+        "$$\nc = \\pm\\sqrt{a^2 + b^2}\n$$" +
+        "and inline big math:\n" +
+        "$$c = \\pm\\sqrt{a^2 + b^2}$$");
+
+    const liveInput = document.getElementById("testing-live-md-rendering-input-textarea") as HTMLTextAreaElement;
+    const liveOutput = document.getElementById("testing-live-md-rendering-output") as HTMLDivElement;
+
+    if (liveInput !== undefined && liveOutput !== undefined) {
+        liveInput.addEventListener("input", (event: Event): void => {
+            // eslint-disable-next-line no-console
+            console.debug("live input has changed: ", {
+                selection: {
+                    start: liveInput.selectionStart,
+                    end: liveInput.selectionEnd,
+                    direction: liveInput.selectionDirection
+                },
+                content: liveInput.value,
+                event
+            });
+            liveOutput.innerHTML = md.render(liveInput.value);
+        });
+    }
 };

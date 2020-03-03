@@ -68,7 +68,6 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
         // set locals, only providing error in development
-        res.status(err.status || 500);
         const errorRenderContent: HbsLayoutError = {
             error: {
                 status: err.status || 500,
@@ -108,11 +107,13 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
             description: "WIP",
             author: "AnonymerNiklasistanonym"
         };
-        res.render("error", {
-            layout: "default",
-            ...errorRenderContent,
-            header: errorRenderContentHeader
-        });
+        res
+            .status(err.status || 500)
+            .render("error", {
+                layout: "default",
+                ...errorRenderContent,
+                header: errorRenderContentHeader
+            });
     });
 
     // Use custom port if defined, otherwise use 8080

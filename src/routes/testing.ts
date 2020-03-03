@@ -12,12 +12,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
             layout: "default",
             header: {
                 scripts: [
-                    { path: "scripts/testing_bundle.js" },
+                    { path: "/scripts/testing_bundle.js" },
                     { path: "/socket.io/socket.io.js" }
                 ],
                 stylesheets: [
                     { path: "/katex/katex.min.css" },
-                    { path: "/hljs/default.css" }
+                    { path: "/hljs/default.css" },
+                    { path: "/stylesheets/testing.css" }
                 ]
             }
         });

@@ -1,0 +1,20 @@
+div#testing-live-md-rendering {
+    display: flex;
+    width: 100%;
+    border: 1px solid black;
+}
+
+div#testing-live-md-rendering-input {
+    flex: 1;
+    border: 1px solid red;
+}
+
+textarea#testing-live-md-rendering-input-textarea {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+div#testing-live-md-rendering-output {
+    flex: 1;
+    border: 1px solid blue;
+}
