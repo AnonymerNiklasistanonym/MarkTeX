@@ -7,6 +7,14 @@ export { katex } from "./katexPlugin";
 import * as imagePandocPlugin from "./imagePandocPlugin";
 import "../webpackVars";
 
+const katexPluginOptions: katexPlugin.Options = {
+    onError: (error, originalString) => {
+        // TODO Add integration
+        // eslint-disable-next-line no-console
+        console.error(`MarkdownIt>Plugin>KaTeX: Error when parsing '${originalString}': ${error.message}`);
+    }
+};
+
 export const md = new MarkdownIt({
     linkify: true,
     html: true,
@@ -14,14 +22,15 @@ export const md = new MarkdownIt({
     highlight: (str, lang): string | void => {
         if (DEBUG_APP) {
             // eslint-disable-next-line no-console
-            console.debug(`highlight: (str=${str}, lang=${lang})`);
+            console.debug(`MarkdownIt>highlight(str=${str}, lang=${lang})`);
         }
         if (lang && hljs.getLanguage(lang)) {
             try {
                 return `<pre class="hljs"><code> ${hljs.highlight(lang, str, true).value}</code></pre>`;
             } catch (error) {
                 // eslint-disable-next-line no-console
-                console.error(error);
+                console.error(`MarkdownIt>Plugin>Highlight.js: Error when parsing '${str}' [lang=${lang}]: `
+                              + error.message);
             }
         }
         return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
@@ -29,4 +38,4 @@ export const md = new MarkdownIt({
 })
     .use(imagePandocPlugin.register)
     .use(emphasizePlugin.register)
-    .use(katexPlugin.register);
+    .use(katexPlugin.register, katexPluginOptions);

@@ -27,13 +27,19 @@ export const register = (md: MarkdownIt): void =>
 
         // Exit if no second delimiter is found
         if (posEnd === posMax) {
-            console.debug("No second delimiter found: ", state.src.slice(posStart, posEnd + 1));
+            if (DEBUG_APP) {
+                console.debug("MarkdownIt>Plugin>Emphasize>Rule>Inline: No second delimiter found, discard " +
+                    `'${state.src.slice(posStart, posEnd + 1)}'`);
+            }
             return false;
         }
 
         // Exit if content is empty
         if (posEnd - posStart === 1) {
-            console.debug("Empty content, abort", state.src.slice(posStart, posEnd + 1));
+            if (DEBUG_APP) {
+                console.debug("MarkdownIt>Plugin>Emphasize>Rule>Inline: Empty content, discard " +
+                    `'${state.src.slice(posStart, posEnd + 1)}'`);
+            }
             return false;
         }
 
@@ -53,10 +59,10 @@ export const register = (md: MarkdownIt): void =>
             const tokenMarkEnd = state.push("mark_end", "mark", -1);
             tokenMarkEnd.markup = markDelimiter;
 
-            console.debug("MdMarkPlugin: Added tokens: ", {
-                final: tokenMarkText.content,
-                original: state.src.slice(posStart, posEnd + 1)
-            }, state.tokens);
+            if (DEBUG_APP) {
+                console.debug("MarkdownIt>Plugin>Emphasize>Rule>Inline: Add token to render emphasized string " +
+                    `'${tokenMarkText.content}'`, state.tokens);
+            }
         }
         state.pos = posEnd;
         return true;

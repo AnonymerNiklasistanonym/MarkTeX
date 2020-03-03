@@ -4,21 +4,37 @@ import * as katex from "katex";
 export { katex };
 import "../webpackVars";
 
+export interface Options {
+    onError?: (error: Error, originalString: string) => void
+};
+
 const markDelimiter = "$";
 const markDelimiterEscape = "\\";
 
-export const register = (md: MarkdownIt): void =>
+export const register = (md: MarkdownIt, options: Options): void =>
 {
     const katexToHtmlText = (latex: string, displayMode = false): string => {
-        const options = { displayMode, throwOnError: true };
-        try{
-            return katex.renderToString(latex, options);
+        const katexOptions = {
+            displayMode,
+            // When onError function is defined throw errors
+            throwOnError: options.onError !== undefined
+        };
+
+        if (DEBUG_APP) {
+            console.debug(`MarkdownIt>Plugin>KaTeX>Render: Render LaTeX math string '${latex}'`, katexOptions);
         }
-        catch(error){
-            if(options.throwOnError){
-                // eslint-disable-next-line no-console
-                console.error(error);
+
+        try {
+            return katex.renderToString(latex, katexOptions);
+        }
+        catch (error) {
+            if (options.onError) {
+                options.onError(error, latex);
             }
+            // if (katexOptions.throwOnError) {
+            //     // eslint-disable-next-line no-console
+            //     console.error(error);
+            // }
             return latex;
         }
     };
@@ -50,20 +66,10 @@ export const register = (md: MarkdownIt): void =>
         // Iterate through token stream to find delimiter a second time/or reach the end
         do {
             posCurrent++;
-            if (DEBUG_APP) {
-                console.debug("what is this: ", {
-                    posCurrent,
-                    "posCurrent < posMax": posCurrent < posMax,
-                    "!== markDelimiter": state.src.charAt(posCurrent) !== markDelimiter,
-                    "=== markDelimiterEscape": state.src.charAt(posCurrent - 1) === markDelimiterEscape,
-                    together: posCurrent < posMax &&
-                    (state.src.charAt(posCurrent) !== markDelimiter ||
-                     state.src.charAt(posCurrent - 1) === markDelimiterEscape),
-                    currentChar: state.src.charAt(posCurrent),
-                    currentString: state.src.slice(posStart, posCurrent + 1)
-                });
-            }
-        } while (posCurrent < posMax &&
+        } while (
+            // Check if the end of the string was reached
+            posCurrent < posMax &&
+            // Check if the current character is the ending delimiter and if it is not escaped
             (state.src.charAt(posCurrent) !== markDelimiter || state.src.charAt(posCurrent - 1) === markDelimiterEscape)
         );
         const posEnd = posCurrent;
@@ -71,7 +77,8 @@ export const register = (md: MarkdownIt): void =>
         // Exit if no second delimiter is found
         if (posEnd === posMax) {
             if (DEBUG_APP) {
-                console.debug("No second delimiter found: ", state.src.slice(posStart, posEnd + 1));
+                console.debug("MarkdownIt>Plugin>KaTeX>Rule>Inline: No second delimiter found, discard " +
+                    `'${state.src.slice(posStart, posEnd + 1)}'`);
             }
             return false;
         }
@@ -79,7 +86,8 @@ export const register = (md: MarkdownIt): void =>
         // Exit if content is empty
         if (posEnd - posStart === 1) {
             if (DEBUG_APP) {
-                console.debug("Empty content, abort", state.src.slice(posStart, posEnd + 1));
+                console.debug("MarkdownIt>Plugin>KaTeX>Rule>Inline: Empty content, discard " +
+                    `'${state.src.slice(posStart, posEnd + 1)}'`);
             }
             return false;
         }
@@ -91,10 +99,8 @@ export const register = (md: MarkdownIt): void =>
             tokenMarkText.content = state.src.slice(posStart + 1, posEnd);
 
             if (DEBUG_APP) {
-                console.debug("MdMarkPlugin: Added tokens: ", {
-                    final: tokenMarkText.content,
-                    original: state.src.slice(posStart, posEnd + 1)
-                }, state.tokens);
+                console.debug("MarkdownIt>Plugin>KaTeX>Rule>Inline: Add token to render LaTeX math string " +
+                    `'${tokenMarkText.content}'`, state.tokens);
             }
         }
         state.pos = posEnd + 1;

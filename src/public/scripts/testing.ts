@@ -1,5 +1,6 @@
 import { ListHandler, NewListHandler, ListNodeType,ListNodeChildrenType } from "./testing_list_handler";
 import { md, katex } from "./documentRenderer/markdownRenderer";
+import "./webpackVars";
 
 // eslint-disable-next-line complexity
 window.onload = (): void => {
@@ -100,17 +101,19 @@ window.onload = (): void => {
 
     if (liveInput !== undefined && liveOutput !== undefined) {
         liveInput.addEventListener("input", (event: Event): void => {
-            // eslint-disable-next-line no-console
-            console.debug("live input has changed: ", {
-                selection: {
-                    start: liveInput.selectionStart,
-                    end: liveInput.selectionEnd,
-                    direction: liveInput.selectionDirection
-                },
-                content: liveInput.value,
-                event
-            });
-            liveOutput.innerHTML = md.render(liveInput.value);
+            if (DEBUG_APP) {
+                // eslint-disable-next-line no-console
+                console.debug("Testing: MarkdownIt live input has changed: ", {
+                    selection: {
+                        start: liveInput.selectionStart,
+                        end: liveInput.selectionEnd,
+                        direction: liveInput.selectionDirection
+                    },
+                    content: liveInput.value,
+                    event
+                });
+                liveOutput.innerHTML = md.render(liveInput.value);
+            }
         });
     }
 };
