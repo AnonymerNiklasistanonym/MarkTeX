@@ -1,12 +1,28 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const webpack = require("webpack");
+const CompressionPlugin = require("compression-webpack-plugin");
 
-const production = process.env.NODE_ENV === "production";
+const production = process.env.NODE_ENV !== "development";
 
 // eslint-disable-next-line no-console
 console.log(`Mode: ${production
     ? "production" : "development"
 } (process.env.NODE_ENV=${process.env.NODE_ENV})`);
+
+const plugins = [
+    new webpack.DefinePlugin({
+        DEBUG_APP: !production
+    })
+];
+
+if (production) {
+    // Compress scripts in production for smaller file size
+    plugins.push(new CompressionPlugin({
+        algorithm: "gzip",
+        cache: true
+    }));
+}
 
 module.exports = {
     entry: {
@@ -25,6 +41,7 @@ module.exports = {
             }
         ]
     },
+    plugins,
     resolve: {
         extensions: [ ".tsx", ".ts", ".js" ]
     },

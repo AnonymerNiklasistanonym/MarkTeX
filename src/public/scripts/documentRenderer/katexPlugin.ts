@@ -2,6 +2,7 @@
 import * as MarkdownIt from "markdown-it";
 import * as katex from "katex";
 export { katex };
+import "../webpackVars";
 
 const markDelimiter = "$";
 
@@ -49,13 +50,17 @@ export const register = (md: MarkdownIt): void =>
 
         // Exit if no second delimiter is found
         if (posEnd === posMax) {
-            console.debug("No second delimiter found: ", state.src.slice(posStart, posEnd + 1));
+            if (DEBUG_APP) {
+                console.debug("No second delimiter found: ", state.src.slice(posStart, posEnd + 1));
+            }
             return false;
         }
 
         // Exit if content is empty
         if (posEnd - posStart === 1) {
-            console.debug("Empty content, abort", state.src.slice(posStart, posEnd + 1));
+            if (DEBUG_APP) {
+                console.debug("Empty content, abort", state.src.slice(posStart, posEnd + 1));
+            }
             return false;
         }
 
@@ -65,10 +70,12 @@ export const register = (md: MarkdownIt): void =>
             const tokenMarkText = state.push("mathInline", "", 0);
             tokenMarkText.content = state.src.slice(posStart + 1, posEnd);
 
-            console.debug("MdMarkPlugin: Added tokens: ", {
-                final: tokenMarkText.content,
-                original: state.src.slice(posStart, posEnd + 1)
-            }, state.tokens);
+            if (DEBUG_APP) {
+                console.debug("MdMarkPlugin: Added tokens: ", {
+                    final: tokenMarkText.content,
+                    original: state.src.slice(posStart, posEnd + 1)
+                }, state.tokens);
+            }
         }
         state.pos = posEnd;
         return true;

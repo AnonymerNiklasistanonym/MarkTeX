@@ -17,6 +17,7 @@ const debug = debuglog("app-express");
 
 export interface StartExpressServerOptions {
     databasePath: string
+    production: boolean
 }
 
 export const startExpressServer = (options: StartExpressServerOptions): Server => {
@@ -41,16 +42,25 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     // Cache views for much better performance
     app.set("view cache", true);
 
-    // Configure static files
-    app.use(express.static(path.join(__dirname, "..", "public")));
-    app.use("/katex", express.static(path.join(__dirname, "..", "..", "node_modules", "katex", "dist")));
-    app.use("/hljs", express.static(path.join(__dirname, "..", "..", "node_modules", "highlight.js", "styles")));
-
     // Catch requests
     app.use((req, res, next) => {
         debug("access resource '%s'", req.originalUrl);
         next();
     });
+
+    // Middleware to server gzip webpack js files
+    app.get("*.js.gz", (req, res, next) => {
+        debug("*.js.gz file was requested '%s'", req.originalUrl);
+        res
+            .set("Content-Encoding", "gzip")
+            .set("Content-Type", "text/javascript");
+        next();
+    });
+
+    // Configure static files
+    app.use(express.static(path.join(__dirname, "..", "public")));
+    app.use("/katex", express.static(path.join(__dirname, "..", "..", "node_modules", "katex", "dist")));
+    app.use("/hljs", express.static(path.join(__dirname, "..", "..", "node_modules", "highlight.js", "styles")));
 
     // Configure routes
     routesAccount.register(app, options);

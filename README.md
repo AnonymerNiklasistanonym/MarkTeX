@@ -6,8 +6,8 @@ TODO: Add goals
 
 ## Requirements
 
-- `nodejs` 13.7.0
-- `pandoc` 2.8
+- `nodejs` 13.9.0
+- `pandoc` 2.9.2
 - `inkscape` 1.1 (dev version, not yet released)
 
 ## Quickstart

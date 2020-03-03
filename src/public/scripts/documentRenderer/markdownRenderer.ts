@@ -5,13 +5,16 @@ import * as emphasizePlugin from "./emphasizePlugin";
 import * as katexPlugin from "./katexPlugin";
 export { katex } from "./katexPlugin";
 import * as imagePandocPlugin from "./imagePandocPlugin";
+import "../webpackVars";
 
 export const md = new MarkdownIt({
     linkify: true,
     quotes: "„“‚‘",
     highlight: (str, lang): string | void => {
-        // eslint-disable-next-line no-console
-        console.log(`highlight: (str=${str}, lang=${lang})`);
+        if (DEBUG_APP) {
+            // eslint-disable-next-line no-console
+            console.debug(`highlight: (str=${str}, lang=${lang})`);
+        }
         if (lang && hljs.getLanguage(lang)) {
             try {
                 return `<pre class="hljs"><code> ${hljs.highlight(lang, str, true).value}</code></pre>`;

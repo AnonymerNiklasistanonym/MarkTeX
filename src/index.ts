@@ -24,7 +24,8 @@ api.database.checkIfDatabaseExists(databasePath)
     .then(() => {
         // Start sever
         const server = startExpressServer({
-            databasePath
+            databasePath,
+            production: process.env.NODE_ENV !== "development"
         });
         debug("server was started");
 
