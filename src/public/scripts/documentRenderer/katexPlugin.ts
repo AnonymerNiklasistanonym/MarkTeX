@@ -77,7 +77,7 @@ export const register = (md: MarkdownIt): void =>
                 }, state.tokens);
             }
         }
-        state.pos = posEnd;
+        state.pos = posEnd + 1;
         return true;
     };
 
