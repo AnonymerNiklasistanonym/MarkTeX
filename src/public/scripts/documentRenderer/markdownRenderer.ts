@@ -9,6 +9,7 @@ import "../webpackVars";
 
 export const md = new MarkdownIt({
     linkify: true,
+    html: true,
     quotes: "„“‚‘",
     highlight: (str, lang): string | void => {
         if (DEBUG_APP) {

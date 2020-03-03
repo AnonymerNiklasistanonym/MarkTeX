@@ -5,6 +5,7 @@ export { katex };
 import "../webpackVars";
 
 const markDelimiter = "$";
+const markDelimiterEscape = "\\";
 
 export const register = (md: MarkdownIt): void =>
 {
@@ -34,8 +35,12 @@ export const register = (md: MarkdownIt): void =>
     const mdRuleMathInline: MarkdownIt.RuleInline = (state, silent): boolean => {
         // Current position in token stream
         let posCurrent = state.pos;
-        // Check if delimiter is found in the current character in token stream
+        // Check if starting delimiter is found in the current character in token stream
         if (state.src.charAt(posCurrent) !== markDelimiter) {
+            return false;
+        }
+        // Check if starting delimiter is escaped in token stream
+        if (state.src.charAt(posCurrent - 1) === markDelimiterEscape) {
             return false;
         }
 
@@ -45,7 +50,22 @@ export const register = (md: MarkdownIt): void =>
         // Iterate through token stream to find delimiter a second time/or reach the end
         do {
             posCurrent++;
-        } while (posCurrent < posMax && state.src.charAt(posCurrent) !== markDelimiter);
+            if (DEBUG_APP) {
+                console.debug("what is this: ", {
+                    posCurrent,
+                    "posCurrent < posMax": posCurrent < posMax,
+                    "!== markDelimiter": state.src.charAt(posCurrent) !== markDelimiter,
+                    "=== markDelimiterEscape": state.src.charAt(posCurrent - 1) === markDelimiterEscape,
+                    together: posCurrent < posMax &&
+                    (state.src.charAt(posCurrent) !== markDelimiter ||
+                     state.src.charAt(posCurrent - 1) === markDelimiterEscape),
+                    currentChar: state.src.charAt(posCurrent),
+                    currentString: state.src.slice(posStart, posCurrent + 1)
+                });
+            }
+        } while (posCurrent < posMax &&
+            (state.src.charAt(posCurrent) !== markDelimiter || state.src.charAt(posCurrent - 1) === markDelimiterEscape)
+        );
         const posEnd = posCurrent;
 
         // Exit if no second delimiter is found
@@ -83,48 +103,8 @@ export const register = (md: MarkdownIt): void =>
 
     // eslint-disable-next-line complexity
     const mdRuleMathBlock: MarkdownIt.RuleBlock = (state, silent): boolean => {
-        // Current position in token stream
-        let posCurrent = state.pos;
-        // Check if delimiter is found in the current character in token stream
-        if (state.src.charAt(posCurrent) !== markDelimiter
-            || state.src.charAt(posCurrent + 1) !== markDelimiter) {
-            return false;
-        }
-
-        // If found remember start position in token stream
-        const posStart = posCurrent;
-        const posMax = state.posMax;
-        // Iterate through token stream to find delimiter a second time/or reach the end
-        do {
-            posCurrent++;
-        } while (posCurrent < posMax && state.src.charAt(posCurrent) !== markDelimiter);
-        const posEnd = posCurrent;
-
-        // Exit if no second delimiter is found
-        if (posEnd === posMax) {
-            console.debug("No second delimiter found: ", state.src.slice(posStart, posEnd + 1));
-            return false;
-        }
-
-        // Exit if content is empty
-        if (posEnd - posStart === 1) {
-            console.debug("Empty content, abort", state.src.slice(posStart, posEnd + 1));
-            return false;
-        }
-
-        if (!silent) {
-            // If not silent give rules on how to render the token
-            // >> Add token for the mark text
-            const tokenMarkText = state.push("mathInline", "", 0);
-            tokenMarkText.content = state.src.slice(posStart + 1, posEnd);
-
-            console.debug("MdMarkPlugin: Added tokens: ", {
-                final: tokenMarkText.content,
-                original: state.src.slice(posStart, posEnd + 1)
-            }, state.tokens);
-        }
-        state.pos = posEnd + 1;
-        return true;
+        // TODO Implement
+        return false;
     };
 
 
