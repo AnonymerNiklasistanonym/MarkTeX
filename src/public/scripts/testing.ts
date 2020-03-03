@@ -112,8 +112,8 @@ window.onload = (): void => {
                     content: liveInput.value,
                     event
                 });
-                liveOutput.innerHTML = md.render(liveInput.value);
             }
+            liveOutput.innerHTML = md.render(liveInput.value);
         });
     }
 };
