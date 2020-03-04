@@ -43,8 +43,7 @@ glob("**/*.{hbs,ts,html,css,yml}", {
      */
     const renderTag = (entry: Entry): string => `| ${entry.tag} | ${entry.text} | ` +
         `${path.extname(entry.file)} | [Link to ${path.basename(entry.file)}](` +
-        "https://github.com/AnonymerNiklasistanonym/ProgrammingForMediainformatic" +
-        `sWs1819FinalProject/blob/master/SourceCode/${entry.file}#L${entry.line}) |`;
+        `https://github.com/AnonymerNiklasistanonym/MarkTeX/blob/master/${entry.file}#L${entry.line}) |`;
 
     const todoTags = mappedFiles.filter(a => a.tag === "TODO");
     const fixMeTags = mappedFiles.filter(a => a.tag === "FIXME");
