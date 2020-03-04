@@ -10,11 +10,13 @@ DOCKER_IMAGE_NAME_RUN=prototype/typescript-express-run
 DOCKER_IMAGE_BUILD_FILE_NAME=docker-image-typescript-express-build.tar
 DOCKER_IMAGE_RUN_FILE_NAME=docker-image-typescript-express-run.tar
 
+DEFAULT_SERVER_PORT=8080
+DOCKER_SERVER_PORT_MAPPING=$(DEFAULT_SERVER_PORT)
+
 DOCKER_ARGS_BUILD=#--no-cache
 DOCKER_ARGS_RUN_IMAGE_RUN=-d \
-                          -p 8080:8080
+                          -p $(DOCKER_SERVER_PORT_MAPPING):$(DEFAULT_SERVER_PORT)
 
-SERVER_PORT=8080
 
 all: docker_build docker_run
 

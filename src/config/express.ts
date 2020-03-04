@@ -15,8 +15,11 @@ import * as routesHome from "../routes/home";
 
 const debug = debuglog("app-express");
 
+/** Options for express instance */
 export interface StartExpressServerOptions {
+    /** Name of the database */
     databasePath: string
+    /** Indicator if the server should run in production or development mode */
     production: boolean
 }
 
@@ -92,19 +95,19 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
         debug("display error page '%s'", errorRenderContent.error);
         const errorRenderContentHeader: HbsHeader = {
             scripts: [
-                { path: "scripts/error_bundle.js" }
+                { path: "/scripts/error_bundle.js" }
             ],
             stylesheets: [
-                { path: "stylesheets/global.css" },
-                { path: "stylesheets/debug.css" },
-                { path: "stylesheets/error.css" }
+                { path: "/stylesheets/global.css" },
+                { path: "/stylesheets/debug.css" },
+                { path: "/stylesheets/error.css" }
             ],
             title: `Error ${err.status || 500}: ${err.message}`,
             favicon: {
-                ico: "favicon/favicon.ico",
-                svg: "favicon/favicon.svg",
+                ico: "/favicon/favicon.ico",
+                svg: "/favicon/favicon.svg",
                 png: {
-                    prefix: "favicon/favicon_",
+                    prefix: "/favicon/favicon_",
                     postfix: ".png",
                     sizes: [ 16, 48, 128, 180, 196, 256, 512 ]
                 }
@@ -112,7 +115,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
             webApp: {
                 name: "TypeScript Express Prototype",
                 themeColor: "#0289ff",
-                manifestPath: "manifest.json"
+                manifestPath: "/manifest.json"
             },
             description: "WIP",
             author: "AnonymerNiklasistanonym"

@@ -57,13 +57,13 @@ glob("**/*.{hbs,ts,html,css,yml}", {
         : "| Tag | Description | Type | Link |\n| --- | --- | --- | --- |\n" +
         allTags.join("\n");
 
-    fs.writeFile(path.join(__dirname, "todos.md"),
+    const distDir = path.join(__dirname, "dist");
+    if (!fs.existsSync(distDir)){
+        fs.mkdirSync(distDir);
+    }
+
+    fs.writeFileSync(path.join(distDir, "todos.md"),
         "# Open TODOs\n\n" +
         "In here you can find nearly all currently open FIXME and TODO tags in " +
-        "the code:\n\n" + content,
-        error => {
-            if (error) {
-                throw error;
-            }
-        });
+        "the code:\n\n" + content);
 });
