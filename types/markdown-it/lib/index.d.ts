@@ -18,6 +18,76 @@ export as namespace markdownit;
 declare const MarkdownIt: MarkdownItConstructor;
 
 interface MarkdownItConstructor {
+    /**
+     * Creates parser instance with given config. Can be called without `new`.
+     *
+     * @param presetName
+     *
+     * MarkdownIt provides named presets as a convenience to quickly
+     * enable/disable active syntax rules and options for common use cases.
+     *
+     * - ["commonmark"](https://github.com/markdown-it/markdown-it/blob/master/lib/presets/commonmark.js) -
+     *   configures parser to strict [CommonMark](http://commonmark.org/) mode.
+     * - [default](https://github.com/markdown-it/markdown-it/blob/master/lib/presets/default.js) -
+     *   similar to GFM, used when no preset name given. Enables all available rules,
+     *   but still without html, typographer & autolinker.
+     * - ["zero"](https://github.com/markdown-it/markdown-it/blob/master/lib/presets/zero.js) -
+     *   all rules disabled. Useful to quickly setup your config via `.enable()`.
+     *   For example, when you need only `bold` and `italic` markup and nothing else.
+     *
+     * @example
+     * ```javascript
+     * // commonmark mode
+     * var md = require('markdown-it')('commonmark');
+     *
+     * // default mode
+     * var md = require('markdown-it')();
+     *
+     * // enable everything
+     * var md = require('markdown-it')({
+     *   html: true,
+     *   linkify: true,
+     *   typographer: true
+     * });
+     * ```
+     *
+     * @example Syntax highlighting
+     * ```js
+     * var hljs = require('highlight.js') // https://highlightjs.org/
+     *
+     * var md = require('markdown-it')({
+     *   highlight: function (str, lang) {
+     *     if (lang && hljs.getLanguage(lang)) {
+     *       try {
+     *         return hljs.highlight(lang, str, true).value;
+     *       } catch (__) {}
+     *     }
+     *
+     *     return ''; // use external default escaping
+     *   }
+     * });
+     * ```
+     *
+     * @example Syntax highlighting with full wrapper override (if you need assign class to `<pre>`):
+     * ```javascript
+     * var hljs = require('highlight.js') // https://highlightjs.org/
+     *
+     * // Actual default values
+     * var md = require('markdown-it')({
+     *   highlight: function (str, lang) {
+     *     if (lang && hljs.getLanguage(lang)) {
+     *       try {
+     *         return '<pre class="hljs"><code>' +
+     *                hljs.highlight(lang, str, true).value +
+     *                '</code></pre>';
+     *       } catch (__) {}
+     *     }
+     *
+     *     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+     *   }
+     * });
+     * ```
+     **/
     new (): MarkdownIt;
     new (presetName: "commonmark" | "zero" | "default", options?: MarkdownIt.Options): MarkdownIt;
     new (options: MarkdownIt.Options): MarkdownIt;
@@ -78,13 +148,49 @@ interface MarkdownIt {
 
 declare module MarkdownIt {
     interface Options {
+        /**
+         * Set `true` to enable HTML tags in source. Be careful!
+         * That's not safe! You may need external sanitizer to protect output from XSS.
+         * It's better to extend features via plugins, instead of enabling HTML.
+         */
         html?: boolean;
+        /**
+         * Set `true` to add '/' when closing single tags
+         * (`<br />`). This is needed only for full CommonMark compatibility. In real
+         * world you will need HTML output.
+         */
         xhtmlOut?: boolean;
+        /**
+         * Set `true` to convert `\n` in paragraphs into `<br>`.
+         */
         breaks?: boolean;
+        /**
+         * CSS language class prefix for fenced blocks.
+         * Can be useful for external highlighters.
+         */
         langPrefix?: string;
+        /**
+         * Set `true` to autoconvert URL-like text to links.
+         */
         linkify?: boolean;
+        /**
+         * Set `true` to enable [some language-neutral replacement](https://github.com/markdown-it/markdown-it/blob/master/lib/rules_core/replacements.js) +
+         *   quotes beautification (smartquotes).
+         */
         typographer?: boolean;
+        /**
+         * String or Array. Double + single quotes replacement
+         * pairs, when typographer enabled and smartquotes on. For example, you can
+         * use `'«»„“'` for Russian, `'„“‚‘'` for German, and
+         * `['«\xA0', '\xA0»', '‹\xA0', '\xA0›']` for French (including nbsp).
+         */
         quotes?: string;
+        /**
+         * Highlighter function for fenced code blocks.
+         * Should return escaped HTML.
+         * It can also return empty string if the source was not changed and should be escaped
+         * externaly. If result starts with <pre... internal wrapper is skipped.
+         */
         highlight?: (str: string, lang: string) => void;
     }
 
