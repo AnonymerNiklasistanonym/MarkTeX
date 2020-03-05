@@ -64,7 +64,7 @@ export const register = (md: MarkdownIt): void =>
                     `'${tokenMarkText.content}'`, state.tokens);
             }
         }
-        state.pos = posEnd;
+        state.pos = posEnd + 1;
         return true;
     };
 

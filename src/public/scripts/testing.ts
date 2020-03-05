@@ -2,6 +2,9 @@ import { ListHandler, NewListHandler, ListNodeType,ListNodeChildrenType } from "
 import { md, katex } from "./documentRenderer/markdownRenderer";
 import "./webpackVars";
 
+// eslint-disable-next-line no-console
+console.log(`DEBUG_APP=${DEBUG_APP}`);
+
 // eslint-disable-next-line complexity
 window.onload = (): void => {
     const listHandler = new ListHandler();

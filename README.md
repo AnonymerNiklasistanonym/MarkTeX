@@ -41,6 +41,19 @@ The following command automatically updates the server when you change something
 npm run dev
 ```
 
+#### Custom types
+
+Because currently the custom types are not correctly recognized via VSCode intellisense (but they are from the TypeScript compiler) you need to run a command to copy them to the `node_modules/@types` directory:
+
+```sh
+npm run vscodeTypeIntegration
+```
+
+#### Debug
+
+- Nodejs server debugging works with VisualStudioCode (Insiders) when opening the repository as root directory
+- Frontend debugging works with Mozilla Firefox (Nightly) but seemingly not out of the box in other browsers like Chromium
+
 ### Production
 
 The following command builds all files into the directory `dist`:
@@ -128,28 +141,7 @@ Run and build this project via docker with: (`sudo`) `make`
 TODO: Currently there is a problem when forwarding the port from the docker machine to the host computer - some paths do not work and you get 404s everywhere.
 Until this is resolved you can access the website via the IP address from `docker inspect <CONTAINER_ID> | grep IPAddress` and the original port (`8080`) [instead of `localhost:8080/xyz` visit `DOCKER_CONTAINER_IP_ADDRESS:8080/xyz`].
 
----
-
-Stop running container:
-
-```sh
-# Get docker container id
-sudo docker ps
-# Stop running docker container
-sudo docker stop CONTAINER_ID
-```
-
----
-
-Clean **ALL** docker files (to get 10GB or more free space but also **removes external docker files!**):
-
-```sh
-# Remove all docker containers and images
-sudo docker container prune -f
-sudo docker image prune -af
-```
-
----
+### Start/Stop docker service after installation
 
 When you get an error like `Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?`,you can try the following command to start the docker daemon:
 
@@ -158,4 +150,23 @@ When you get an error like `Cannot connect to the Docker daemon at unix:///var/r
 sudo systemctl start docker
 # Stop docker daemon
 sudo systemctl stop docker
+```
+
+### Stop running container
+
+```sh
+# Get docker container id
+sudo docker ps
+# Stop running docker container
+sudo docker stop CONTAINER_ID
+```
+
+### Clean **ALL** docker files
+
+This gives you like 10GB or more free space but also **removes project unrelated docker files!**
+
+```sh
+# Remove all docker containers and images
+sudo docker container prune -f
+sudo docker image prune -af
 ```

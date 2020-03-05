@@ -11,6 +11,11 @@
         "baseUrl": ".",
         "strict": true,
         "strictNullChecks": true,
+        "paths": {
+            "markdown-it": [
+                "./types/markdown-it/lib"
+            ]
+        },
         "forceConsistentCasingInFileNames": true
     },
     "include": [
@@ -22,6 +27,7 @@
         "src/index.ts"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "types"
     ]
 }
