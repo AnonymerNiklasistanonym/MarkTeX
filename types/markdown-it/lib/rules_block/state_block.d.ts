@@ -54,6 +54,8 @@ declare class StateBlock extends State {
     /** Renderer */
     result: string;
 
+    /** Push new token to "stream". */
+    push: (type: string, tag: string, nesting: number) => Token;
     /**
      * ```js
      * return this.bMarks[line] + this.tShift[line] >= this.eMarks[line];

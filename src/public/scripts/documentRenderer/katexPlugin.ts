@@ -8,15 +8,20 @@ export interface Options {
     onError?: (error: Error, originalString: string) => void
 };
 
+export interface KatexToHtmlTextOptions {
+    /** Set `true` if math should be rendered in displaystyle mode */
+    block?: boolean
+};
+
 const markDelimiter = "$";
 const markDelimiterBlock = "$$";
 const markDelimiterEscape = "\\";
 
 export const register = (md: MarkdownIt, options: Options): void =>
 {
-    const katexToHtmlText = (latex: string, displayMode = false): string => {
+    const katex2Html = (latex: string, katexToHtmlOptions?: KatexToHtmlTextOptions): string => {
         const katexOptions = {
-            displayMode,
+            displayMode: katexToHtmlOptions !== undefined && katexToHtmlOptions.block,
             // When onError function is defined throw errors
             throwOnError: options.onError !== undefined
         };
@@ -38,74 +43,6 @@ export const register = (md: MarkdownIt, options: Options): void =>
             // }
             return latex;
         }
-    };
-
-    const katexInlineRenderer = (tokens: { content: string }[], idx: number): string => {
-        return katexToHtmlText(tokens[idx].content, false);
-    };
-
-    const katexBlockRenderer = (tokens: { content: string }[], idx: number): string => {
-        return katexToHtmlText(tokens[idx].content, true);
-    };
-
-    // eslint-disable-next-line complexity
-    const mdRuleMathInlineDisplaysyle: MarkdownIt.RuleInline = (state, silent): boolean => {
-        // Current position in token stream
-        let posCurrent = state.pos;
-        const posMax = state.posMax;
-        // Check if starting delimiter is found in the current character in token stream
-        if ((state.src.charAt(posCurrent) !== markDelimiter)
-            || (posCurrent + 1 < posMax && state.src.charAt(posCurrent + 1) !== markDelimiter)) {
-            return false;
-        }
-
-        // If found remember start position in token stream
-        const posStart = posCurrent;
-        posCurrent++;
-        // Iterate through token stream to find delimiter a second time/or reach the end
-        do {
-            posCurrent++;
-        } while (
-            // Check if the end of the string was reached
-            posCurrent < posMax &&
-            // Check if the current character is the ending delimiter and if it is not escaped
-            (state.src.charAt(posCurrent) !== markDelimiter ||
-             state.src.charAt(posCurrent - 1) !== markDelimiter ||
-             state.src.charAt(posCurrent - 2) === markDelimiterEscape)
-        );
-        const posEnd = posCurrent;
-
-        // Exit if no second delimiter is found
-        if (posEnd === posMax) {
-            if (DEBUG_APP) {
-                console.debug("MarkdownIt>Plugin>KaTeX>Rule>InlineDisplaystyle: No second delimiter found, discard " +
-                    `'${state.src.slice(posStart, posEnd + 1)}'`);
-            }
-            return false;
-        }
-
-        // Exit if content is empty
-        if (posEnd - posStart === 1) {
-            if (DEBUG_APP) {
-                console.debug("MarkdownIt>Plugin>KaTeX>Rule>InlineDisplaystyle: Empty content, discard " +
-                    `'${state.src.slice(posStart, posEnd + 1)}'`);
-            }
-            return false;
-        }
-
-        if (!silent) {
-            // If not silent give rules on how to render the token
-            // >> Add token for the mark text
-            const tokenMarkText = state.push("mathInlineDisplaystyle", "", 0);
-            tokenMarkText.content = state.src.slice(posStart + 2, posEnd - 1);
-
-            if (DEBUG_APP) {
-                console.debug("MarkdownIt>Plugin>KaTeX>Rule>mathInlineDisplaystyle: Add token to render LaTeX math " +
-                     "string " + `'${tokenMarkText.content}'`, state.tokens);
-            }
-        }
-        state.pos = posEnd + 1;
-        return true;
     };
 
     // eslint-disable-next-line complexity
@@ -135,8 +72,9 @@ export const register = (md: MarkdownIt, options: Options): void =>
         );
         const posEnd = posCurrent;
 
-        // Exit if no second delimiter is found
-        if (posEnd === posMax) {
+        // Notice if no second delimiter is found
+        const secondDelimiterFound = posEnd !== posMax;
+        if (!secondDelimiterFound) {
             if (DEBUG_APP) {
                 console.debug("MarkdownIt>Plugin>KaTeX>Rule>Inline: No second delimiter found, discard " +
                     `'${state.src.slice(posStart, posEnd + 1)}'`);
@@ -156,120 +94,150 @@ export const register = (md: MarkdownIt, options: Options): void =>
         if (!silent) {
             // If not silent give rules on how to render the token
             // >> Add token for the mark text
-            const tokenMarkText = state.push("mathInline", "", 0);
-            tokenMarkText.content = state.src.slice(posStart + 1, posEnd);
+            const tokenMarkText = state.push("mathInline", "math", 0);
+            tokenMarkText.content = state.src.slice(posStart + 1, secondDelimiterFound ? posEnd : posEnd + 1);
 
             if (DEBUG_APP) {
                 console.debug("MarkdownIt>Plugin>KaTeX>Rule>Inline: Add token to render LaTeX math string " +
                     `'${tokenMarkText.content}'`, state.tokens);
             }
         }
-        state.pos = posEnd + 1;
+        state.pos = secondDelimiterFound ? posEnd + 1 : posEnd;
+        return true;
+    };
+
+    // eslint-disable-next-line complexity
+    const mdRuleMathInlineBlock: MarkdownIt.RuleInline = (state, silent): boolean => {
+        // Current position in token stream
+        let posCurrent = state.pos;
+        // Check if starting delimiter is found in the current character in token stream
+        if (state.src.charAt(posCurrent) !== markDelimiter) {
+            return false;
+        }
+        // If found remember start position in token stream
+        const posStart = posCurrent;
+        const posMax = state.posMax;
+        posCurrent++;
+
+        // Check if second delimiter is found in the current character in token stream
+        if (state.src.charAt(posCurrent) !== markDelimiter) {
+            return false;
+        }
+
+        // Iterate through token stream to find delimiter a second time/or reach the end
+        do {
+            posCurrent++;
+        } while (
+            // Check if the end of the string was reached
+            posCurrent < posMax &&
+            // Check if the current character and the one before are the ending delimiter and if they are escaped
+            (state.src.charAt(posCurrent) !== markDelimiter ||
+             state.src.charAt(posCurrent - 1) !== markDelimiter ||
+             state.src.charAt(posCurrent - 2) === markDelimiterEscape)
+        );
+        const posEnd = posCurrent;
+
+        // Notice if no second delimiter is found
+        const secondDelimiterFound = posEnd !== posMax;
+        if (!secondDelimiterFound) {
+            if (DEBUG_APP) {
+                console.debug("MarkdownIt>Plugin>KaTeX>Rule>InlineBlock: No second delimiter found! " +
+                    `'${state.src.slice(posStart, posEnd + 1)}'`);
+            }
+        }
+
+        // Exit if content is empty
+        if (posEnd - posStart === 1) {
+            if (DEBUG_APP) {
+                console.debug("MarkdownIt>Plugin>KaTeX>Rule>InlineBlock: Empty content, discard " +
+                    `'${state.src.slice(posStart, posEnd + 1)}'`);
+            }
+            return false;
+        }
+
+        if (!silent) {
+            // If not silent give rules on how to render the token
+            // >> Add token for the mark text
+            const tokenMarkText = state.push("mathInlineBlock", "math", 0);
+            tokenMarkText.content = state.src.slice(posStart + 2, secondDelimiterFound ? posEnd - 1 : posEnd + 1);
+
+            if (DEBUG_APP) {
+                console.debug("MarkdownIt>Plugin>KaTeX>Rule>InlineBlock: Add token to render LaTeX math string " +
+                    `'${tokenMarkText.content}'`, state.tokens);
+            }
+        }
+        state.pos = secondDelimiterFound ? posEnd + 1 : posEnd;
         return true;
     };
 
     // eslint-disable-next-line complexity
     const mdRuleMathBlock: MarkdownIt.RuleBlock = (state, startLine, endLine, silent) => {
-        let posCurrent = state.bMarks[startLine] + state.tShift[startLine];
-        const posMax = state.eMarks[endLine];
+        const start = startLine;
+        const end = endLine;
 
-        if (DEBUG_APP) {
-            console.debug("MarkdownIt>Plugin>KaTeX>Rule>Block: I am executed");
+        let firstLine;
+        let lastLine;
+        let next;
+        let lastPos;
+        let found = false;
+        let pos = state.bMarks[start] + state.tShift[start];
+        let max = state.eMarks[start];
+
+
+        if(pos + 2 > max){ return false; }
+        if(state.src.slice(pos,pos+2)!==markDelimiterBlock){ return false; }
+
+        pos += 2;
+        firstLine = state.src.slice(pos,max);
+
+        if(silent){ return true; }
+        if(firstLine.trim().endsWith(markDelimiterBlock)){
+            // Single line expression
+            firstLine = firstLine.trim().slice(0, -2);
+            found = true;
         }
 
-        // Check if the end of the string is reached
-        if (posCurrent + 1 > posMax) { return false; }
+        for(next = start; !found; ){
 
-        if (DEBUG_APP) {
-            console.debug("MarkdownIt>Plugin>KaTeX>Rule>Block: Length for delimiter is OK");
-        }
+            next++;
 
-        // Check if the delimiter is found
-        const delimiterBegin = state.src.charAt(posCurrent) + state.src.charAt(posCurrent + 1);
-        if (DEBUG_APP) {
-            console.debug(`MarkdownIt>Plugin>KaTeX>Rule>Block: delimiterBegin: '${delimiterBegin}'`);
-        }
-        if (delimiterBegin !== markDelimiterBlock) {
-            return false;
-        }
+            if(next >= end){ break; }
 
-        if (DEBUG_APP) {
-            console.debug("MarkdownIt>Plugin>KaTeX>Rule>Block: Delimiter was found");
-        }
+            pos = state.bMarks[next]+state.tShift[next];
+            max = state.eMarks[next];
 
-        // If found remember start position in token stream
-        const posStart = posCurrent;
-        posCurrent++;
-
-        // Iterate through token stream to find delimiter a second time/or reach the end
-        do {
-            posCurrent++;
-            if (DEBUG_APP) {
-                console.debug("MarkdownIt>Plugin>KaTeX>Rule>Block: DELETE", {
-                    posCurrent, posMax,
-                    "state.src.charAt(posCurrent - 2)": state.src.charAt(posCurrent - 2),
-                    "state.src.charAt(posCurrent - 1)": state.src.charAt(posCurrent - 1),
-                    "state.src.charAt(posCurrent)": state.src.charAt(posCurrent),
-                    final: ((state.src.charAt(posCurrent - 1) !== markDelimiter
-                    || state.src.charAt(posCurrent) !== markDelimiter)
-                    || state.src.charAt(posCurrent - 2) === markDelimiterEscape)
-                });
+            if(pos < max && state.tShift[next] < state.blkIndent){
+                // non-empty line with negative indent should stop the list:
+                break;
             }
-        } while (
-            // Check if the end of the string was reached
-            posCurrent < posMax &&
-            // Check if the current character is the ending delimiter and if it is not escaped
-            ((state.src.charAt(posCurrent - 1) !== markDelimiter || state.src.charAt(posCurrent) !== markDelimiter)
-             || state.src.charAt(posCurrent - 2) === markDelimiterEscape)
-        );
-        const posEnd = posCurrent;
-        const markup = state.src.slice(posStart + 2, posEnd - 2);
 
-        // Exit if no second delimiter is found
-        if (posEnd === posMax) {
-            if (DEBUG_APP) {
-                console.debug("MarkdownIt>Plugin>KaTeX>Rule>Block: End of string was reached but no delimiter found");
+            if(state.src.slice(pos,max).trim().endsWith(markDelimiterBlock)){
+                lastPos = state.src.slice(0,max).lastIndexOf(markDelimiterBlock);
+                lastLine = state.src.slice(pos,lastPos);
+                found = true;
             }
-            return false;
+
         }
 
-        // Since start is found, we can report success here in validation mode
-        if (silent) { return true; }
+        state.line = next + 1;
 
-        // search end of block
-        const nextLine = startLine;
-
-        // If a fence has heading spaces, they should be removed from its inner block
-        const len = state.sCount[startLine];
-
-        state.line = nextLine + state.getLines(startLine + 1, nextLine, posEnd - posStart, true);
-
-        const tokenMarkText = state.push("mathBlock", "", 0);
-        tokenMarkText.content = state.src.slice(posStart + 2, posEnd - 2);
-        tokenMarkText.content = state.getLines(startLine + 1, nextLine, len, true);
-        tokenMarkText.markup  = markup;
-        tokenMarkText.map     = [ startLine, state.line ];
-
+        const token = state.push("mathBlock", "math", 0);
+        token.block = true;
+        token.content = (firstLine && firstLine.trim() ? firstLine + "\n" : "")
+        + state.getLines(start + 1, next, state.tShift[start], true)
+        + (lastLine && lastLine.trim() ? lastLine : "");
+        token.map = [ start, state.line ];
+        token.markup = markDelimiterBlock;
         return true;
     };
 
 
-    md.inline.ruler.push(
-        "mathInlineDisplaystyle", // name of added rule
-        mdRuleMathInlineDisplaysyle  // rule function
-    );
-    md.inline.ruler.push(
-        "mathInline", // name of added rule
-        mdRuleMathInline  // rule function
-    );
-    md.block.ruler.before(
-        "paragraph",
-        "mathBlock", // name of added rule
-        mdRuleMathBlock // rule function
-    );
-    md.renderer.rules.mathInline = katexInlineRenderer;
-    md.renderer.rules.mathInlineDisplaystyle = katexBlockRenderer;
-    md.renderer.rules.mathBlock = katexBlockRenderer;
+    md.inline.ruler.push("mathInline", mdRuleMathInline);
+    md.inline.ruler.push("mathInlineBlock", mdRuleMathInlineBlock);
+    md.block.ruler.before("paragraph", "mathBlock", mdRuleMathBlock);
+    md.renderer.rules.mathInline = (tokens, idx): string => katex2Html(tokens[idx].content);
+    md.renderer.rules.mathInlineBlock = (tokens, idx): string => katex2Html(tokens[idx].content, { block: true });
+    md.renderer.rules.mathBlock = (tokens, idx): string => katex2Html(tokens[idx].content, { block: true });
 
     if (DEBUG_APP) {
         console.debug("MarkdownIt>Plugin>KaTeX>Setup: All rules inline ''",
