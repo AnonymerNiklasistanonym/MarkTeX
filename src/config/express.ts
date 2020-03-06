@@ -64,6 +64,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     app.use(express.static(path.join(__dirname, "..", "public")));
     app.use("/katex", express.static(path.join(__dirname, "..", "..", "node_modules", "katex", "dist")));
     app.use("/hljs", express.static(path.join(__dirname, "..", "..", "node_modules", "highlight.js", "styles")));
+    app.use("/githubmdcss", express.static(path.join(__dirname, "..", "..", "node_modules", "github-markdown-css")));
 
     // Configure routes
     routesAccount.register(app, options);

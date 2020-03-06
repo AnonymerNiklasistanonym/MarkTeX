@@ -103,6 +103,7 @@ window.onload = (): void => {
     const liveOutput = document.getElementById("testing-live-md-rendering-output") as HTMLDivElement;
 
     if (liveInput !== undefined && liveOutput !== undefined) {
+        liveOutput.innerHTML = md.render(liveInput.value);
         liveInput.addEventListener("input", (event: Event): void => {
             if (DEBUG_APP) {
                 // eslint-disable-next-line no-console
