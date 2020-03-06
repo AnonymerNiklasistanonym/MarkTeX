@@ -1,8 +1,24 @@
 # MarkTeX
 
-WIP: *Express server written in TypeScript*
+Webapp for Markdown notes and summaries with LaTeX math and `tikzpicture`s that can be publicly shared or be private.
 
-TODO: Add goals
+## What problem does it solve
+
+- Write notes, homework, summaries alone and together uncomplicated in Markdown syntax
+- Insert complicated (`tikzpicture`) graphs and images based on existing `pandoc` integrations
+- Easily collect/group notes and documents and thus find them quickly
+- Export the documents for offline rendering to PDF using `pandoc` and a `Makefile`
+
+## Current development state
+
+Basic server is setup (logs, error page, scripts & styles).
+
+The current features that are being developed are:
+
+- Backend database integration
+- Backend session integration
+- Frontend Markdown renderer extension with LaTeX `tikzpicture`
+- Frontend button to export to PDF
 
 ## Requirements
 
