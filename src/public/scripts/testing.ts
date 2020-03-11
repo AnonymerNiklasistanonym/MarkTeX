@@ -1,9 +1,10 @@
 import { ListHandler, NewListHandler, ListNodeType,ListNodeChildrenType } from "./testing_list_handler";
 import { md, katex } from "./documentRenderer/markdownRenderer";
 import "./webpackVars";
+import {InkscapePdf2Svg} from "../../modules/inkscape";
 
 export interface RequestLatexBlock {
-    svgData: string
+    svgData: InkscapePdf2Svg
     id: number
 }
 
@@ -109,6 +110,7 @@ window.onload = (): void => {
 
     if (liveInput !== undefined && liveOutput !== undefined) {
         liveOutput.innerHTML = md.render(liveInput.value);
+        // eslint-disable-next-line complexity
         liveInput.addEventListener("input", (event: Event): void => {
             if (DEBUG_APP) {
                 // eslint-disable-next-line no-console
@@ -128,11 +130,22 @@ window.onload = (): void => {
             const latexBlocks: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.markdown-latex-block");
             for (const latexBlock of latexBlocks) {
                 // Make requests to get svg data from latex blocks
+                const headerIncludeString = latexBlock.getAttribute("header-includes");
+                const latexHeaderIncludes =
+                    (headerIncludeString !== undefined && headerIncludeString !== null)
+                        ? headerIncludeString.split(",") : [];
+                const texContentElement = latexBlock.querySelector("p");
+                if (texContentElement === undefined || texContentElement == null) {
+                    // eslint-disable-next-line no-console
+                    console.log("latex block has no tex content");
+                    return;
+                }
                 if (DEBUG_APP) {
                     // eslint-disable-next-line no-console
                     console.debug("Testing: MarkdownIt found a latex block: ", {
                         id: latexBlock.id,
-                        content: latexBlock.textContent
+                        content: texContentElement.textContent,
+                        latexHeaderIncludes
                     });
                 }
                 fetch("/api/latex2svg", {
@@ -143,12 +156,15 @@ window.onload = (): void => {
                     body: JSON.stringify({
                         apiVersion: "0.0.1",
                         latexStringHash: latexBlock.id,
-                        latexString: latexBlock.textContent
+                        latexString: texContentElement.textContent,
+                        latexHeaderIncludes
                     })
                 })
                     .then(response => response.json())
                     // eslint-disable-next-line complexity
                     .then((responseData: RequestLatexBlock) => {
+                        // eslint-disable-next-line no-console
+                        console.log(`Received a response: responseData=${JSON.stringify(responseData)}`);
                         if (latexBlock === undefined || latexBlock === null) {
                             // eslint-disable-next-line no-console
                             console.log("latex block is undefined");
@@ -166,7 +182,7 @@ window.onload = (): void => {
                             return;
                         }
                         svgElement.classList.remove("loading");
-                        svgElement.innerHTML = responseData.svgData;
+                        svgElement.innerHTML = responseData.svgData.svgData;
                     })
                     .catch(error => {
                         // eslint-disable-next-line no-console

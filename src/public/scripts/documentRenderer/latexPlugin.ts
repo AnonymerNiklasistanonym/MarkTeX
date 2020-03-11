@@ -25,6 +25,7 @@ export const register = (md: MarkdownIt): void =>
 
         let latexString = currentString;
         const headerIncludesString = "% header-includes: ";
+        let headerIncludes: string[] = [];
 
         do {
 
@@ -37,9 +38,9 @@ export const register = (md: MarkdownIt): void =>
 
             if(currentString.startsWith(headerIncludesString)){
                 currentString = currentString.slice(headerIncludesString.length ,currentString.length);
+                headerIncludes = currentString.split(" ").filter(a => a.length !== 0);
                 if (DEBUG_APP) {
-                    console.debug("MarkdownIt>Plugin>Latex: Found header includes",
-                        currentString.split(" ").filter(a => a.length !== 0));
+                    console.debug("MarkdownIt>Plugin>Latex: Found header includes", headerIncludes);
                 }
                 continue;
             } else {
@@ -62,6 +63,7 @@ export const register = (md: MarkdownIt): void =>
         const token = state.push("latexBlock", "latex", 0);
         token.block = true;
         token.content = latexString;
+        token.meta = { headerIncludes };
         token.map = [ startLine, state.line ];
         token.markup = "\\begin{center}\\end{center}";
 
@@ -69,20 +71,23 @@ export const register = (md: MarkdownIt): void =>
         return true;
     };
 
-    const latex2html = (latexString: string): string => {
+    const latex2html = (latexString: string, headerIncludes: string[]): string => {
         // Generate hash for given string
         const latexStringHash = hashCode(latexString);
 
         if (DEBUG_APP) {
-            console.debug("MarkdownIt>Plugin>Latex>Renderer: Render '{latexString}'");
+            console.debug(`MarkdownIt>Plugin>Latex>Renderer: Render '${latexString}' `
+                          + `with the header includes: '${headerIncludes}'`);
         }
-        return `<div class="markdown-latex-block" id="${latexStringHash}">`
-               + `<p>latexString<${latexString}></p>`
+        return `<div class="markdown-latex-block" id="${latexStringHash}" `
+               + `header-includes="${headerIncludes.join(",")}">`
+               + `<p>${latexString}</p>`
                + "<svg class=\"loading\"><text x=\"10\" y=\"20\" style=\"fill:red;\">Currently Loading</text></svg>"
                + "</div>";
     };
 
 
     md.block.ruler.before("paragraph", "latexBlock", mdRuleLatexBlock);
-    md.renderer.rules.latexBlock = (tokens, idx): string => latex2html(tokens[idx].content);
+    md.renderer.rules.latexBlock = (tokens, idx): string => latex2html(tokens[idx].content,
+        tokens[idx].meta.headerIncludes);
 };

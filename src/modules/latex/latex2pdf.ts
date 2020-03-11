@@ -3,40 +3,37 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import { rmDirRecursive } from "../helper";
 import { debuglog } from "util";
-const debug = debuglog("app-inkscape");
+const debug = debuglog("app-latex");
 
-export interface InkscapePdf2SvgInputOptions {
-    usePoppler?: boolean
+export interface Tex2PdfInputOptions {
+    shellEscape?: boolean
 }
 
-export interface InkscapePdf2SvgInput {
-    pdfData: Buffer
-    pageNumber?: number
-    inkscapeOptions?: InkscapePdf2SvgInputOptions
+export interface Tex2PdfInput {
+    texData: string
+    xelatexOptions?: Tex2PdfInputOptions
 }
 
-export interface InkscapePdf2Svg {
+export interface Tex2Pdf {
     stdout: string
     stderr: string
-    svgData: string
+    pdfData: Buffer
 }
 
-export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2Svg> => {
-    debug("pdf2Svg");
+export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
+    debug(`tex2Pdf texData=${input.texData}`);
     // Create working directory
     const workingDirName = String(Date.now());
     await fs.mkdir(workingDirName);
     // Create PDF file
+    const temporaryTex = path.join(workingDirName, "temp.tex");
+    await fs.writeFile(temporaryTex, input.texData);
     const temporaryPdf = path.join(workingDirName, "temp.pdf");
-    await fs.writeFile(temporaryPdf, input.pdfData);
-    const temporarySvg = path.join(workingDirName, "temp.svg");
-    debug(`pdf2Svg temporaryPdf=${temporaryPdf}, temporarySvg=${temporarySvg}`);
+    debug(`tex2Pdf temporaryTex=${temporaryTex}, temporaryPdf=${temporaryPdf}`);
     // TODO: Log command
-    const child = spawn("inkscape", [
-        temporaryPdf,
-        `--export-filename=${temporarySvg}`,
-        ...(input.inkscapeOptions !== undefined && input.inkscapeOptions.usePoppler ? ["--pdf-poppler"] : [  ]),
-        `--pdf-page=${input.pageNumber ? input.pageNumber : 1}`
+    const child = spawn("xelatex", [
+        temporaryTex,
+        `-job-name=${temporaryPdf.slice(0, temporaryPdf.length - 4)}`
     ]);
     const bufferStdout: Buffer[] = [];
     const bufferStderr: Buffer[] = [];
@@ -44,14 +41,15 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
     child.stderr.on("data", (chunk: Buffer) => { bufferStderr.push(chunk); });
     return new Promise((resolve, reject) => {
         child.on("close", code => {
+            debug(`tex2Pdf finished out='${temporaryPdf}'`);
             const stderr = bufferStderr.toString();
             if (code !== 0) {
                 rmDirRecursive(workingDirName);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
             }
             const stdout = bufferStdout.toString();
-            fs.readFile(temporarySvg, { encoding: "utf8" }).then(svgData => {
-                resolve({ stderr, stdout, svgData });
+            fs.readFile(temporaryPdf).then(pdfData => {
+                resolve({ stderr, stdout, pdfData });
             }).catch(reject).then(() => rmDirRecursive(workingDirName));
         });
     });
