@@ -2,6 +2,11 @@ import { ListHandler, NewListHandler, ListNodeType,ListNodeChildrenType } from "
 import { md, katex } from "./documentRenderer/markdownRenderer";
 import "./webpackVars";
 
+export interface RequestLatexBlock {
+    svgData: string
+    id: number
+}
+
 // eslint-disable-next-line no-console
 console.log(`DEBUG_APP=${DEBUG_APP}`);
 
@@ -117,7 +122,57 @@ window.onload = (): void => {
                     event
                 });
             }
+            // Update document preview
             liveOutput.innerHTML = md.render(liveInput.value);
+            // Update latex blocks
+            const latexBlocks: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.markdown-latex-block");
+            for (const latexBlock of latexBlocks) {
+                // Make requests to get svg data from latex blocks
+                if (DEBUG_APP) {
+                    // eslint-disable-next-line no-console
+                    console.debug("Testing: MarkdownIt found a latex block: ", {
+                        id: latexBlock.id,
+                        content: latexBlock.textContent
+                    });
+                }
+                fetch("/api/latex2svg", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        apiVersion: "0.0.1",
+                        latexStringHash: latexBlock.id,
+                        latexString: latexBlock.textContent
+                    })
+                })
+                    .then(response => response.json())
+                    // eslint-disable-next-line complexity
+                    .then((responseData: RequestLatexBlock) => {
+                        if (latexBlock === undefined || latexBlock === null) {
+                            // eslint-disable-next-line no-console
+                            console.log("latex block is undefined");
+                            return;
+                        }
+                        if (latexBlock.id !== String(responseData.id)) {
+                            // eslint-disable-next-line no-console
+                            console.log("latex block has different ID to response");
+                            return;
+                        }
+                        const svgElement = latexBlock.querySelector("svg");
+                        if (svgElement === undefined || svgElement === null) {
+                            // eslint-disable-next-line no-console
+                            console.log("svg element is undefined");
+                            return;
+                        }
+                        svgElement.classList.remove("loading");
+                        svgElement.innerHTML = responseData.svgData;
+                    })
+                    .catch(error => {
+                        // eslint-disable-next-line no-console
+                        console.log(`svg data could not be retrieved: ${JSON.stringify(error)}`);
+                    });
+            }
         });
     }
 };

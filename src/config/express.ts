@@ -10,6 +10,7 @@ import { HbsLayoutError } from "../view_rendering/error";
 import { HbsHeader } from "../view_rendering/header";
 
 import * as routesAccount from "../routes/account";
+import * as routesApi from "../routes/api";
 import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
 
@@ -45,6 +46,9 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     // Cache views for much better performance
     app.set("view cache", true);
 
+    // Enable easy JSON post requests
+    app.use(express.json());
+
     // Catch requests
     app.use((req, res, next) => {
         debug("access resource '%s'", req.originalUrl);
@@ -68,6 +72,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
 
     // Configure routes
     routesAccount.register(app, options);
+    routesApi.register(app, options);
     routesHome.register(app, options);
     routesTesting.register(app, options);
 

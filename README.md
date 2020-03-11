@@ -57,6 +57,12 @@ The following command automatically updates the server when you change something
 npm run dev
 ```
 
+The following command automatically updates the frontend code that is served when you change something or you can do it manually by entering `rs` + `ENTER`:
+
+```sh
+npm run dev:webpack
+```
+
 #### Custom types
 
 Because currently the custom types are not correctly recognized via VSCode intellisense (but they are from the TypeScript compiler) you need to run a command to copy them to the `node_modules/@types` directory:

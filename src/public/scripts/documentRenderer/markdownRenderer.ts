@@ -3,6 +3,7 @@ import * as hljs from "highlight.js";
 export { hljs };
 import * as emphasizePlugin from "./emphasizePlugin";
 import * as katexPlugin from "./katexPlugin";
+import * as latexPlugin from "./latexPlugin";
 export { katex } from "./katexPlugin";
 import * as imagePandocPlugin from "./imagePandocPlugin";
 import "../webpackVars";
@@ -38,4 +39,5 @@ export const md = new MarkdownIt({
 })
     .use(imagePandocPlugin.register)
     .use(emphasizePlugin.register)
+    .use(latexPlugin.register)
     .use(katexPlugin.register, katexPluginOptions);
