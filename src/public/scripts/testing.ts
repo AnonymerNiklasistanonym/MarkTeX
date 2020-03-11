@@ -4,7 +4,7 @@ import "./webpackVars";
 import {InkscapePdf2Svg} from "../../modules/inkscape";
 
 export interface RequestLatexBlock {
-    svgData: InkscapePdf2Svg
+    svgData: string
     id: number
 }
 
@@ -154,7 +154,7 @@ window.onload = (): void => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        apiVersion: "0.0.1",
+                        apiVersion: 1,
                         latexStringHash: latexBlock.id,
                         latexString: texContentElement.textContent,
                         latexHeaderIncludes
@@ -182,7 +182,7 @@ window.onload = (): void => {
                             return;
                         }
                         svgElement.classList.remove("loading");
-                        svgElement.innerHTML = responseData.svgData.svgData;
+                        svgElement.innerHTML = responseData.svgData;
                     })
                     .catch(error => {
                         // eslint-disable-next-line no-console

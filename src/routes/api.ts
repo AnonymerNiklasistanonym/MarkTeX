@@ -6,30 +6,76 @@ import * as inkscape from "../modules/inkscape";
 
 const debug = debuglog("app-express-route-api");
 
+interface Latex2SvgCacheEntry {
+    date: Date
+    svgData: string
+}
+
+const latex2SvgCache = new Map<string,Latex2SvgCacheEntry>();
+const latex2SvgCacheMaxSize = 150;
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
+    // eslint-disable-next-line complexity
     app.post("/api/latex2svg", async (req, res) => {
-        // TODO: Cache SVGs
-        debug(`Got: latexStringHash=${req.body.latexStringHash}, latexString=${req.body.latexString}, `
-              + `latexHeaderIncludes=${req.body.latexHeaderIncludes}, `
-              + `apiVersion=${req.body.apiVersion}`);
+        debug(`Got: latexStringHash=${req.body.latexStringHash}, apiVersion=${req.body.apiVersion}`);
+        if (req.body.apiVersion !== 1) {
+            return res.status(404).send("This api version is not supported");
+        }
+        // Check first if the version was already converted
+        const id = req.body.latexStringHash;
+        const cachedSvgData = latex2SvgCache.get(id);
+        if (cachedSvgData) {
+            // If found refresh date
+            latex2SvgCache.set(id, { svgData: cachedSvgData.svgData, date: new Date() });
+            debug(`latex2svg: Found compiled version in the cache (id=${id})`);
+            return res.status(200).json({ svgData: cachedSvgData.svgData, id });
+        }
+        // If not try to convert it
         const headerIncludes = req.body.latexHeaderIncludes as string[];
         const texData = "\\documentclass[tikz]{standalone}\n"
-                          + headerIncludes.map(include => `${include}\n`)
+                          + headerIncludes.join("\n")
                           + "\\begin{document}\n"
                           + req.body.latexString + "\n"
                           + "\\end{document}\n";
+        debug(`latex2svg: Render tex to pdf (texData=${texData})`);
         try {
-            const pdfData = await latex.tex2Pdf({ texData });
-            const svgData = await inkscape.pdf2Svg(pdfData);
+            const tex2PdfOut = await latex.tex2Pdf({
+                texData,
+                xelatexOptions: { interactionNonstop: true }
+            });
+            const pdf2SvgOut = await inkscape.pdf2Svg({
+                pdfData: tex2PdfOut.pdfData,
+                inkscapeOptions: { usePoppler: true }
+            });
+            debug(`latex2svg: Render of tex to pdf complete (svgData=${pdf2SvgOut.svgData})`);
             res.status(200).json({
-                svgData,
+                svgData: pdf2SvgOut.svgData,
                 id: req.body.latexStringHash
             });
-        } catch(e) {
+            // Add it to the cache
+            latex2SvgCache.set(id, { svgData: pdf2SvgOut.svgData, date: new Date() });
+            // If cache reaches a specific size, remove older items
+            if (latex2SvgCache.size > latex2SvgCacheMaxSize) {
+                let oldestCacheEntry;
+                for (const [key, value] of latex2SvgCache.entries()) {
+                    if (oldestCacheEntry) {
+                        if (oldestCacheEntry.date > value.date) {
+                            oldestCacheEntry = { id: key, date: value.date };
+                        }
+                    } else {
+                        oldestCacheEntry = { id: key, date: value.date };
+                    }
+                }
+                // Remove oldest cache entry
+                if (oldestCacheEntry) {
+                    latex2SvgCache.delete(oldestCacheEntry.id);
+                }
+            }
+        } catch(err) {
+            debug(`latex2svg: Error when converting tex to pdf: svgData=${err}`);
             res.status(500).json({
-                error: e,
+                error: err,
                 id: req.body.latexStringHash
             });
         }
