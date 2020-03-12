@@ -7,7 +7,13 @@ describe("latex api [shell]", () => {
     it("version", async () => {
         const version = await latex.getVersion();
         chai.expect(version.fullText).to.be.a("string");
-        chai.assert(version.fullText.length > 0);
+        chai.expect(version.fullText.length).to.be.greaterThan(0);
+        chai.expect(version.engine).to.be.a("string");
+        chai.expect(version.engine.length).to.be.greaterThan(0);
+        chai.expect(version.major).to.be.a("number");
+        chai.expect(version.major).to.satisfy(Number.isInteger);
+        chai.expect(version.minor).to.be.a("number");
+        chai.expect(version.minor).to.satisfy(Number.isInteger);
     });
 
     it("latex2pdf", async () => {

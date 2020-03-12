@@ -7,11 +7,13 @@ describe("pandoc api [shell]", () => {
     it("version", async () => {
         const version = await pandoc.getVersion();
         chai.expect(version.fullText).to.be.a("string");
-        chai.assert(version.fullText.length > 0);
-        chai.expect(version.versionMajor).to.be.a("number");
-        chai.expect(version.versionMajor % 1).to.equal(0);
-        chai.expect(version.versionMinor).to.be.a("number");
-        chai.expect(version.versionMinor % 1).to.equal(0);
+        chai.expect(version.fullText.length).to.be.greaterThan(0);
+        chai.expect(version.major).to.be.a("number");
+        chai.expect(version.major).to.satisfy(Number.isInteger);
+        chai.expect(version.minor).to.be.a("number");
+        chai.expect(version.minor).to.satisfy(Number.isInteger);
+        chai.expect(version.patch).to.be.a("number");
+        chai.expect(version.patch).to.satisfy(Number.isInteger);
     });
     it("convert md to pdf", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [
@@ -43,8 +45,8 @@ describe("pandoc api [shell]", () => {
         chai.expect(output.stdout).to.be.a("string");
         chai.expect(output.stderr).to.be.a("string");
         chai.expect(output.pdfFile).to.be.a("Uint8Array");
-        chai.assert(output.pdfFile !== undefined);
-        chai.assert(output.zipFile === undefined);
+        chai.expect(output.pdfFile).to.not.equal(undefined);
+        chai.expect(output.zipFile).to.equal(undefined);
 
         await fs.writeFile("out.pdf", output.pdfFile);
         await fs.unlink("out.pdf");
@@ -53,9 +55,9 @@ describe("pandoc api [shell]", () => {
         chai.expect(outputWithZip.stdout).to.be.a("string");
         chai.expect(outputWithZip.stderr).to.be.a("string");
         chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");
-        chai.assert(outputWithZip.pdfFile !== undefined);
+        chai.expect(outputWithZip.pdfFile).to.not.equal(undefined);
         chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
-        chai.assert(outputWithZip.zipFile !== undefined);
+        chai.expect(outputWithZip.zipFile).to.not.equal(undefined);
 
         await fs.writeFile("out_zip.pdf", outputWithZip.pdfFile);
         await fs.unlink("out_zip.pdf");

@@ -2,7 +2,11 @@ import { loadEnvFile } from "./config/env";
 import { startExpressServer } from "./config/express";
 import { bindSocketServer } from "./config/sockets";
 import * as api from "./modules/api";
+import * as inkscape from "./modules/inkscape";
+import * as pandoc from "./modules/pandoc";
+import * as latex from "./modules/latex";
 import { debuglog } from "util";
+import { exit } from "shelljs";
 
 const debug = debuglog("app");
 
@@ -43,4 +47,26 @@ api.database.checkIfDatabaseExists(databasePath)
                 debug("socket server was closed");
             });
         });
+    })
+    .catch(err => {
+        // eslint-disable-next-line no-console
+        console.error(err);
+        exit(1);
+    })
+    .then(() => inkscape.getVersion()).then(version => {
+        // eslint-disable-next-line no-console
+        console.log(`inkscape: ${version.major}.${version.minor}.${version.patch} (${version.date.toISOString()})`);
+    })
+    .then(() => pandoc.getVersion()).then(version => {
+        // eslint-disable-next-line no-console
+        console.log(`pandoc:   ${version.major}.${version.minor}.${version.patch}`);
+    })
+    .then(() => latex.getVersion()).then(version => {
+        // eslint-disable-next-line no-console
+        console.log(`latex:    ${version.major}.${version.minor} (${version.engine})`);
+    })
+    .catch(err => {
+        // eslint-disable-next-line no-console
+        console.error(err);
+        exit(1);
     });

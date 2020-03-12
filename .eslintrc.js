@@ -60,7 +60,6 @@ module.exports = {
         "id-blacklist": [
             "error",
             "any",
-            "Number",
             "number",
             "string",
             "Boolean",

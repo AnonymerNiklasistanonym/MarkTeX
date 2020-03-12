@@ -6,13 +6,15 @@ describe("inkscape api [shell]", () => {
     it("version", async () => {
         const version = await inkscape.getVersion();
         chai.expect(version.fullText).to.be.a("string");
-        chai.assert(version.fullText.length > 0);
+        chai.expect(version.fullText.length).to.be.greaterThan(0);
         chai.expect(version.commit).to.be.a("string");
-        chai.assert(version.commit.length > 0);
+        chai.expect(version.commit.length).to.be.greaterThan(0);
         chai.expect(version.date).to.be.a("Date");
         chai.expect(version.major).to.be.a("number");
-        chai.expect(version.major % 1).to.equal(0);
+        chai.expect(version.major).to.satisfy(Number.isInteger);
         chai.expect(version.minor).to.be.a("number");
-        chai.expect(version.minor % 1).to.equal(0);
+        chai.expect(version.minor).to.satisfy(Number.isInteger);
+        chai.expect(version.patch).to.be.a("string");
+        chai.expect(version.patch.length).to.be.greaterThan(0);
     });
 });
