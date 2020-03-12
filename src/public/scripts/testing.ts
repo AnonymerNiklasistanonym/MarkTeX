@@ -1,7 +1,6 @@
-import { ListHandler, NewListHandler, ListNodeType,ListNodeChildrenType } from "./testing_list_handler";
-import { md, katex } from "./documentRenderer/markdownRenderer";
+import { md } from "./documentRenderer/markdownRenderer";
+import * as apiRequests from "./api_requests";
 import "./webpackVars";
-import {InkscapePdf2Svg} from "../../modules/inkscape";
 
 export interface RequestLatexBlock {
     svgData: string
@@ -13,102 +12,29 @@ console.log(`DEBUG_APP=${DEBUG_APP}`);
 
 // eslint-disable-next-line complexity
 window.onload = (): void => {
-    const listHandler = new ListHandler();
 
-    const newListHandler = new NewListHandler(document.getElementById("testing-two") as HTMLUListElement);
-    newListHandler.load({
-        listSections: [{
-            listChildren: [{
-                type: ListNodeType.MARKDOWN,
-                content: "abc"
-            },{
-                type: ListNodeType.MARKDOWN,
-                content: "bca"
-            },{
-                type: ListNodeType.MARKDOWN,
-                content: "cab",
-                listChildrenType: ListNodeChildrenType.ALPHABETICAL,
-                listChildren: [{
-                    type: ListNodeType.MARKDOWN,
-                    content: "abc"
-                },{
-                    type: ListNodeType.MARKDOWN,
-                    content: "bca"
-                },{
-                    type: ListNodeType.MARKDOWN,
-                    content: "cab"
-                },{
-                    type: ListNodeType.MARKDOWN,
-                    content: "WOW"
-                }]
-            },{
-                type: ListNodeType.MARKDOWN,
-                content: "WOW"
-            }]
-        }]
-    });
-
-    const list = document.createElement("ul");
-    const listElement = listHandler.createListElement();
-    list.appendChild(listElement);
-
-    document.addEventListener("keydown", e => {
-        listHandler.setCtrlKeyPressed(e.ctrlKey);
-
-        if (e.key === "a") {
-            listHandler.addList(listElement);
-        }
-    });
-    document.addEventListener("keyup", () => {
-        listHandler.setCtrlKeyPressed(false);
-    });
-
-    const listContainer = document.getElementById("testing");
-    if (listContainer) {
-        listContainer.appendChild(list);
-    }
-
-    listHandler.addList(listElement);
-    const newListElement = listHandler.addList(listElement);
-    listHandler.addList(listElement);
-
-    if (newListElement) {
-        listHandler.indentList(newListElement);
-    }
-
-    const katexTest = document.getElementById("testing-katex") as HTMLDivElement;
-    const markdownTest = document.getElementById("testing-markdown-it") as HTMLDivElement;
-    const pdf2svgTest = document.getElementById("testing-pdf2svg") as HTMLDivElement;
-
-    try {
-        katex.render("c = \\pm\\sqrt{a^2 + b^2}", katexTest, {
-            throwOnError: true
-        });
-    } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-    }
-
-    markdownTest.innerHTML = md.render(
-        "**hey you** *you are looking amazing* :D\n" +
-        "\n" +
-        "=abcdefg=\n" +
-        "abc\n\ndefg\n" +
-        "=abc\n\ndefg=\n" +
-        "=a ==b =c= ==d==\n" +
-        "\n" +
-        "Inline code `std::cout << \"cool\"` and big code thing:\n" +
-        "```cpp\nstd::cout << \"cool\" << std::endl;\n```" +
-        "\n" +
-        "Inline math $c = \\pm\\sqrt{a^2 + b^2}$ and big math block:\n" +
-        "$$\nc = \\pm\\sqrt{a^2 + b^2}\n$$" +
-        "and inline big math:\n" +
-        "$$c = \\pm\\sqrt{a^2 + b^2}$$");
-
+    // Get live  input/output elements
     const liveInput = document.getElementById("testing-live-md-rendering-input-textarea") as HTMLTextAreaElement;
     const liveOutput = document.getElementById("testing-live-md-rendering-output") as HTMLDivElement;
 
+    // Setup live input/output elements on load
     if (liveInput !== undefined && liveOutput !== undefined) {
+        if (liveInput.value === "") {
+            liveInput.value = "**hey you** *you are looking amazing* :D\n" +
+            "\n" +
+            "=abcdefg=\n" +
+            "abc\n\ndefg\n" +
+            "=abc\n\ndefg=\n" +
+            "=a ==b =c= ==d==\n" +
+            "\n" +
+            "Inline code `std::cout << \"cool\"` and big code thing:\n" +
+            "```cpp\nstd::cout << \"cool\" << std::endl;\n```" +
+            "\n" +
+            "Inline math $c = \\pm\\sqrt{a^2 + b^2}$ and big math block:\n" +
+            "$$\nc = \\pm\\sqrt{a^2 + b^2}\n$$" +
+            "and inline big math:\n" +
+            "$$c = \\pm\\sqrt{a^2 + b^2}$$";
+        }
         liveOutput.innerHTML = md.render(liveInput.value);
         // eslint-disable-next-line complexity
         liveInput.addEventListener("input", (event: Event): void => {
@@ -135,7 +61,8 @@ window.onload = (): void => {
                     (headerIncludeString !== undefined && headerIncludeString !== null)
                         ? headerIncludeString.split(",") : [];
                 const texContentElement = latexBlock.querySelector("p");
-                if (texContentElement === undefined || texContentElement == null) {
+                if (texContentElement === undefined || texContentElement == null
+                    || texContentElement.textContent === undefined || texContentElement.textContent === null) {
                     // eslint-disable-next-line no-console
                     console.log("latex block has no tex content");
                     return;
@@ -148,29 +75,21 @@ window.onload = (): void => {
                         latexHeaderIncludes
                     });
                 }
-                fetch("/api/latex2svg", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        apiVersion: 1,
-                        latexStringHash: latexBlock.id,
-                        latexString: texContentElement.textContent,
-                        latexHeaderIncludes
-                    })
+                apiRequests.latex2Svg({
+                    id: latexBlock.id,
+                    texData: texContentElement.textContent,
+                    texHeaderIncludes: latexHeaderIncludes
                 })
-                    .then(response => response.json())
                     // eslint-disable-next-line complexity
-                    .then((responseData: RequestLatexBlock) => {
+                    .then(response => {
                         // eslint-disable-next-line no-console
-                        console.log(`Received a response: responseData=${JSON.stringify(responseData)}`);
+                        console.log(`Received a response: response=${JSON.stringify(response)}`);
                         if (latexBlock === undefined || latexBlock === null) {
                             // eslint-disable-next-line no-console
                             console.log("latex block is undefined");
                             return;
                         }
-                        if (latexBlock.id !== String(responseData.id)) {
+                        if (latexBlock.id !== String(response.id)) {
                             // eslint-disable-next-line no-console
                             console.log("latex block has different ID to response");
                             return;
@@ -182,7 +101,7 @@ window.onload = (): void => {
                             return;
                         }
                         svgElement.classList.remove("loading");
-                        svgElement.innerHTML = responseData.svgData;
+                        svgElement.innerHTML = response.svgData;
                         const svgChild = svgElement.querySelector("svg");
                         if (svgChild) {
                             svgElement.innerHTML = svgChild.innerHTML;
@@ -190,7 +109,7 @@ window.onload = (): void => {
                     })
                     .catch(error => {
                         // eslint-disable-next-line no-console
-                        console.log(`svg data could not be retrieved: ${JSON.stringify(error)}`);
+                        console.error(`svg data could not be retrieved: ${JSON.stringify(error)}`);
                     });
             }
         });

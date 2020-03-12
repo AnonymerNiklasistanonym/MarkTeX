@@ -1,3 +1,7 @@
+div#testing-live-md-rendering-import-export {
+    padding: 1em;
+}
+
 div#testing-live-md-rendering {
     display: flex;
     width: 100%;
