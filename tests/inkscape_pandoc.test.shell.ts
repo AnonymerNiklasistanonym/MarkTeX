@@ -52,5 +52,5 @@ describe("inkscape <-> pandoc [shell]", () => {
         await fs.unlink("out_inkscape_pandoc_poppler.svg");
         await fs.unlink("out_inkscape_pandoc.pdf");
 
-    }).timeout(20000);
+    }).timeout(40000);
 });

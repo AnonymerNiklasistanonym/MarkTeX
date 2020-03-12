@@ -64,5 +64,5 @@ describe("pandoc api [shell]", () => {
         await fs.writeFile("out_zip.zip", outputWithZip.zipFile);
         await fs.unlink("out_zip.zip");
 
-    }).timeout(20000);
+    }).timeout(40000);
 });
