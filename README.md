@@ -143,6 +143,7 @@ The built files can be found in the `dist` directory and the entry point is call
 | yes | `mocha` | Perform and create tests |
 | yes | `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development |
 | yes | `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel (only used in `package.json`)  |
+| yes | `open` | Open files with their default application |
 | yes | `shelljs` | Use to execute shell commands such as to copy files and remove directories |
 | no  | `socket.io-client` | Websocket implementation for client |
 | no  | `socket.io` | Websocket implementation for server |

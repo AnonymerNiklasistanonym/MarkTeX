@@ -4,6 +4,9 @@ import path from "path";
 
 import { createTypedocReadme } from "./createTypedocReadme";
 
+/** The default directory where the documentation is generated */
+export const defaultDocsOutputDir = path.join(__dirname, "dist", "site");
+
 // First create typedoc README
 createTypedocReadme().then(() => {
 
@@ -32,9 +35,7 @@ createTypedocReadme().then(() => {
     const project = app.convert(app.expandInputFiles(["src"]));
 
     if (project) {
-        // Rendered docs
-        const outputDir = path.join(__dirname, "dist", "site");
-        app.generateDocs(project, outputDir);
+        app.generateDocs(project, defaultDocsOutputDir);
     } else {
         throw Error("TypeDoc documentation was not successful");
     }
