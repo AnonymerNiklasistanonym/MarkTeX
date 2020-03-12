@@ -183,6 +183,10 @@ window.onload = (): void => {
                         }
                         svgElement.classList.remove("loading");
                         svgElement.innerHTML = responseData.svgData;
+                        const svgChild = svgElement.querySelector("svg");
+                        if (svgChild) {
+                            svgElement.innerHTML = svgChild.innerHTML;
+                        }
                     })
                     .catch(error => {
                         // eslint-disable-next-line no-console
