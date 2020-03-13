@@ -11,6 +11,7 @@ export interface InkscapeVersion {
 
 /**
  * Regex to get the inkscape version via command line arguments.
+ *
  * @example "Inkscape 1.2-dev (cf8c79727a, 2020-02-24)"
  * "  Pango version: 1.44.7"
  * [1] = "major" = 1
@@ -23,7 +24,9 @@ const regexInkscapeVersion = /^Inkscape ([0-9]+?)\.([0-9]+?)-?\.?(.*?) \((.*), (
 
 /**
  * Get inkscape version from command line string output.
+ *
  * @param versionString Command line output of `inkscape --version`
+ * @returns When parsing was successful version information, otherwise undefined
  */
 const getVersionFromString = (versionString: string): InkscapeVersion | undefined => {
     for (const match of versionString.matchAll(regexInkscapeVersion)) {

@@ -9,6 +9,7 @@ export interface PandocVersion {
 
 /**
  * Regex to get the pandoc version via command line arguments.
+ *
  * @example "pandoc 2.9.2"
  * "Compiled with pandoc-types 1.20..."
  * [1] = "major" = 2
@@ -19,6 +20,7 @@ const regexPandocVersion = /^pandoc ([0-9]+?)\.([0-9]+?)\.([0-9]+?)/g;
 
 /**
  * Get pandoc version from command line string output.
+ *
  * @param versionString Command line output of `pandoc --version`
  */
 const getVersionFromString = (versionString: string): PandocVersion | undefined => {

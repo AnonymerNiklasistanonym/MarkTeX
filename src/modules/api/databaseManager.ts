@@ -3,6 +3,8 @@ import { promises as fs } from "fs";
 
 /**
  * Check if database already exists.
+ *
+ * @param databasePath
  */
 export const checkIfDatabaseExists = async (databasePath: string): Promise<boolean> => {
     try {

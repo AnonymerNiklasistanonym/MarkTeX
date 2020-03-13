@@ -1,12 +1,20 @@
 
 import * as user from "./types/user";
 
-/** REMOVE LATER WHEN IMPLEMENTATION FINISHED */
+/**
+ * REMOVE LATER WHEN IMPLEMENTATION FINISHED
+ *
+ * @param ms Time in ms
+ */
 const timeout = async (ms: number): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-/** @returns Login was successful */
+/**
+ * @returns Login was successful
+ * @param accountId
+ * @param password
+ */
 export const login = async (accountId: number, password: string): Promise<boolean> => {
     // eslint-disable-next-line no-console
     console.log(`login with accountId='${accountId}' and password '${password}'`);
@@ -14,7 +22,10 @@ export const login = async (accountId: number, password: string): Promise<boolea
     return false;
 };
 
-/** @returns Logout was successful */
+/**
+ * @returns Logout was successful
+ * @param accountId
+ */
 export const logout = async (accountId: number): Promise<boolean> => {
     // eslint-disable-next-line no-console
     console.log(`logout with accountId='${accountId}'`);
@@ -22,7 +33,12 @@ export const logout = async (accountId: number): Promise<boolean> => {
     return false;
 };
 
-/** @returns Password change was successful */
+/**
+ * @returns Password change was successful
+ * @param accountId
+ * @param oldPassword
+ * @param newPassword
+ */
 export const changePassword = async (accountId: number, oldPassword: string, newPassword: string): Promise<boolean> => {
     // eslint-disable-next-line no-console
     console.log(`changePassword with accountId='${accountId}' and password old='${oldPassword}'|new='${newPassword}'`);
@@ -30,7 +46,11 @@ export const changePassword = async (accountId: number, oldPassword: string, new
     return false;
 };
 
-/** @returns Account deletion was successful */
+/**
+ * @returns Account deletion was successful
+ * @param accountId
+ * @param password
+ */
 export const deleteAccount = async (accountId: number, password: string): Promise<boolean> => {
     // eslint-disable-next-line no-console
     console.log(`changePassword with accountId='${accountId}' and password='${password}'`);
@@ -38,7 +58,12 @@ export const deleteAccount = async (accountId: number, password: string): Promis
     return false;
 };
 
-/** @returns Account id if creation was successful */
+/**
+ * @returns Account id if creation was successful
+ * @param accountId
+ * @param password
+ * @param options
+ */
 export const createAccount = async (accountId: number, password: string,
     options: user.UserOptions): Promise<number> => {
     // eslint-disable-next-line no-console

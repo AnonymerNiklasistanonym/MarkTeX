@@ -8,11 +8,13 @@ const debug = debuglog("app-latex");
 export interface Tex2PdfInputOptions {
     /**
      * Escape shell symbols.
+     *
      * @example "-shell-escape"
      */
     shellEscape?: boolean
     /**
      * Disable interaction and just fail on error.
+     *
      * @example "-interaction=nonstopmode"
      */
     interactionNonstop?: boolean

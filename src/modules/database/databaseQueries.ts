@@ -4,7 +4,10 @@
  * ```sql
  * DELETE FROM tableName: string WHERE whereColumn=?;
  * ```
+ *
  * @returns Query
+ * @param tableName
+ * @param whereColumn
  */
 export const remove = (tableName: string, whereColumn = "id"): string => {
     return `DELETE FROM ${tableName} WHERE ${whereColumn}=?;`;
@@ -15,7 +18,10 @@ export const remove = (tableName: string, whereColumn = "id"): string => {
  * ```sql
  * INSERT INTO tableName: string(column_0, column_i, column_n) VALUES(?, ?, ?);
  * ```
+ *
  * @returns Query
+ * @param tableName
+ * @param columns
  */
 export const insert = (tableName: string, columns: string[]): string => {
     return `INSERT INTO ${tableName}(${columns.join(",")}) ` +
@@ -27,7 +33,10 @@ export const insert = (tableName: string, columns: string[]): string => {
  * ```sql
  * SELECT EXISTS(SELECT 1 FROM tableName: string WHERE column=? AS exists_value;
  * ```
+ *
  * @returns Query
+ * @param tableName
+ * @param column
  */
 export const exists = (tableName: string, column = "id"): string => {
     return `SELECT EXISTS(SELECT 1 FROM ${tableName} WHERE ${column}=?) AS exists_value;`;
@@ -49,12 +58,12 @@ export interface SelectQueryInnerJoin {
 }
 
 /**
-   * ```sql
-   * ORDER BY
-   * column_1 ASC,
-   * column_2 DESC;
-   * ```
-   */
+ * ```sql
+ * ORDER BY
+ * column_1 ASC,
+ * column_2 DESC;
+ * ```
+ */
 export interface SelectQueryOrderBy {
     /**
      * Name of the column that should be sorted
@@ -99,7 +108,11 @@ export interface SelectQueryOptions {
  * SELECT DISTINCT column_0 FROM tableName: string;
  * SELECT column_0 FROM tableName: string ORDER BY column_0 ASC;
  * ```
+ *
  * @returns Query
+ * @param tableName
+ * @param columns
+ * @param options
  */
 // eslint-disable-next-line complexity
 export const select = (tableName: string, columns: string[], options?: SelectQueryOptions): string => {
@@ -187,14 +200,18 @@ export interface CreateTableColumnForeign {
  * Create database table
  * ```sql
  * CREATE TABLE IF NOT EXISTS contacts (
- *        contact_id INTEGER PRIMARY KEY,
- *        first_name TEXT NOT NULL,
- *        last_name TEXT NOT NULL,
- *        email text NOT NULL UNIQUE,
- *        phone text NOT NULL UNIQUE
+ * contact_id INTEGER PRIMARY KEY,
+ * first_name TEXT NOT NULL,
+ * last_name TEXT NOT NULL,
+ * email text NOT NULL UNIQUE,
+ * phone text NOT NULL UNIQUE
  * );
  * ```
+ *
  * @returns Query
+ * @param tableName
+ * @param columns
+ * @param ifNotExists
  */
 export const createTable = (tableName: string, columns: CreateTableColumn[], ifNotExists = false): string => {
     const columnsString = columns.map(column => {
@@ -220,6 +237,8 @@ export const createTable = (tableName: string, columns: CreateTableColumn[], ifN
  * DROP TABLE contacts;
  * DROP TABLE IF EXISTS contacts;
  * ```
+ *
+ * @param tableName
  * @param ifExists Only remove table if it exists
  * @returns Query
  */
@@ -235,7 +254,9 @@ export const dropTable = (tableName: string, ifExists = false): string => {
  * WHERE
  * employeeid = 3
  * ```
+ *
  * @param values Values that should be updated
+ * @param tableName
  * @param whereColumn Column where the row changes should be made
  * @returns Query
  */

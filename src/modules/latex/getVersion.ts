@@ -9,6 +9,7 @@ export interface XelatexVersion {
 
 /**
  * Regex to get the LaTeX version via command line arguments.
+ *
  * @example "XeTeX 3.14159265-2.6-0.999991 (TeX Live 2019/Arch Linux)"
  * "kpathsea version 6.3.1..."
  * [1] = "engine" = "XeTeX"
@@ -20,6 +21,7 @@ const regexXelatexVersionEnginge = /^(.+?) ./g;
 
 /**
  * Regex to get the LaTeX version via command line arguments.
+ *
  * @example "XeTeX 3.14159265-2.6-0.999991 (TeX Live 2019/Arch Linux)"
  * "kpathsea version 6.3.1..."
  * [1] = "engine" = "XeTeX"
@@ -30,6 +32,7 @@ const regexXelatexVersion = /^(.+?) .*?-([0-9]+?)\.([0-9]+?) \(/g;
 
 /**
  * Regex to get the LaTeX version via command line arguments.
+ *
  * @example "MiKTeX-XeTeX 2.9.7338 (0.999992) (MiKTeX 2.9.7300 64-bit)"
  * "(C) 1994-2008 by SIL International..."
  * [1] = "engine" = "MiKTeX-XeTeX"
@@ -40,6 +43,7 @@ const regexXelatexVersionMikTex = /^(.+?) .*?\(([0-9]+?)\.([0-9]+?)\)/g;
 
 /**
  * Get LaTeX version from command line string output.
+ *
  * @param versionString Command line output of `xelatex --version`
  */
 const getVersionFromString = (versionString: string): XelatexVersion | undefined => {

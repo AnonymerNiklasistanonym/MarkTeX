@@ -4,6 +4,7 @@ module.exports = {
         "es6": true
     },
     "extends": [
+        "plugin:jsdoc/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
     ],
@@ -16,10 +17,23 @@ module.exports = {
         "sourceType": "module"
     },
     "plugins": [
+        "jsdoc",
         "@typescript-eslint",
         "prefer-arrow"
     ],
+    "settings": {
+        "jsdoc": {
+            "mode": "typescript",
+            "tagNamePreference": {
+                "arg": "param",
+                "return": "returns"
+            }
+        }
+    },
     "rules": {
+        "jsdoc/check-types": 0,
+        "jsdoc/require-returns-type": 0,
+        "jsdoc/require-param-type": 0,
         "@typescript-eslint/array-type": "error",
         "@typescript-eslint/indent": "error",
         "@typescript-eslint/member-delimiter-style": [
