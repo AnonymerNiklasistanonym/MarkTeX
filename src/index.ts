@@ -7,6 +7,7 @@ import * as pandoc from "./modules/pandoc";
 import * as latex from "./modules/latex";
 import { debuglog } from "util";
 import { exit } from "shelljs";
+import * as os from "os";
 
 const debug = debuglog("app");
 
@@ -53,6 +54,10 @@ api.database.checkIfDatabaseExists(databasePath)
         console.error(err);
         exit(1);
     })
+    // .then(() => os.version()).then(version => {
+    //     // eslint-disable-next-line no-console
+    //     console.log(`os: ${version})`);
+    // })
     .then(() => inkscape.getVersion()).then(version => {
         // eslint-disable-next-line no-console
         console.log(`inkscape: ${version.major}.${version.minor}.${version.patch} (${version.date.toISOString()})`);
