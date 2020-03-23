@@ -55,6 +55,10 @@ export const removeDocumentResource = (): void => {
     // TODO images, pdf, text, ...
 };
 
+export const exportDocument = (): void => {
+    // TODO accounts, permissions, content, metadata
+};
+
 /**
  * @returns The document if existing and permission
  * @param accountId

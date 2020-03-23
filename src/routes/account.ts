@@ -8,11 +8,18 @@ export const register = (app: express.Application, options: StartExpressServerOp
     // Account page
     app.get("/profile", (req, res) => {
         // TODO: Render real page
-        res.send("account");
+        if (req.session && req.session.accountId) {
+            res.send(`account ${req.session.accountId}`);
+        } else {
+            res.send("no account");
+        }
     });
 
     app.get("/login", /* auth.getCurrentAccount(), */(req, res) => {
         // TODO: login();
+        if (req.session) {
+            req.session.accountId = 1;
+        }
         // Redirect to home page
         res.redirect("/");
         // TODO: Edge case when login false do not redirect

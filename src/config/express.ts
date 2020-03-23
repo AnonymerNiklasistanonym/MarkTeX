@@ -4,6 +4,8 @@ import exphbs from "express-handlebars";
 import createError, { HttpError } from "http-errors";
 import { Server } from "http";
 import { debuglog } from "util";
+import expressCookieParser from "cookie-parser";
+import expressSession from "express-session";
 
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
@@ -48,6 +50,14 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
 
     // Enable easy JSON post requests
     app.use(express.json());
+
+    // Enable sessions for requests
+    app.use(expressCookieParser());
+    app.use(expressSession({
+        secret: "secret",
+        resave: false,
+        saveUninitialized: true
+    }));
 
     // Catch requests
     app.use((req, res, next) => {

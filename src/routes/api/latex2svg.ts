@@ -24,27 +24,66 @@ export interface ParamsDictionary {
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
-    app.post("/api/latex2svg", validateWithTerminationOnError([
-        expressValidator.check("latexStringHash").isString(),
-        expressValidator.check("latexString").isString(),
-        expressValidator.check("latexHeaderIncludes").isArray(),
-        expressValidator.check("latexHeaderIncludes").custom((latexHeaderIncludes: any[]): boolean => {
-            for (const latexHeaderInclude of latexHeaderIncludes) {
-                if (typeof latexHeaderInclude !== "string") {
-                    throw new Error("Latex header includes are not a string array");
+    app.post("/api/latex2svg", validateWithTerminationOnError(/* [*/
+        expressValidator.checkSchema({
+            latexStringHash: {
+                errorMessage: "Was not a string",
+                isString: true
+            },
+            latexString: {
+                errorMessage: "Was not a string",
+                isString: true
+            },
+            timeOfRequest: {
+                errorMessage: "Was not a string",
+                isString: true
+            },
+            latexHeaderIncludes: {
+                errorMessage: "Was not a string",
+                isArray: true,
+                custom: {
+                    options: (latexHeaderIncludes: any[]): boolean => {
+                        for (const latexHeaderInclude of latexHeaderIncludes) {
+                            if (typeof latexHeaderInclude !== "string") {
+                                throw new Error("Latex header includes are not a string array");
+                            }
+                        }
+                        return true;
+                    }
+                }
+            },
+            apiVersion: {
+                isInt: true,
+                custom: {
+                    options: (apiVersion: number): boolean => {
+                        if (apiVersion === 2) {
+                            return true;
+                        }
+                        throw new Error("API version is not supported");
+                    }
                 }
             }
-            return true;
-        }),
-        expressValidator.check("timeOfRequest").isString(),
-        expressValidator.check("apiVersion").isInt(),
-        expressValidator.check("apiVersion").custom((apiVersion: number): boolean => {
-            if (apiVersion === 1) {
-                return true;
-            }
-            throw new Error("API version is not supported");
         })
-    ]), async (req: express.Request, res: express.Response) => {
+        // expressValidator.check("latexStringHash").isString(),
+        // expressValidator.check("latexString").isString(),
+        // expressValidator.check("latexHeaderIncludes").isArray(),
+        // expressValidator.check("latexHeaderIncludes").custom((latexHeaderIncludes: any[]): boolean => {
+        //     for (const latexHeaderInclude of latexHeaderIncludes) {
+        //         if (typeof latexHeaderInclude !== "string") {
+        //             throw new Error("Latex header includes are not a string array");
+        //         }
+        //     }
+        //     return true;
+        // }),
+        // expressValidator.check("timeOfRequest").isString(),
+        // expressValidator.check("apiVersion").isInt(),
+        // expressValidator.check("apiVersion").custom((apiVersion: number): boolean => {
+        //     if (apiVersion === 1) {
+        //         return true;
+        //     }
+        //     throw new Error("API version is not supported");
+        // })
+    /* ]*/), async (req, res) => {
         const input: ParamsDictionary = req.body;
         debug(`Got: latexStringHash=${input.latexStringHash}, apiVersion=${input.apiVersion}`);
         // Check first if the version was already converted
