@@ -59,7 +59,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
 
     // Catch requests
     app.use((req, res, next) => {
-        debug("access resource '%s' [session=%s]", req.originalUrl, req.session ? req.session.id : "error");
+        debug("access resource '%s' [session=%s]", req.originalUrl, req.sessionID);
         next();
     });
 
