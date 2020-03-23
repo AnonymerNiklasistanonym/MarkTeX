@@ -32,7 +32,7 @@ const latex2SvgCacheMaxSize = 150;
  */
 // eslint-disable-next-line complexity
 export const add = (latexStringKey: string, newEntry: LatexRequestCacheInput): void => {
-    debug(`Get entry from cache (id=${latexStringKey})`);
+    debug(`Add entry to cache (id=${latexStringKey})`);
     // Add it to the cache
     latex2SvgCache.set(latexStringKey, { ...newEntry, date: new Date() });
     // If cache reaches a specific size, remove older items
@@ -62,6 +62,7 @@ export const add = (latexStringKey: string, newEntry: LatexRequestCacheInput): v
  * @returns Either undefined if no element was found in cache or the cached element.
  */
 export const get = (latexStringKey: string): LatexRequestCacheInput | undefined => {
+    debug(`Get entry from cache (id=${latexStringKey})`);
     const possibleEntry = latex2SvgCache.get(latexStringKey);
     if (possibleEntry) {
         debug(`Found compiled version in the cache (id=${latexStringKey})`);
