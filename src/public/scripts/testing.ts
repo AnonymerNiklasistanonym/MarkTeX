@@ -33,9 +33,13 @@ window.onload = (): void => {
             "Inline math $c = \\pm\\sqrt{a^2 + b^2}$ and big math block:\n" +
             "$$\nc = \\pm\\sqrt{a^2 + b^2}\n$$" +
             "and inline big math:\n" +
-            "$$c = \\pm\\sqrt{a^2 + b^2}$$";
+            "$$c = \\pm\\sqrt{a^2 + b^2}$$\n" +
+            "\n" +
+            "\\begin{center}\n" +
+            "This is a \\LaTeX block where you can do complicated \\LaTeX commands.\n" +
+            "\\end{center}\n";
         }
-        liveOutput.innerHTML = md.render(liveInput.value);
+        liveOutput.innerHTML = md.render(liveInput.value, { time: new Date().toISOString() });
         // eslint-disable-next-line complexity
         liveInput.addEventListener("input", (event: Event): void => {
             if (DEBUG_APP) {
@@ -54,6 +58,7 @@ window.onload = (): void => {
             liveOutput.innerHTML = md.render(liveInput.value);
             // Update latex blocks
             const latexBlocks: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.markdown-latex-block");
+            const timeOfRequest = new Date().toISOString();
             for (const latexBlock of latexBlocks) {
                 // Make requests to get svg data from latex blocks
                 const headerIncludeString = latexBlock.getAttribute("header-includes");
@@ -78,7 +83,8 @@ window.onload = (): void => {
                 apiRequests.latex2Svg({
                     id: latexBlock.id,
                     texData: texContentElement.textContent,
-                    texHeaderIncludes: latexHeaderIncludes
+                    texHeaderIncludes: latexHeaderIncludes,
+                    timeOfRequest
                 })
                     // eslint-disable-next-line complexity
                     .then(response => {

@@ -13,6 +13,9 @@ interface Latex2SvgCacheEntry {
 
 const latex2SvgCache = new Map<string,Latex2SvgCacheEntry>();
 const latex2SvgCacheMaxSize = 150;
+let latestRequestDate = "";
+
+const sleep = async (millisec: number): Promise<void> => new Promise(resolve => setTimeout(resolve, millisec));
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
@@ -31,6 +34,21 @@ export const register = (app: express.Application, options: StartExpressServerOp
             debug(`latex2svg: Found compiled version in the cache (id=${id})`);
             return res.status(200).json({ svgData: cachedSvgData.svgData, id });
         }
+        // If not cached wait some time to not kill the server with requests and check if there are
+        // immediately new requests
+        const currentRequestDate = req.body.timeOfRequest;
+        latestRequestDate = currentRequestDate;
+        await sleep(500);
+        // If there was no new document time continue, otherwise kill request
+        if (latestRequestDate !== req.body.timeOfRequest) {
+            debug(`latex2svg: A later request (${latestRequestDate}) was found so the current request`
+                  + `(${currentRequestDate}) was discarded`);
+            return res.status(200).json({
+                svgData: "<svg></svg>",
+                id: req.body.latexStringHash
+            });
+        }
+
         // If not try to convert it
         const headerIncludes = req.body.latexHeaderIncludes as string[];
         const texData = "\\documentclass[tikz]{standalone}\n"
@@ -48,7 +66,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 pdfData: tex2PdfOut.pdfData,
                 inkscapeOptions: { usePoppler: true }
             });
-            debug(`latex2svg: Render of tex to pdf complete (svgData=${pdf2SvgOut.svgData})`);
+            debug("latex2svg: Render of tex to pdf complete");
             res.status(200).json({
                 svgData: pdf2SvgOut.svgData,
                 id: req.body.latexStringHash
@@ -73,7 +91,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 }
             }
         } catch(err) {
-            debug(`latex2svg: Error when converting tex to pdf: svgData=${err}`);
+            debug(`latex2svg: Error when converting tex to pdf: ${err}`);
             res.status(500).json({
                 error: err,
                 id: req.body.latexStringHash

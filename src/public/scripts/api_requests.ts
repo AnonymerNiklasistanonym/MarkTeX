@@ -2,6 +2,7 @@ export interface Latex2SvgRequestInput {
     texData: string
     texHeaderIncludes: string[]
     id: string
+    timeOfRequest: string
 }
 
 export interface Latex2SvgRequestResponse {
@@ -21,7 +22,8 @@ export const latex2Svg = async (input: Latex2SvgRequestInput): Promise<Latex2Svg
                 apiVersion: 1,
                 latexStringHash: input.id,
                 latexString: input.texData,
-                latexHeaderIncludes: input.texHeaderIncludes
+                latexHeaderIncludes: input.texHeaderIncludes,
+                timeOfRequest: input.timeOfRequest
             })
         });
         if (response.status === 200) {
