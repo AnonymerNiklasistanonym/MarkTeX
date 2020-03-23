@@ -4,6 +4,7 @@ import { debuglog } from "util";
 import * as api from "../../modules/api";
 import * as expressValidator from "express-validator";
 import { validateWithTerminationOnError } from "../../middleware/expressValidator";
+import * as expressSession from "../../middleware/expressSession";
 
 
 const debug = debuglog("app-express-route-api-document");
@@ -43,22 +44,27 @@ const schemaValidationApiVersion: expressValidator.ValidationParamSchema = {
     }
 };
 
+
+
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
-    app.post("/api/document/create", validateWithTerminationOnError(expressValidator.checkSchema({
-        documentId: schemaValidationDocumentId,
-        documentContent: schemaValidationDocumentContent,
-        documentResources: schemaValidationDocumentResources,
-        apiVersion: schemaValidationApiVersion
-    })), (req, res) => {
-        debug("Create document");
-        try {
-            const createDocument = api.content.createDocument();
-            return res.status(405).json({ error: Error("Not yet implemented") });
-        } catch(error) {
-            return res.status(500).json({ error });
-        }
-    });
+    app.post("/api/document/create",
+        expressSession.checkAuthenticationJson,
+        validateWithTerminationOnError(expressValidator.checkSchema({
+            documentId: schemaValidationDocumentId,
+            documentContent: schemaValidationDocumentContent,
+            documentResources: schemaValidationDocumentResources,
+            apiVersion: schemaValidationApiVersion
+        })),
+        (req, res) => {
+            debug("Create document");
+            try {
+                const createDocument = api.content.createDocument();
+                return res.status(405).json({ error: Error("Not yet implemented") });
+            } catch(error) {
+                return res.status(500).json({ error });
+            }
+        });
     app.post("/api/document/get", validateWithTerminationOnError(expressValidator.checkSchema({
         documentId: schemaValidationDocumentId,
         apiVersion: schemaValidationApiVersion
@@ -83,18 +89,21 @@ export const register = (app: express.Application, options: StartExpressServerOp
             return res.status(500).json({ error });
         }
     });
-    app.post("/api/document/update", validateWithTerminationOnError(expressValidator.checkSchema({
-        documentId: schemaValidationDocumentId,
-        documentContent: schemaValidationDocumentContent,
-        documentResources: schemaValidationDocumentResources,
-        apiVersion: schemaValidationApiVersion
-    })), (req, res) => {
-        debug("Update document");
-        try {
-            const updateDocument = api.content.updateDocument();
-            return res.status(405).json({ error: Error("Not yet implemented") });
-        } catch(error) {
-            return res.status(500).json({ error });
-        }
-    });
+    app.post("/api/document/update",
+        expressSession.checkAuthenticationJson,
+        validateWithTerminationOnError(expressValidator.checkSchema({
+            documentId: schemaValidationDocumentId,
+            documentContent: schemaValidationDocumentContent,
+            documentResources: schemaValidationDocumentResources,
+            apiVersion: schemaValidationApiVersion
+        })),
+        (req, res) => {
+            debug("Update document");
+            try {
+                const updateDocument = api.content.updateDocument();
+                return res.status(405).json({ error: Error("Not yet implemented") });
+            } catch(error) {
+                return res.status(500).json({ error });
+            }
+        });
 };
