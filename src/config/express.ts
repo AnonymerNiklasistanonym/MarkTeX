@@ -4,7 +4,6 @@ import exphbs from "express-handlebars";
 import createError, { HttpError } from "http-errors";
 import { Server } from "http";
 import { debuglog } from "util";
-import expressCookieParser from "cookie-parser";
 import expressSession from "express-session";
 
 import { hbsHelpers } from "./hbs";
@@ -52,7 +51,6 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     app.use(express.json());
 
     // Enable sessions for requests
-    app.use(expressCookieParser());
     app.use(expressSession({
         secret: "secret",
         resave: false,
