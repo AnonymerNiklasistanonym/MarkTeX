@@ -13,7 +13,7 @@ export interface CreateInput {
  * @returns Unique id of group.
  */
 export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
-    const columns = ["name", "owner"];
+    const columns = [ "name", "owner" ];
     const values = [ input.name, accountId ];
     const postResult = await database.requests.postRequest(
         databasePath,

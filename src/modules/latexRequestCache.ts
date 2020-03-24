@@ -38,7 +38,7 @@ export const add = (latexStringKey: string, newEntry: LatexRequestCacheInput): v
     // If cache reaches a specific size, remove older items
     if (latex2SvgCache.size > latex2SvgCacheMaxSize) {
         let oldestCacheEntry;
-        for (const [key, value] of latex2SvgCache.entries()) {
+        for (const [ key, value ] of latex2SvgCache.entries()) {
             if (oldestCacheEntry) {
                 if (oldestCacheEntry.date > value.date) {
                     oldestCacheEntry = { id: key, date: value.date };

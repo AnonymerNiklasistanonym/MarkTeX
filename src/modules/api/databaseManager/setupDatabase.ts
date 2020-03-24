@@ -12,7 +12,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
     // Account table
     await database.requests.postRequest(
         databasePath,
-        database.queries.createTable("account", [{
+        database.queries.createTable("account", [ {
             name: "id",
             type: database.queries.CreateTableColumnType.INTEGER,
             options: { unique: true, primaryKey: true, notNull: true }
@@ -32,11 +32,11 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             name: "admin",
             type: database.queries.CreateTableColumnType.INTEGER,
             options: { notNull: true }
-        }], true));
+        } ], true));
     // Group table
     await database.requests.postRequest(
         databasePath,
-        database.queries.createTable("document_group", [{
+        database.queries.createTable("document_group", [ {
             name: "id",
             type: database.queries.CreateTableColumnType.INTEGER,
             options: { unique: true, primaryKey: true, notNull: true }
@@ -52,11 +52,11 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 tableName: "account",
                 column: "id"
             }
-        }], true));
+        } ], true));
     // Document table
     await database.requests.postRequest(
         databasePath,
-        database.queries.createTable("document", [{
+        database.queries.createTable("document", [ {
             name: "id",
             type: database.queries.CreateTableColumnType.INTEGER,
             options: { unique: true, primaryKey: true, notNull: true }
@@ -81,7 +81,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             foreign: {
                 tableName: "account",
                 column: "id",
-                options: [ "ON DELETE CASCADE ON UPDATE NO ACTION" ]
+                options: ["ON DELETE CASCADE ON UPDATE NO ACTION"]
             }
         }, {
             name: "document_group",
@@ -90,7 +90,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 tableName: "document_group",
                 column: "id"
             }
-        }], true));
+        } ], true));
 };
 
 /**

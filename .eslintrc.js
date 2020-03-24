@@ -31,6 +31,14 @@ module.exports = {
         }
     },
     "rules": {
+        "keyword-spacing": ["error", { before: true, after: true }],
+        "space-before-blocks": ["error", "always"],
+        "block-spacing": ["error", "always"],
+        "space-before-function-paren": ["error", "always"],
+        "array-bracket-spacing": ["error", "always", { "singleValue": false }],
+        "object-curly-spacing": ["error", "always"],
+        "computed-property-spacing": ["error", "never"],
+        "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
         "jsdoc/check-types": 0,
         "jsdoc/require-returns-type": 0,
         "jsdoc/require-param-type": 0,

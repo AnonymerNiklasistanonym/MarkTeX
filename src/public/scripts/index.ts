@@ -8,7 +8,7 @@ const component = (content?: string): HTMLDivElement => {
     if (content !== undefined) {
         element.innerHTML = content;
     } else {
-        element.innerHTML = ["Hello", "webpack"].join(" ");
+        element.innerHTML = [ "Hello", "webpack" ].join(" ");
     }
     return element;
 };

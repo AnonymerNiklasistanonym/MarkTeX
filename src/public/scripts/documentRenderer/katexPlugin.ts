@@ -17,8 +17,7 @@ const markDelimiter = "$";
 const markDelimiterBlock = "$$";
 const markDelimiterEscape = "\\";
 
-export const register = (md: MarkdownIt, options: Options): void =>
-{
+export const register = (md: MarkdownIt, options: Options): void => {
     const katex2Html = (latex: string, katexToHtmlOptions?: KatexToHtmlTextOptions): string => {
         const katexOptions = {
             displayMode: katexToHtmlOptions !== undefined && katexToHtmlOptions.block,
@@ -32,8 +31,7 @@ export const register = (md: MarkdownIt, options: Options): void =>
 
         try {
             return katex.renderToString(latex, katexOptions);
-        }
-        catch (error) {
+        } catch (error) {
             if (options.onError) {
                 options.onError(error, latex);
             }
@@ -184,34 +182,34 @@ export const register = (md: MarkdownIt, options: Options): void =>
         let max = state.eMarks[start];
 
 
-        if(pos + 2 > max){ return false; }
-        if(state.src.slice(pos,pos+2)!==markDelimiterBlock){ return false; }
+        if (pos + 2 > max) { return false; }
+        if (state.src.slice(pos,pos+2)!==markDelimiterBlock) { return false; }
 
         pos += 2;
         firstLine = state.src.slice(pos,max);
 
-        if(silent){ return true; }
-        if(firstLine.trim().endsWith(markDelimiterBlock)){
+        if (silent) { return true; }
+        if (firstLine.trim().endsWith(markDelimiterBlock)) {
             // Single line expression
             firstLine = firstLine.trim().slice(0, -2);
             found = true;
         }
 
-        for(next = start; !found; ){
+        for (next = start; !found; ) {
 
             next++;
 
-            if(next >= end){ break; }
+            if (next >= end) { break; }
 
             pos = state.bMarks[next]+state.tShift[next];
             max = state.eMarks[next];
 
-            if(pos < max && state.tShift[next] < state.blkIndent){
+            if (pos < max && state.tShift[next] < state.blkIndent) {
                 // non-empty line with negative indent should stop the list:
                 break;
             }
 
-            if(state.src.slice(pos,max).trim().endsWith(markDelimiterBlock)){
+            if (state.src.slice(pos,max).trim().endsWith(markDelimiterBlock)) {
                 lastPos = state.src.slice(0,max).lastIndexOf(markDelimiterBlock);
                 lastLine = state.src.slice(pos,lastPos);
                 found = true;

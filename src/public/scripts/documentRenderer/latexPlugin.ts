@@ -6,8 +6,7 @@ import "../webpackVars";
 // eslint-disable-next-line no-bitwise
 const hashCode = (s: string): number => s.split("").reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0);
 
-export const register = (md: MarkdownIt): void =>
-{
+export const register = (md: MarkdownIt): void => {
     // eslint-disable-next-line complexity
     const mdRuleLatexBlock: MarkdownIt.RuleBlock = (state, startLine, endLine, silent) => {
 
@@ -17,7 +16,7 @@ export const register = (md: MarkdownIt): void =>
         let currentString = state.src.slice(posBeginCurrentLine,posEndCurrentLine);
 
         // Check if the first line starts with a \begin{
-        if(!currentString.startsWith("\\begin{center}")){ return false; }
+        if (!currentString.startsWith("\\begin{center}")) { return false; }
 
         if (DEBUG_APP) {
             console.debug("MarkdownIt>Plugin>Latex: BEGIN block found");
@@ -36,7 +35,7 @@ export const register = (md: MarkdownIt): void =>
             currentString = state.src.slice(posBeginCurrentLine,posEndCurrentLine);
             state.line++;
 
-            if(currentString.startsWith(headerIncludesString)){
+            if (currentString.startsWith(headerIncludesString)) {
                 currentString = currentString.slice(headerIncludesString.length ,currentString.length);
                 headerIncludes = currentString.split(" ").filter(a => a.length !== 0);
                 if (DEBUG_APP) {
@@ -47,7 +46,7 @@ export const register = (md: MarkdownIt): void =>
                 latexString += `\n${currentString}`;
             }
 
-        } while(!currentString.startsWith("\\end{center}") && currentLine <= endLine);
+        } while (!currentString.startsWith("\\end{center}") && currentLine <= endLine);
 
         if (currentLine > endLine) {
             if (DEBUG_APP) {

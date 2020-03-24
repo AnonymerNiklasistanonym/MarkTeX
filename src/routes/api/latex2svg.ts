@@ -100,7 +100,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     svgData: latex2SvgOut.svgData,
                     id: input.latexStringHash
                 });
-            } catch(err) {
+            } catch (err) {
                 debug(`latex2svg: Error when converting tex to pdf: ${err}`);
                 return res.status(500).json({
                     error: err,

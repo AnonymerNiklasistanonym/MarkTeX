@@ -18,13 +18,13 @@ export const rmDirRecursive = async (dirPath: string): Promise<void> => {
                 } else {
                     await fs.unlink(dirFilePath);
                 }
-            } catch(err) {
+            } catch (err) {
                 // ignore error
             }
         }
         // Remove original directory after all its contents were removed
         await fs.rmdir(dirPath);
-    } catch(err) {
+    } catch (err) {
         // ignore error
     }
 };
@@ -35,7 +35,7 @@ export interface ZipFileFiles {
 }
 
 export const createZipFile = async (source: ZipFileFiles, out: string): Promise<void> => {
-    const archive = archiver.create("zip", { zlib: { level: 9 }});
+    const archive = archiver.create("zip", { zlib: { level: 9 } });
     const stream = createWriteStream(out);
 
     return new Promise((resolve, reject) => {

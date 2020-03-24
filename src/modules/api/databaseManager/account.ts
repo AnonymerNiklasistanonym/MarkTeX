@@ -15,9 +15,9 @@ export interface CreateInput {
  * @returns Unique id of account.
  */
 export const create = async (databasePath: string, input: CreateInput): Promise<number> => {
-    const columns = ["name", "password_hash", "password_salt", "admin"];
+    const columns = [ "name", "password_hash", "password_salt", "admin" ];
     const hashAndSalt = crypto.generateHashAndSalt(input.password);
-    const values: (string|number)[] = [input.name, hashAndSalt.hash, hashAndSalt.salt, input.admin ? 1 : 0];
+    const values: (string|number)[] = [ input.name, hashAndSalt.hash, hashAndSalt.salt, input.admin ? 1 : 0 ];
     const postResult = await database.requests.postRequest(
         databasePath,
         database.queries.insert("account", columns),

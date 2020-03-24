@@ -34,11 +34,11 @@ export interface NewListHandlerAddNode {
 export class NewListHandler {
     private rootListElement: HTMLUListElement;
     private listData: ListRoot;
-    constructor(rootListElement: HTMLUListElement) {
+    constructor (rootListElement: HTMLUListElement) {
         this.rootListElement = rootListElement;
         this.listData = { listSections: [] };
     }
-    load(list: ListRoot): void {
+    load (list: ListRoot): void {
         // Clean current list
         while (this.rootListElement.firstChild) {
             this.rootListElement.firstChild.remove();
@@ -47,7 +47,7 @@ export class NewListHandler {
             this.addSection(section);
         }
     }
-    addSection(section: ListSection): void {
+    addSection (section: ListSection): void {
         const sectionDom = document.createElement("ul");
         for (const node of section.listChildren) {
             this.addNode({ sectionDom }, node);
@@ -59,7 +59,7 @@ export class NewListHandler {
         }
         // TODO Add to list data
     }
-    createNodeElement(node: ListNode): HTMLLIElement {
+    createNodeElement (node: ListNode): HTMLLIElement {
         const nodeDom = document.createElement("li");
         nodeDom.textContent = node.content;
         nodeDom.addEventListener("click", () => {
@@ -72,7 +72,7 @@ export class NewListHandler {
         return nodeDom;
     }
     // eslint-disable-next-line complexity
-    addNode(dom: NewListHandlerAddNode, node: ListNode): void {
+    addNode (dom: NewListHandlerAddNode, node: ListNode): void {
         const nodeDom = this.createNodeElement(node);
         if (node.listChildren) {
             for (const childNode of node.listChildren) {
@@ -112,10 +112,10 @@ export class NewListHandler {
 
 export class ListHandler {
     private ctrlKeyPressed = false;
-    setCtrlKeyPressed(value = false): void {
+    setCtrlKeyPressed (value = false): void {
         this.ctrlKeyPressed = value;
     }
-    addList(liElement: HTMLLIElement): HTMLLIElement | undefined {
+    addList (liElement: HTMLLIElement): HTMLLIElement | undefined {
         console.info("addList()"); // eslint-disable-line no-console
         if (liElement.parentNode) {
             const newListLi = this.createListElement();
@@ -123,14 +123,14 @@ export class ListHandler {
             return newListLi;
         }
     }
-    removeList(liElement: HTMLLIElement): void {
+    removeList (liElement: HTMLLIElement): void {
         console.info("removeList()"); // eslint-disable-line no-console
         if (liElement.parentNode) {
             liElement.parentNode.removeChild(liElement);
         }
     }
     // eslint-disable-next-line complexity
-    indentList(liElement: HTMLLIElement, indent=1): void {
+    indentList (liElement: HTMLLIElement, indent=1): void {
         console.info("indentList()"); // eslint-disable-line no-console
         // TODO Check if parent has children, if not do nothing
         // TODO Implement behaviour if indent is -1
@@ -185,7 +185,7 @@ export class ListHandler {
             }
         }
     }
-    createListElement(): HTMLLIElement {
+    createListElement (): HTMLLIElement {
         const newListLi = document.createElement("li");
         newListLi.textContent = "new";
         // TODO Do this via keyboard controls and not with clicking
@@ -195,11 +195,11 @@ export class ListHandler {
         // TODO Make it able to change content as soon as one element is selected
         return newListLi;
     }
-    switchListType(ulElement: HTMLUListElement): void {
+    switchListType (ulElement: HTMLUListElement): void {
         // TODO Switch list indentation type (checkbox, 1...99, -)
     }
     // TODO: Allow different kinds of lists (top list elements are the section with a special class)
-    convertListToMd(ulElement: HTMLUListElement): string {
+    convertListToMd (ulElement: HTMLUListElement): string {
         // TODO Convert list to markdown document
         return "";
     }

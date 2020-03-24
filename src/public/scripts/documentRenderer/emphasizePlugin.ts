@@ -5,8 +5,7 @@ import * as MarkdownIt from "markdown-it";
 
 const markDelimiter = "=";
 
-export const register = (md: MarkdownIt): void =>
-{
+export const register = (md: MarkdownIt): void => {
     // eslint-disable-next-line complexity
     const mdRuleMark: MarkdownIt.RuleInline = (state, silent): boolean => {
         // Current position in token stream

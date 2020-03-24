@@ -35,7 +35,7 @@ export const latex2Svg = async (input: Latex2SvgRequestInput): Promise<Latex2Svg
             const responseText = await response.text();
             throw Error(`Bad response (${response.status}): ${responseText}`);
         }
-    } catch(e) {
+    } catch (e) {
         throw e;
     }
 };

@@ -109,17 +109,17 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                 { name: "DOCKER_FILE", value: "Dockerfile" },
                 { name: "DOCKER", value: "docker" }
             ],
-            jobs: [{
+            jobs: [ {
                 name: "pdf",
                 default: true,
-                dependencies: [ "$(SOURCE_FILES)" ],
+                dependencies: ["$(SOURCE_FILES)"],
                 commands: ["$(PANDOC) $(PANDOC_ARGS) -o $(OUTPUT_FILE)"]
             },{
                 name: "docker_image",
                 commands: ["docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME) -f $(DOCKER_FILE) ."]
             },{
                 name: "docker",
-                dependencies: [ "docker_image" ],
+                dependencies: ["docker_image"],
                 commands: [
                     "docker rm -f temp || true",
                     "docker run -ti --name temp $(DOCKER_IMAGE_NAME)",
@@ -136,7 +136,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                     "\tstart $(OUTPUT_FILE) >/dev/null 2>&1; \\",
                     "fi"
                 ]
-            }]
+            } ]
         });
         const makefilePath = path.join(workingDirName, "Makefile");
         await fs.writeFile(makefilePath, makefileContent);
@@ -149,8 +149,8 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                 "RUN apk add --update make",
                 "COPY ./ ./"
             ],
-            entrypoint: [ "make" ],
-            cmd: [ "pdf" ]
+            entrypoint: ["make"],
+            cmd: ["pdf"]
         });
         const dockerfilePath = path.join(workingDirName, "Dockerfile");
         await fs.writeFile(dockerfilePath, dockerfileContent);

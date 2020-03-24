@@ -61,7 +61,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             try {
                 const createDocument = api.content.createDocument();
                 return res.status(405).json({ error: Error("Not yet implemented") });
-            } catch(error) {
+            } catch (error) {
                 return res.status(500).json({ error });
             }
         });
@@ -73,7 +73,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         try {
             const getDocument = await api.content.getDocument(req.body.accountId, req.body.documentId);
             return res.status(405).json({ error: Error("Not yet implemented") });
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({ error });
         }
     });
@@ -85,7 +85,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         try {
             const exportDocument = api.content.exportDocument();
             return res.status(405).json({ error: Error("Not yet implemented") });
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({ error });
         }
     });
@@ -102,7 +102,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             try {
                 const updateDocument = api.content.updateDocument();
                 return res.status(405).json({ error: Error("Not yet implemented") });
-            } catch(error) {
+            } catch (error) {
                 return res.status(500).json({ error });
             }
         });
