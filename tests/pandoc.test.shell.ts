@@ -1,7 +1,12 @@
-import * as chai from "chai";
+import chai from "chai";
 import { describe } from "mocha";
 import * as pandoc from "../src/modules/pandoc";
 import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
+
+// Show stack trace on error
+chai.config.includeStack = true;
 
 describe("pandoc api [shell]", () => {
     it("version", async () => {
@@ -41,28 +46,36 @@ describe("pandoc api [shell]", () => {
                 pdfEngine: "xelatex"
             }
         };
-        const output = await pandoc.md2Pdf({ files, pandocOptions });
-        chai.expect(output.stdout).to.be.a("string");
-        chai.expect(output.stderr).to.be.a("string");
-        chai.expect(output.pdfFile).to.be.a("Uint8Array");
-        chai.expect(output.pdfFile).to.not.equal(undefined);
-        chai.expect(output.zipFile).to.equal(undefined);
+        try {
+            const output = await pandoc.md2Pdf({ files, pandocOptions });
+            chai.expect(output.stdout).to.be.a("string");
+            chai.expect(output.stderr).to.be.a("string");
+            chai.expect(output.pdfFile).to.be.a("Uint8Array");
+            chai.expect(output.pdfFile).to.not.equal(undefined);
+            chai.expect(output.zipFile).to.equal(undefined);
 
-        await fs.writeFile("out.pdf", output.pdfFile);
-        await fs.unlink("out.pdf");
+            await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), output.pdfFile);
+            await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
+        } catch (e) {
+            chai.assert(false, e);
+        }
 
-        const outputWithZip = await pandoc.md2Pdf({ files, pandocOptions, options: { createSourceZipFile: true } });
-        chai.expect(outputWithZip.stdout).to.be.a("string");
-        chai.expect(outputWithZip.stderr).to.be.a("string");
-        chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");
-        chai.expect(outputWithZip.pdfFile).to.not.equal(undefined);
-        chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
-        chai.expect(outputWithZip.zipFile).to.not.equal(undefined);
+        try {
+            const outputWithZip = await pandoc.md2Pdf({ files, pandocOptions, options: { createSourceZipFile: true } });
+            chai.expect(outputWithZip.stdout).to.be.a("string");
+            chai.expect(outputWithZip.stderr).to.be.a("string");
+            chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");
+            chai.expect(outputWithZip.pdfFile).to.not.equal(undefined);
+            chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
+            chai.expect(outputWithZip.zipFile).to.not.equal(undefined);
 
-        await fs.writeFile("out_zip.pdf", outputWithZip.pdfFile);
-        await fs.unlink("out_zip.pdf");
-        await fs.writeFile("out_zip.zip", outputWithZip.zipFile);
-        await fs.unlink("out_zip.zip");
+            await fs.writeFile(path.join(os.tmpdir(), "out_zip.pdf"), outputWithZip.pdfFile);
+            await fs.unlink(path.join(os.tmpdir(), "out_zip.pdf"));
+            await fs.writeFile(path.join(os.tmpdir(), "out_zip.zip"), outputWithZip.zipFile);
+            await fs.unlink(path.join(os.tmpdir(), "out_zip.zip"));
+        } catch (e) {
+            chai.assert(false, e);
+        }
 
     }).timeout(40000);
 });

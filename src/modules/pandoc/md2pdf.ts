@@ -1,10 +1,13 @@
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
-import * as path from "path";
+import path from "path";
+import os from "os";
 import { rmDirRecursive, createZipFile } from "../helper";
 import * as make from "../make";
 import * as docker from "../docker";
 import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
+import { debuglog } from "util";
+const debug = debuglog("app-pandoc");
 
 export interface PandocMd2PdfInputFile {
     /** List of all relative directories in which the file can be found */
@@ -54,7 +57,8 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     // TODO test images in all formats
     const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
     // Create working directory
-    const workingDirName = String(Date.now());
+    const workingDirTimeStamp = String(Date.now());
+    const workingDirName = path.join(os.tmpdir(), workingDirTimeStamp);
     await fs.mkdir(workingDirName);
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
@@ -158,9 +162,15 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     }
     // Run command
     const pdfOutFilePath = path.join(workingDirName, "out.pdf");
-    const child = spawn("pandoc", [
-        "--defaults", "pandoc.yml", "-o", "out.pdf"
-    ], { cwd: workingDirName });
+    const pandocCommand = "pandoc";
+    const pandocCommandOptions = [
+        "--defaults",
+        pandocConfigPath,
+        "-o",
+        pdfOutFilePath
+    ];
+    debug(`Run command: ${pandocCommand} ${pandocCommandOptions.join(" ")}`);
+    const child = spawn(pandocCommand, pandocCommandOptions, { cwd: workingDirName });
     const bufferStdout: Buffer[] = [];
     const bufferStderr: Buffer[] = [];
     // use child.stdout.setEncoding('utf8'); if you want text chunks
@@ -183,7 +193,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             }
             const stdout = bufferStdout.toString();
             if (createSourceZipFile) {
-                const zipOutFilePath = path.join(workingDirName, `${workingDirName}.zip`);
+                const zipOutFilePath = path.join(workingDirName, `${workingDirTimeStamp}.zip`);
                 createZipFile({
                     files: allSourceFiles
                 }, zipOutFilePath).then(() => Promise.all([

@@ -1,6 +1,7 @@
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
-import * as path from "path";
+import path from "path";
+import os from "os";
 import { rmDirRecursive } from "../helper";
 import { debuglog } from "util";
 const debug = debuglog("app-inkscape");
@@ -24,20 +25,22 @@ export interface InkscapePdf2Svg {
 export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2Svg> => {
     debug("pdf2Svg");
     // Create working directory
-    const workingDirName = String(Date.now());
+    const workingDirName = path.join(os.tmpdir(), String(Date.now()));
     await fs.mkdir(workingDirName);
     // Create PDF file
     const temporaryPdf = path.join(workingDirName, "temp.pdf");
     await fs.writeFile(temporaryPdf, input.pdfData);
     const temporarySvg = path.join(workingDirName, "temp.svg");
     debug(`pdf2Svg temporaryPdf=${temporaryPdf}, temporarySvg=${temporarySvg}`);
-    // TODO: Log command
-    const child = spawn("inkscape", [
+    const inkscapeCommand = "inkscape";
+    const inkscapeCommandOptions = [
         temporaryPdf,
-        `--export-filename=${temporarySvg}`,
+        `--export-filename="${temporarySvg}"`,
         ...(input.inkscapeOptions !== undefined && input.inkscapeOptions.usePoppler ? ["--pdf-poppler"] : [  ]),
         `--pdf-page=${input.pageNumber ? input.pageNumber : 1}`
-    ]);
+    ];
+    debug(`Run command: ${inkscapeCommand} ${inkscapeCommandOptions.join(" ")}`);
+    const child = spawn(inkscapeCommand, inkscapeCommandOptions, { cwd: workingDirName });
     const bufferStdout: Buffer[] = [];
     const bufferStderr: Buffer[] = [];
     child.stdout.on("data", (chunk: Buffer) => { bufferStdout.push(chunk); });

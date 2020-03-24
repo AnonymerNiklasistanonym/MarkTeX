@@ -1,8 +1,10 @@
 import * as chai from "chai";
+import os from "os";
+import path from "path";
 import { describe } from "mocha";
 import * as database from "../src/modules/database";
 
-const databaseName = "./test.db";
+const databaseName = path.join(os.tmpdir(), "test.db");
 
 describe("database api", () => {
     it("delete database throws no error", async () => {
