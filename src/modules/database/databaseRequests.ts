@@ -5,7 +5,7 @@ import { debuglog } from "util";
 const debug = debuglog("app-database-request");
 
 export const getEachRequest = async (dbNamePath: string, query: string,
-    parameters: any[] = []): Promise<sqlite3.RunResult> => {
+    parameters: (string|number)[] = []): Promise<sqlite3.RunResult> => {
 
     const db = await openDatabase(dbNamePath);
     db.on("trace", debug);
@@ -49,7 +49,7 @@ export const getEachRequest = async (dbNamePath: string, query: string,
  * @returns Post result
  */
 export const postRequest = async (dbNamePath: string, query: string,
-    parameters: any[] = []): Promise<sqlite3.RunResult> => {
+    parameters: (string|number)[] = []): Promise<sqlite3.RunResult> => {
 
     const db = await openDatabase(dbNamePath);
     db.on("trace", debug);
