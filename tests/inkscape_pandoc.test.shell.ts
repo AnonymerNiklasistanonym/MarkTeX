@@ -24,7 +24,7 @@ describe("inkscape <-> pandoc [shell]", () => {
             pandocArgs: {
                 variables: [{
                     name: "geometry",
-                    value: [{ name: "a4paper"}, { name: "margin=2cm"}]
+                    value: [ { name: "a4paper" }, { name: "margin=2cm" } ]
                 }],
                 toc: true,
                 tocDepth: 3,

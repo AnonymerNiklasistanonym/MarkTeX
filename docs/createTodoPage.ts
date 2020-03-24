@@ -40,6 +40,8 @@ glob("**/*.{hbs,ts,html,css,yml}", {
 
     /**
      * Render an entry
+     *
+     * @param entry
      */
     const renderTag = (entry: Entry): string => `| ${entry.tag} | ${entry.text} | ` +
         `${path.extname(entry.file)} | [Link to ${path.basename(entry.file)}](` +
@@ -48,7 +50,7 @@ glob("**/*.{hbs,ts,html,css,yml}", {
     const todoTags = mappedFiles.filter(a => a.tag === "TODO");
     const fixMeTags = mappedFiles.filter(a => a.tag === "FIXME");
     const otherTags = mappedFiles.filter(a => a.tag !== "FIXME" && a.tag !== "TODO");
-    const allTags = [fixMeTags, todoTags, otherTags]
+    const allTags = [ fixMeTags, todoTags, otherTags ]
         .reduce((a: string[], b) => a.concat(b.map(renderTag)), []);
 
     const content = (allTags.length === 0)
@@ -57,7 +59,7 @@ glob("**/*.{hbs,ts,html,css,yml}", {
         allTags.join("\n");
 
     const distDir = path.join(__dirname, "dist");
-    if (!fs.existsSync(distDir)){
+    if (!fs.existsSync(distDir)) {
         fs.mkdirSync(distDir);
     }
 

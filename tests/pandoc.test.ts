@@ -20,15 +20,15 @@ describe("pandoc api", () => {
             from: "markdown",
             to: "pdf",
             inputFiles: [ "a.md", "b.md" ],
-            variables: [{
+            variables: [ {
                 name: "documentclass",
-                value: [ { name: "book" } ]
+                value: [{ name: "book" }]
             }, {
                 name: "classoption",
                 value: [ { name: "twosides" }, { name: "draft" } ]
-            }],
+            } ],
             metadata: {
-                authors: [ "John Doe" ],
+                authors: ["John Doe"],
                 title: "Document Title",
                 date: "29.02.2020"
             },

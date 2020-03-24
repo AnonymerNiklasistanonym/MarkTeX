@@ -11,8 +11,8 @@ describe("docker api", () => {
                 "RUN apk add --update make",
                 "COPY ./ ./"
             ],
-            entrypoint: [ "make" ],
-            cmd: [ "pdf" ]
+            entrypoint: ["make"],
+            cmd: ["pdf"]
         });
         chai.expect(dockerfileString).to.be.a("string");
         chai.assert(dockerfileString.length > 0);
