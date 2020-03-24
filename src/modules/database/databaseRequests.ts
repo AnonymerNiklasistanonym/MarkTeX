@@ -1,16 +1,20 @@
 import { openDatabase } from "./openDatabase";
 import * as sqlite3 from "sqlite3";
+import { debuglog } from "util";
+
+const debug = debuglog("app-database-request");
 
 export const getEachRequest = async (dbNamePath: string, query: string,
-    parameters = []): Promise<sqlite3.RunResult> => {
+    parameters: any[] = []): Promise<sqlite3.RunResult> => {
 
     const db = await openDatabase(dbNamePath);
-    // TODO Debug database trace
-    // db.on('trace', debugSqlite)
+    db.on("trace", debug);
+    debug(`Run query: "${query}"`);
     let requestedElement: sqlite3.RunResult;
     return new Promise((resolve, reject) => db.each(query, parameters,
         (err, row) => {
             if (err) {
+                debug(`Database error each: ${JSON.stringify(err)}`);
                 reject(err);
             } else {
                 requestedElement = row;
@@ -20,18 +24,54 @@ export const getEachRequest = async (dbNamePath: string, query: string,
             let previousError = false;
             if (err) {
                 previousError = true;
+                debug(`Database error: ${JSON.stringify(err)}`);
                 reject(err);
             }
             db.close(errClose => {
                 if (!previousError && errClose) {
+                    debug(`Database close error: ${JSON.stringify(errClose)}`);
                     reject(errClose);
                 } else {
+                    debug(`Run result: "${JSON.stringify(requestedElement)}"`);
                     resolve(requestedElement);
                 }
             });
         })
     );
 };
+
+/**
+ * Edit something in database.
+ *
+ * @param dbNamePath Database path.
+ * @param query Query for the database.
+ * @param parameters Query data.
+ * @returns Post result
+ */
+export const postRequest = async (dbNamePath: string, query: string,
+    parameters: any[] = []): Promise<sqlite3.RunResult> => {
+
+    const db = await openDatabase(dbNamePath);
+    db.on("trace", debug);
+    debug(`Run query: "${query}"`);
+    return new Promise((resolve, reject) => db.run(query, parameters,
+        function (err) {
+            if (err) {
+                debug(`Database error each: ${JSON.stringify(err)}`);
+                reject(err);
+            } else {
+                debug(`Database post result: ${JSON.stringify(this)}`);
+                resolve(this);
+            }
+            db.close(errClose => {
+                if (errClose) {
+                    debug(`Database close error: ${JSON.stringify(errClose)}`);
+                }
+            });
+        })
+    );
+};
+
 //  /**
 //   * Get something from the database
 //   * @param {string} query Query for the database
@@ -49,27 +89,6 @@ export const getEachRequest = async (dbNamePath: string, query: string,
 //            database.close()
 //            debug('getAllRequest resolved')
 //          })
-//      }).catch(reject))
-//  }
-//  /**
-//   * Edit something in database
-//   * @param {string} query Query for the database
-//   * @param {*[]} parameters Query data (for better security)
-//   * @returns {Promise<import('./index').RunResult>}
-//   * Post result
-//   */
-//  static postRequest (query, parameters = []) {
-//    return new Promise((resolve, reject) => this.databaseWrapper(false)
-//      .then(database => {
-//        // Debug database trace
-//        database.on('trace', debugSqlite).serialize(() => database
-//          .run('PRAGMA foreign_keys = ON;')
-//          .run(query, parameters,
-//            function (err) {
-//              err ? reject(err) : resolve(this)
-//              database.close()
-//              debug('postRequest resolved ' + JSON.stringify(this))
-//            }))
 //      }).catch(reject))
 //  }
 //  /**

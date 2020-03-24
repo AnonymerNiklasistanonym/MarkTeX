@@ -4,3 +4,5 @@ export * from "./database/createDatabase";
 // For now use the following two lines
 import * as queries from "./database/databaseQueries";
 export { queries };
+import * as requests from "./database/databaseRequests";
+export { requests };

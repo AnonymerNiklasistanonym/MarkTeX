@@ -8,6 +8,7 @@ import * as latex from "./modules/latex";
 import { debuglog } from "util";
 import { exit } from "shelljs";
 import * as os from "os";
+import path from "path";
 
 const debug = debuglog("app");
 
@@ -15,15 +16,15 @@ const debug = debuglog("app");
 loadEnvFile();
 
 // Load database
-const databasePath = "./database.db";
+const databasePath = path.join(__dirname, "..", "database.db");
 api.database.checkIfDatabaseExists(databasePath)
-    .then(exists => {
+    .then(async exists => {
         // Setup database if non is found
         if (!exists) {
-            debug("setup database='%s' as it does not exist", databasePath);
-            return api.setupDatabase();
+            debug("setup database '%s' as it does not exist", databasePath);
+            await api.database.createDatabase(databasePath);
         } else {
-            debug("database found");
+            debug("database '%s' found", databasePath);
         }
     })
     .then(() => {
@@ -54,10 +55,6 @@ api.database.checkIfDatabaseExists(databasePath)
         console.error(err);
         exit(1);
     })
-    // .then(() => os.version()).then(version => {
-    //     // eslint-disable-next-line no-console
-    //     console.log(`os: ${version})`);
-    // })
     .then(() => inkscape.getVersion()).then(version => {
         // eslint-disable-next-line no-console
         console.log(`inkscape: ${version.major}.${version.minor}.${version.patch} (${version.date.toISOString()})`);
@@ -69,6 +66,10 @@ api.database.checkIfDatabaseExists(databasePath)
     .then(() => latex.getVersion()).then(version => {
         // eslint-disable-next-line no-console
         console.log(`latex:    ${version.major}.${version.minor} (${version.engine})`);
+    })
+    .then(() => {
+        // eslint-disable-next-line no-console
+        console.log(`os:       ${os.platform()} [${os.release()}] (${os.arch()})`);
     })
     .catch(err => {
         // eslint-disable-next-line no-console

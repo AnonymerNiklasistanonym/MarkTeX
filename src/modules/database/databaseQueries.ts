@@ -162,6 +162,12 @@ export enum CreateTableColumnType {
     BLOB = "BLOB"
 };
 
+export interface CreateTableColumnOptions {
+    notNull?: boolean
+    primaryKey?: boolean
+    unique?: boolean
+}
+
 export interface CreateTableColumn {
     /**
      * Column name
@@ -174,7 +180,7 @@ export interface CreateTableColumn {
     /**
      * Column options (`NOT NULL`, `UNIQUE`, `PRIMARY KEY`)
      */
-    options?: string[]
+    options?: CreateTableColumnOptions
     /**
      * Foreign key options
      */
@@ -214,9 +220,29 @@ export interface CreateTableColumnForeign {
  * @param ifNotExists
  */
 export const createTable = (tableName: string, columns: CreateTableColumn[], ifNotExists = false): string => {
+    // eslint-disable-next-line complexity
+    const columnOptionsToString = (columnOptions?: CreateTableColumnOptions): string => {
+        const columnOptionsArray = [];
+        if (columnOptions) {
+            if (columnOptions.primaryKey) {
+                columnOptionsArray.push("PRIMARY KEY");
+            }
+            if (columnOptions.unique) {
+                columnOptionsArray.push("UNIQUE");
+            }
+            if (columnOptions.notNull) {
+                columnOptionsArray.push("NOT NULL");
+            }
+        }
+        if (columnOptionsArray.length === 0) {
+            return "";
+        } else {
+            return " " + columnOptionsArray.join(" ");
+        }
+    };
     const columnsString = columns.map(column => {
         return `${column.name} ${column.type}` +
-            `${column.options !== undefined && column.options.length > 0 ? " " + column.options.join(" ") : ""}`;
+            `${columnOptionsToString(column.options)}`;
     }).join(",");
     const foreignKeysString = columns
         .filter(column => column.foreign !== undefined)
