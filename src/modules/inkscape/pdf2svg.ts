@@ -35,9 +35,11 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
     const inkscapeCommand = "inkscape";
     const inkscapeCommandOptions = [
         temporaryPdf,
-        `--export-filename="${temporarySvg}"`,
+        "--export-filename",
+        temporarySvg,
         ...(input.inkscapeOptions !== undefined && input.inkscapeOptions.usePoppler ? ["--pdf-poppler"] : [  ]),
-        `--pdf-page=${input.pageNumber ? input.pageNumber : 1}`
+        "--pdf-page",
+        input.pageNumber ? String(input.pageNumber) : "1"
     ];
     debug(`Run command: ${inkscapeCommand} ${inkscapeCommandOptions.join(" ")}`);
     const child = spawn(inkscapeCommand, inkscapeCommandOptions, { cwd: workingDirName });
