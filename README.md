@@ -22,7 +22,7 @@ The current features that are being developed are:
 
 ## Requirements
 
-*(it could be that later versions are required, but the tested versioh)*
+*(it could be that later versions are required, but the tested versions are guaranteed to work)*
 
 | Program | Version required | Version tested |
 | ------- | ---------------- | -------------- |
