@@ -22,9 +22,19 @@ The current features that are being developed are:
 
 ## Requirements
 
-- `nodejs` 13.9.0
-- `pandoc` 2.9.2
-- `inkscape` 1.1 (dev version, **not yet released!!!**)
+*(it could be that later versions are required, but the tested versioh)*
+
+| Program | Version required | Version tested |
+| ------- | ---------------- | -------------- |
+| `nodejs` | 13.9+ | 13.11.0 |
+| `pandoc` | 2.9+ | 2.9.2 |
+| `xetex`  | | 0.999991 |
+| `inkscape` | 1.0+ (**1.0 did not hit stable yet!!!**) | 1.1.dev |
+
+### Tested on
+
+- Linux [5.5.8-1-MANJARO] (x64)
+- Windows [10.0.18363] (x64)
 
 ## Quickstart
 

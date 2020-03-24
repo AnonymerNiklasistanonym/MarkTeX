@@ -68,6 +68,8 @@ api.database.checkIfDatabaseExists(databasePath)
     })
     .then(() => {
         // eslint-disable-next-line no-console
+        console.log(`node:     ${process.versions.node}`);
+        // eslint-disable-next-line no-console
         console.log(`os:       ${os.platform()} [${os.release()}] (${os.arch()})`);
     })
     .catch(err => {
