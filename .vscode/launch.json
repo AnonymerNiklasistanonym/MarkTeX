@@ -9,6 +9,10 @@
             "preLaunchTask": "tsc: build - tsconfig.json",
             "cwd": "${workspaceFolder}",
             "protocol": "inspector",
+            "env": {
+                "NODE_DEBUG": "app*",
+                "NODE_ENV": "development"
+            },
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ]
