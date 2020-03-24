@@ -6,7 +6,6 @@ import * as inkscape from "./modules/inkscape";
 import * as pandoc from "./modules/pandoc";
 import * as latex from "./modules/latex";
 import { debuglog } from "util";
-import { exit } from "shelljs";
 import * as os from "os";
 import path from "path";
 
@@ -53,7 +52,7 @@ api.database.checkIfDatabaseExists(databasePath)
     .catch(err => {
         // eslint-disable-next-line no-console
         console.error(err);
-        exit(1);
+        process.exit(1);
     })
     .then(() => inkscape.getVersion()).then(version => {
         // eslint-disable-next-line no-console
@@ -74,5 +73,5 @@ api.database.checkIfDatabaseExists(databasePath)
     .catch(err => {
         // eslint-disable-next-line no-console
         console.error(err);
-        exit(1);
+        process.exit(1);
     });
