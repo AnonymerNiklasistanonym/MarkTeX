@@ -6,3 +6,4 @@ package-lock.json
 .nyc_output
 coverage
 .vscode/settings.json
+*.db
