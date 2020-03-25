@@ -19,7 +19,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
         }, {
             name: "name",
             type: database.queries.CreateTableColumnType.TEXT,
-            options: { notNull: true }
+            options: { unique: true, notNull: true }
         }, {
             name: "password_hash",
             type: database.queries.CreateTableColumnType.TEXT,
@@ -107,7 +107,7 @@ export const setupInitialData = async (databasePath: string): Promise<void> => {
     });
     // Add test account
     const accountIdTestUser = await databaseManagerAccount.create(databasePath, {
-        name: "TestUser",
+        name: "Test",
         password: "12345678"
     });
     // Add documents to test account

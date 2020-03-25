@@ -5,12 +5,12 @@ import { debuglog } from "util";
 const debug = debuglog("app-database-request");
 
 export const getEachRequest = async (dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<sqlite3.RunResult> => {
+    parameters: (string|number)[] = []): Promise<any> => {
 
     const db = await openDatabase(dbNamePath);
     db.on("trace", debug);
     debug(`Run query: "${query}"`);
-    let requestedElement: sqlite3.RunResult;
+    let requestedElement: any;
     return new Promise((resolve, reject) => db.each(query, parameters,
         (err, row) => {
             if (err) {

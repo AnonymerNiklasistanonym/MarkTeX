@@ -43,6 +43,17 @@ export const resetDatabase = async (databasePath: string): Promise<void> => {
 };
 
 /**
+ * Delete database (remove all existing data).
+ *
+ * @param databasePath Path to database.
+ */
+export const deleteDatabase = async (databasePath: string): Promise<void> => {
+    if (await checkIfDatabaseExists(databasePath)) {
+        await fs.unlink(databasePath);
+    }
+};
+
+/**
  * Export database data.
  *
  * @param databasePath Path to database.
