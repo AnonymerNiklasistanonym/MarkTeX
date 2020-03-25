@@ -1,1 +1,57 @@
-TODO: login
+{{!--
+Login page template
+--------------------------------------------------------------------------------
+Login page where the user can log himself in to get to the main page.
+Server: When already logged in redirect the user to the main page.
+JavaScript: Through `login.js` the user can also register himself.
+--------------------------------------------------------------------------------
+Requires:
+- login.css
+- login.js
+--------------------------------------------------------------------------------
+Parameters:
+- accountInput: { pattern: regex-string, maxLength: number, errorMessage:string }
+- passwordInput: { pattern: regex-string, minLength: number, errorMessage:string }
+- messages: { exists: boolean, texts?: string[] }
+--}}
+
+<div class="login-container">
+	<div class="login-container-padding">
+		<h1 id="welcome">Welcome to Expense Tracker!</h1>
+		<br><br>
+
+		{{!-- Display helping message if login went wrong --}}
+		{{#if messages.exists}}
+		<section id="message-section">
+			{{#each messages.texts}}
+			<p class="message">{{multilineString this}}</p>
+			{{/each}}
+		</section>
+		{{/if}}
+
+		<section id="loginRegister-section">
+			<h2>Login/Register</h2>
+			<br>
+			{{!-- Login input form --}}
+			<form id="loginRegister-form" action="/action/account/login" method="post">
+				{{!-- Account id input --}}
+				<input type="text" name="accountId" placeholder="Your account id..." pattern="{{accountInput.pattern}}"
+					maxlength="{{accountInput.maxLength}}" title="{{accountInput.errorMessage}}"
+					autocomplete="current-accountId" required>
+				{{!-- Password input --}}
+				<input type="password" name="accountPassword" placeholder="Your account password..."
+					pattern="{{passwordInput.pattern}}" minlength="{{passwordInput.minLength}}"
+					title="{{passwordInput.errorMessage}}" autocomplete="current-password" required>
+				{{!-- Invisible submit input to allow submission on enter in any of the previous text input fields --}}
+				<input id="formSubmit" type="submit" />
+			</form>
+			{{!-- Change input form to register/login via JS --}}
+			<div class="loginActions">
+				{{!-- Login action button --}}
+				<a class="button" id="loginAction">Login</a>
+				{{!-- Register action button --}}
+				<a class="button" id="registerAction">Register</a>
+			</div>
+		</section>
+	</div>
+</div>

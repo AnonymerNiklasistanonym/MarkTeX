@@ -22,3 +22,81 @@ export const create = async (databasePath: string, accountId: number, input: Cre
     );
     return postResult.lastID;
 };
+
+/**
+ * Update group.
+ *
+ * @param databasePath Path to database.
+ */
+export const update = (databasePath: string): void => {
+    // TODO
+};
+
+/**
+ * Remove group.
+ *
+ * @param databasePath Path to database.
+ */
+export const remove = (databasePath: string): void => {
+    // TODO
+};
+
+export interface GetInput {
+    id: number
+}
+export interface GetOutput {
+    id: number
+    name: string
+    owner: number
+}
+export interface GetDbOut {
+    id: number
+    name: string
+    owner: number
+}
+
+/**
+ * Get group.
+ *
+ * @param databasePath Path to database.
+ * @param input Group get info.
+ */
+export const get = async (databasePath: string, input: GetInput): Promise<(GetOutput|void)> => {
+    const runResult = await database.requests.getEachRequest(
+        databasePath,
+        database.queries.select("document_group", [ "name", "owner" ], {
+            whereColumn: "id"
+        }),
+        [input.id]
+    ) as GetDbOut;
+    if (runResult) {
+        return {
+            id: input.id,
+            name: runResult.name,
+            owner: runResult.owner
+        };
+    }
+};
+
+/**
+ * Get all documents from one author.
+ *
+ * @param databasePath Path to database.
+ * @param input Document get info.
+ */
+export const getAllFromAuthor = async (databasePath: string, input: GetInput): Promise<(GetOutput[]|void)> => {
+    const runResults = await database.requests.getAllRequest(
+        databasePath,
+        database.queries.select("document_group", [ "name", "owner" ], {
+            whereColumn: "owner"
+        }),
+        [input.id]
+    ) as GetDbOut[];
+    if (runResults) {
+        return runResults.map(runResult => ({
+            id: input.id,
+            name: runResult.name,
+            owner: runResult.owner
+        }));
+    }
+};

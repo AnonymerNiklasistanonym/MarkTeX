@@ -40,6 +40,24 @@ export const getEachRequest = async (dbNamePath: string, query: string,
     );
 };
 
+export const getAllRequest = async (dbNamePath: string, query: string,
+    parameters: (string|number)[] = []): Promise<any> => {
+
+    const db = await openDatabase(dbNamePath);
+    db.on("trace", debug);
+    debug(`Run query: "${query}"`);
+    return new Promise((resolve, reject) => db.all(query, parameters,
+        (err, rows) => {
+            if (err) {
+                debug(`Database error each: ${JSON.stringify(err)}`);
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        })
+    );
+};
+
 /**
  * Edit something in database.
  *
@@ -71,6 +89,7 @@ export const postRequest = async (dbNamePath: string, query: string,
         })
     );
 };
+
 
 //  /**
 //   * Get something from the database

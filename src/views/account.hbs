@@ -1,0 +1,20 @@
+<p>Account:</p>
+<ul>
+    <li>id: "{{account.id}}"</li>
+    <li>name: "{{account.name}}"</li>
+    <li>admin: "{{account.isAdmin}}"</li>
+</ul>
+
+<p>Documents from this account:</p>
+<ul>
+{{#each account.documents}}
+    <li><a href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+{{/each}}
+</ul>
+
+<p>Groups from this account:</p>
+<ul>
+{{#each account.groups}}
+    <li><a href="/group/{{this.id}}">{{this.name}}</a></li>
+{{/each}}
+</ul>

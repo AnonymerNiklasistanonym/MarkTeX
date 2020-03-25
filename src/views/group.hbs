@@ -1,0 +1,14 @@
+<p>Group:</p>
+<ul>
+{{!-- Replace later with tex fields that make the meta data editable --}}
+    <li>id: "{{group.id}}"</li>
+    <li>name: "{{group.name}}"</li>
+    <li>owner: <a href="/account/{{group.owner.id}}">{{group.owner.name}}</a></li>
+</ul>
+
+<p>Documents in group:</p>
+<ul>
+{{#each group.documents}}
+<li><a href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+{{/each}}
+</ul>

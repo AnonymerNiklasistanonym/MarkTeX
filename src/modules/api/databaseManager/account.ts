@@ -106,3 +106,39 @@ export const checkLogin = async (databasePath: string, input: CheckLoginInput): 
         return undefined;
     }
 };
+
+export interface GetInput {
+    id: number
+}
+export interface GetOutput {
+    id: number
+    name: string
+    isAdmin: boolean
+}
+export interface GetDbOut {
+    name: string
+    admin: number
+}
+
+/**
+ * Get account.
+ *
+ * @param databasePath Path to database.
+ * @param input Account get info.
+ */
+export const get = async (databasePath: string, input: GetInput): Promise<(GetOutput|void)> => {
+    const runResult = await database.requests.getEachRequest(
+        databasePath,
+        database.queries.select("account", [ "name", "admin" ], {
+            whereColumn: "id"
+        }),
+        [input.id]
+    ) as GetDbOut;
+    if (runResult) {
+        return {
+            id: input.id,
+            name: runResult.name,
+            isAdmin: runResult.admin === 1
+        };
+    }
+};

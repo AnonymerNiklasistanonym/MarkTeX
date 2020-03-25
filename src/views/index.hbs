@@ -1,3 +1,33 @@
-TODO: index?
 
-<p>{{customHelper "Is handlebars amazing?"}}</p>
+{{#if loggedIn}}
+
+<p>Documents:</p>
+<br>
+<ul>
+{{#each documents}}
+<li><a href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+{{/each}}
+</ul>
+
+<br>
+
+<p>Groups:</p>
+<br>
+<ul>
+{{#each groups}}
+<li><a href="/group/{{this.id}}">{{this.name}}</a></li>
+{{/each}}
+</ul>
+
+{{else}}
+
+<p>Welcome to MarkTeX</p>
+<br>
+<p>You need to login to continue</p>
+<br>
+<ul>
+<li><a href="/account">Create account or log in</a></li>
+<li><a href="/testing">Testing area which is accessible without account</a></li>
+</ul>
+
+{{/if}}

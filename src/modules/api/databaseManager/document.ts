@@ -42,3 +42,161 @@ export const create = async (databasePath: string, accountId: number, input: Cre
     );
     return postResult.lastID;
 };
+
+/**
+ * Update document.
+ *
+ * @param databasePath Path to database.
+ */
+export const update = (databasePath: string): void => {
+    // TODO
+};
+
+/**
+ * Remove document.
+ *
+ * @param databasePath Path to database.
+ */
+export const remove = (databasePath: string): void => {
+    // TODO
+};
+
+
+export interface GetInput {
+    id: number
+    getContent?: boolean
+}
+export interface GetOutput {
+    id: number
+    title: string
+    authors: string
+    date: string
+    owner: number
+    group: number
+    content?: string
+}
+export interface GetDbOut {
+    title: string
+    authors: string
+    date: string
+    owner: number
+    // eslint-disable-next-line camelcase
+    document_group: number
+    content?: string
+}
+
+/**
+ * Get document.
+ *
+ * @param databasePath Path to database.
+ * @param input Document get info.
+ */
+export const get = async (databasePath: string, input: GetInput): Promise<(GetOutput|void)> => {
+    const columns = [ "title", "authors", "date", "owner" ];
+    if (input.getContent) {
+        columns.push("content");
+    }
+    const runResult = await database.requests.getEachRequest(
+        databasePath,
+        database.queries.select("document", columns, {
+            whereColumn: "id"
+        }),
+        [input.id]
+    ) as GetDbOut;
+    if (runResult) {
+        return {
+            id: input.id,
+            title: runResult.title,
+            authors: runResult.authors,
+            date: runResult.date,
+            owner: runResult.owner,
+            group: runResult.document_group,
+            content: runResult.content
+        };
+    }
+};
+
+export interface GetAllInput {
+    id: number
+    getContents?: boolean
+}
+export interface GetAllOutput {
+    id: number
+    title: string
+    authors: string
+    date: string
+    owner: number
+    group: number
+    content?: string
+}
+export interface GetAllDbOut {
+    title: string
+    authors: string
+    date: string
+    owner: number
+    // eslint-disable-next-line camelcase
+    document_group: number
+    content?: string
+}
+
+/**
+ * Get all documents from one author.
+ *
+ * @param databasePath Path to database.
+ * @param input Document get info.
+ */
+export const getAllFromAuthor = async (databasePath: string, input: GetInput): Promise<(GetOutput[]|void)> => {
+    const columns = [ "title", "authors", "date", "owner", "document_group" ];
+    if (input.getContent) {
+        columns.push("content");
+    }
+    const runResults = await database.requests.getAllRequest(
+        databasePath,
+        database.queries.select("document", columns, {
+            whereColumn: "owner"
+        }),
+        [input.id]
+    ) as GetAllDbOut[];
+    if (runResults) {
+        return runResults.map(runResult => ({
+            id: input.id,
+            title: runResult.title,
+            authors: runResult.authors,
+            date: runResult.date,
+            owner: runResult.owner,
+            group: runResult.document_group,
+            content: runResult.content
+        }));
+    }
+};
+
+/**
+ * Get all documents from one author.
+ *
+ * @param databasePath Path to database.
+ * @param input Document get info.
+ */
+export const getAllFromGroup = async (databasePath: string, input: GetInput): Promise<(GetOutput[]|void)> => {
+    const columns = [ "title", "authors", "date", "owner", "document_group" ];
+    if (input.getContent) {
+        columns.push("content");
+    }
+    const runResults = await database.requests.getAllRequest(
+        databasePath,
+        database.queries.select("document", columns, {
+            whereColumn: "document_group"
+        }),
+        [input.id]
+    ) as GetDbOut[];
+    if (runResults) {
+        return runResults.map(runResult => ({
+            id: input.id,
+            title: runResult.title,
+            authors: runResult.authors,
+            date: runResult.date,
+            owner: runResult.owner,
+            group: runResult.document_group,
+            content: runResult.content
+        }));
+    }
+};
