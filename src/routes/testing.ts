@@ -19,6 +19,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     { path: "/katex/katex.min.css" },
                     { path: "/hljs/default.css" },
                     { path: "/githubmdcss/github-markdown.css" },
+                    { path: "/stylesheets/markdown.css" },
                     { path: "/stylesheets/testing.css" }
                 ]
             }

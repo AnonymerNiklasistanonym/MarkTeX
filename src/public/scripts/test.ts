@@ -16,7 +16,7 @@ export const keyboardListener = (): void => {
         console.log(`key pressed: ${String.fromCharCode(keyboardEvent.keyCode)}`);
     }, false);
     // eslint-disable-next-line complexity
-    document.onkeyup = (e): void => {
+    document.addEventListener("keyup", (e): void => {
         if (e.key === "M") {
             alert("M key was pressed");
         }
@@ -27,5 +27,5 @@ export const keyboardListener = (): void => {
         } else if (e.ctrlKey && e.altKey && e.key === "y") {
             alert("Ctrl + Alt + Y shortcut combination was pressed");
         }
-    };
+    });
 };

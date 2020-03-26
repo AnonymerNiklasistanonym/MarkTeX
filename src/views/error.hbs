@@ -6,41 +6,41 @@ other pages
 --------------------------------------------------------------------------------
 Parameters:
 {
-  error: {
-    status: number,
-    stack: string,
-    links?: [{
-      link: string,
-      text: string
-    }],
-    message?: string,
-    explanation?: string
-  }
+	error: {
+		status: number,
+		stack: string,
+		links?: [{
+			link: string,
+			text: string
+		}],
+		message?: string,
+		explanation?: string
+	}
 }
 --------------------------------------------------------------------------------
 --}}
 
 <div class="container-error">
-    <div class="container-error-message">
-        {{!-- Error message --}}
-        <h1 id="error-message">{{#if error.message}}{{error.message}}{{else}}Unknown error{{/if}}</h1>
-        {{!-- Error status code --}}
-        <h2 id="error-status">{{error.status}}</h2>
-        {{!-- Optional explanation of error --}}
-        {{#if error.explanation}}
-        <p id="error-explanation">{{error.explanation}}</p>
-        {{/if}}
-        {{!-- Optional links that redirect the user to best fitting page(s) --}}
-        {{#if error.links}}
-        <div class="container-error-links">
-            {{#each error.links}}
-            <a href="{{this.link}}" class="button-error-redirect">{{this.text}}</a>
-            {{/each}}
-        </div>
-        {{/if}}
-        {{!-- Error stack --}}
-        <div class="container-error-stack">
-            <pre id="error-stack">{{error.stack}}</pre>
-        </div>
-    </div>
+	<div class="container-error-message">
+		{{!-- Error message --}}
+		<h1 id="error-message">{{#if error.message}}{{error.message}}{{else}}Unknown error{{/if}}</h1>
+		{{!-- Error status code --}}
+		<h2 id="error-status">{{error.status}}</h2>
+		{{!-- Optional explanation of error --}}
+		{{#if error.explanation}}
+		<p id="error-explanation">{{error.explanation}}</p>
+		{{/if}}
+		{{!-- Optional links that redirect the user to best fitting page(s) --}}
+		{{#if error.links}}
+		<div class="container-error-links">
+			{{#each error.links}}
+			<a href="{{this.link}}" class="button-error-redirect">{{this.text}}</a>
+			{{/each}}
+		</div>
+		{{/if}}
+		{{!-- Error stack --}}
+		<div class="container-error-stack">
+			<pre id="error-stack">{{error.stack}}</pre>
+		</div>
+	</div>
 </div>

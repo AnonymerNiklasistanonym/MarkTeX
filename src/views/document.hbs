@@ -11,14 +11,18 @@
 
 <p>Actions:</p>
 <div>
-    <button>Export to PDF</button>
-    <button>Export to ZIP</button>
+    <button id="document-button-export-pdf">Export to PDF</button>
+    <button id="document-button-export-zip">Export to ZIP</button>
+    <button id="document-button-export-json">Export document (JSON)</button>
+    <input id="document-input-import-json" type="file" accept="json">
+    <button id="document-button-import-json">Import document (JSON)</button>
+    <button id="document-button-save">Save document</button>
 </div>
 
 <p>Editor:</p>
 <div>
     <div class="markdown-editor">
-        <textarea cols="40" rows="50">{{document.content}}</textarea>
+        <textarea id="document-content-render-input" cols="40" rows="50">{{document.content}}</textarea>
     </div>
-    <div class="markdown-body"></div>
+    <div class="markdown-body" id="document-content-render-output"></div>
 </div>

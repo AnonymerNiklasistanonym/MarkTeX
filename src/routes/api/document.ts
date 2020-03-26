@@ -5,20 +5,37 @@ import * as api from "../../modules/api";
 import * as expressValidator from "express-validator";
 import { validateWithTerminationOnError } from "../../middleware/expressValidator";
 import * as expressSession from "../../middleware/expressSession";
+import type * as types from "./documentTypes";
+export type { types };
 
 
 const debug = debuglog("app-express-route-api-document");
 
 
 const schemaValidationDocumentId: expressValidator.ValidationParamSchema = {
-    errorMessage: "Not a string",
-    isString: true
+    errorMessage: "Not an int",
+    isInt: true
 };
 const schemaValidationDocumentContent: expressValidator.ValidationParamSchema = {
     errorMessage: "Not a string",
     isString: true
 };
+const schemaValidationDocumentTitle: expressValidator.ValidationParamSchema = {
+    errorMessage: "Not a string",
+    isString: true
+};
+const schemaValidationDocumentAuthors: expressValidator.ValidationParamSchema = {
+    optional: true,
+    errorMessage: "Not a string",
+    isString: true
+};
+const schemaValidationDocumentDate: expressValidator.ValidationParamSchema = {
+    optional: true,
+    errorMessage: "Not a string",
+    isString: true
+};
 const schemaValidationDocumentResources: expressValidator.ValidationParamSchema = {
+    optional: true,
     errorMessage: "Not an array",
     isArray: true,
     custom: {
@@ -45,22 +62,46 @@ const schemaValidationApiVersion: expressValidator.ValidationParamSchema = {
 };
 
 
+export interface CreateResponse {
+    id: number
+    title: string
+    authors?: string
+    date?: string
+}
+
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/document/create",
         expressSession.checkAuthenticationJson,
         validateWithTerminationOnError(expressValidator.checkSchema({
-            documentId: schemaValidationDocumentId,
-            documentContent: schemaValidationDocumentContent,
-            documentResources: schemaValidationDocumentResources,
+            content: schemaValidationDocumentContent,
+            title: schemaValidationDocumentTitle,
+            authors: schemaValidationDocumentAuthors,
+            date: schemaValidationDocumentDate,
+            resources: schemaValidationDocumentResources,
             apiVersion: schemaValidationApiVersion
         })),
-        (req, res) => {
+        async (req, res) => {
             debug("Create document");
+            const sessionInfo = expressSession.getSessionInfo(req);
+            const request = req.body as types.CreateRequest;
             try {
-                const createDocument = api.content.createDocument();
-                return res.status(405).json({ error: Error("Not yet implemented") });
+                const documentId = await api.database.document.create(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                if (documentId) {
+                    const response: types.CreateResponse = {
+                        id: documentId,
+                        title: request.title,
+                        date: request.date,
+                        authors: request.authors
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({
+                    error: Error("Internal error, no document id was returned")
+                });
             } catch (error) {
                 return res.status(500).json({ error });
             }

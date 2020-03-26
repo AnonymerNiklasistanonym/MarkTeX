@@ -28,6 +28,8 @@ module.exports = {
     entry: {
         main: "./src/public/scripts/index.ts",
         error: "./src/public/scripts/error.ts",
+        document: "./src/public/scripts/document.ts",
+        login: "./src/public/scripts/login.ts",
         testing: "./src/public/scripts/testing.ts"
     },
     devtool: production ? undefined : "inline-source-map",

@@ -1,6 +1,7 @@
 import * as express from "express";
 import { StartExpressServerOptions } from "../config/express";
 import * as api from "../modules/api";
+import * as expressSession from "../middleware/expressSession";
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
@@ -11,19 +12,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // TODO
         res.render("index", {
             layout: "default",
-            header: {
-                scripts: [
-                    { path: "/scripts/main_bundle.js" },
-                    { path: "/socket.io/socket.io.js" }
-                ]
-            }
-        });
-    });
-
-    app.get("/login", (req, res) => {
-        // TODO
-        res.render("login", {
-            layout: "default",
+            loggedIn: expressSession.isAuthenticated(req),
             header: {
                 scripts: [
                     { path: "/scripts/main_bundle.js" },
@@ -48,8 +37,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 document: { ...documentInfo, owner: accountInfo, group: groupInfo },
                 header: {
                     scripts: [
-                        { path: "/scripts/main_bundle.js" },
+                        { path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` },
                         { path: "/socket.io/socket.io.js" }
+                    ],
+                    stylesheets: [
+                        { path: "/katex/katex.min.css" },
+                        { path: "/hljs/default.css" },
+                        { path: "/githubmdcss/github-markdown.css" },
+                        { path: "/stylesheets/markdown.css" }
                     ]
                 }
             });

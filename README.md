@@ -33,7 +33,7 @@ The current features that are being developed are:
 
 ### Tested on
 
-- Linux [5.5.8-1-MANJARO] (x64)
+- Linux [5.5.11-1-MANJARO] (x64)
 - Windows [10.0.18363] (x64)
 
 ## Quickstart

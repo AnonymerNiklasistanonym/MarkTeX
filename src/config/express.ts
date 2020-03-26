@@ -5,6 +5,8 @@ import createError, { HttpError } from "http-errors";
 import { Server } from "http";
 import { debuglog } from "util";
 import expressSession from "express-session";
+import * as expressSessionHelper from "../middleware/expressSession";
+import bodyParser from "body-parser";
 
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
@@ -12,6 +14,7 @@ import { HbsHeader } from "../view_rendering/header";
 
 import * as routesAccount from "../routes/account";
 import * as routesApi from "../routes/api";
+import * as routesLogin from "../routes/login";
 import * as routesTesting from "../routes/testing";
 import * as routesHome from "../routes/home";
 
@@ -50,6 +53,10 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     // Enable easy JSON post requests
     app.use(express.json());
 
+    // Enable form parsing
+    app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+
     // Enable sessions for requests
     app.use(expressSession({
         secret: "secret",
@@ -59,7 +66,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
 
     // Catch requests
     app.use((req, res, next) => {
-        debug("access resource '%s' [session=%s]", req.originalUrl, req.sessionID);
+        debug("access resource '%s' [%s]", req.originalUrl, expressSessionHelper.getSessionDebugString(req));
         next();
     });
 
@@ -82,6 +89,7 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     routesAccount.register(app, options);
     routesApi.register(app, options);
     routesHome.register(app, options);
+    routesLogin.register(app, options);
     routesTesting.register(app, options);
 
     // Catch URL not found (404) and forward to error handler

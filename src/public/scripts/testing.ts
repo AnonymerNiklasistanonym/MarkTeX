@@ -1,5 +1,4 @@
-import { md } from "./documentRenderer/markdownRenderer";
-import * as apiRequests from "./api_requests";
+import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
 import "./webpackVars";
 
 export interface RequestLatexBlock {
@@ -11,7 +10,7 @@ export interface RequestLatexBlock {
 console.log(`DEBUG_APP=${DEBUG_APP}`);
 
 // eslint-disable-next-line complexity
-window.onload = (): void => {
+window.addEventListener("load", (): void => {
 
     // Get live  input/output elements
     const liveInput = document.getElementById("testing-live-md-rendering-input-textarea") as HTMLTextAreaElement;
@@ -39,7 +38,8 @@ window.onload = (): void => {
             "This is a \\LaTeX block where you can do complicated \\LaTeX commands.\n" +
             "\\end{center}\n";
         }
-        liveOutput.innerHTML = md.render(liveInput.value, { time: new Date().toISOString() });
+        liveOutput.innerHTML = md.render(liveInput.value, { renderTimeString: new Date().toISOString() });
+
         // eslint-disable-next-line complexity
         liveInput.addEventListener("input", (event: Event): void => {
             if (DEBUG_APP) {
@@ -55,69 +55,8 @@ window.onload = (): void => {
                 });
             }
             // Update document preview
-            liveOutput.innerHTML = md.render(liveInput.value);
-            // Update latex blocks
-            const latexBlocks: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.markdown-latex-block");
-            const timeOfRequest = new Date().toISOString();
-            for (const latexBlock of latexBlocks) {
-                // Make requests to get svg data from latex blocks
-                const headerIncludeString = latexBlock.getAttribute("header-includes");
-                const latexHeaderIncludes =
-                    (headerIncludeString !== undefined && headerIncludeString !== null)
-                        ? headerIncludeString.split(",") : [];
-                const texContentElement = latexBlock.querySelector("p");
-                if (texContentElement === undefined || texContentElement == null
-                    || texContentElement.textContent === undefined || texContentElement.textContent === null) {
-                    // eslint-disable-next-line no-console
-                    console.log("latex block has no tex content");
-                    return;
-                }
-                if (DEBUG_APP) {
-                    // eslint-disable-next-line no-console
-                    console.debug("Testing: MarkdownIt found a latex block: ", {
-                        id: latexBlock.id,
-                        content: texContentElement.textContent,
-                        latexHeaderIncludes
-                    });
-                }
-                apiRequests.latex2Svg({
-                    id: latexBlock.id,
-                    texData: texContentElement.textContent,
-                    texHeaderIncludes: latexHeaderIncludes,
-                    timeOfRequest
-                })
-                    // eslint-disable-next-line complexity
-                    .then(response => {
-                        // eslint-disable-next-line no-console
-                        console.log(`Received a response: response=${JSON.stringify(response)}`);
-                        if (latexBlock === undefined || latexBlock === null) {
-                            // eslint-disable-next-line no-console
-                            console.log("latex block is undefined");
-                            return;
-                        }
-                        if (latexBlock.id !== String(response.id)) {
-                            // eslint-disable-next-line no-console
-                            console.log("latex block has different ID to response");
-                            return;
-                        }
-                        const svgElement = latexBlock.querySelector("svg");
-                        if (svgElement === undefined || svgElement === null) {
-                            // eslint-disable-next-line no-console
-                            console.log("svg element is undefined");
-                            return;
-                        }
-                        svgElement.classList.remove("loading");
-                        svgElement.innerHTML = response.svgData;
-                        const svgChild = svgElement.querySelector("svg");
-                        if (svgChild) {
-                            svgElement.innerHTML = svgChild.innerHTML;
-                        }
-                    })
-                    .catch(error => {
-                        // eslint-disable-next-line no-console
-                        console.error(`svg data could not be retrieved: ${JSON.stringify(error)}`);
-                    });
-            }
+            liveOutput.innerHTML = md.render(liveInput.value, { renderTimeString: new Date().toISOString() });
+            renderLatexBlocks();
         });
     }
-};
+});

@@ -12,13 +12,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         res.send(`account ${req.session ? req.session.accountId : "Error"}`);
     });
 
-    app.get("/login", /* auth.getCurrentAccount(), */(req, res) => {
-        // TODO: login();
-        expressSession.authenticate(req, 1);
-        // Redirect to home page
-        res.redirect("/");
-        // TODO: Edge case when login false do not redirect
-    });
+    // app.get("/login", /* auth.getCurrentAccount(), */(req, res) => {
+    //     // TODO: login();
+    //     expressSession.authenticate(req, 1);
+    //     // Redirect to home page
+    //     res.redirect("/");
+    //     // TODO: Edge case when login false do not redirect
+    // });
 
     app.get("/logout", /* auth.getCurrentAccount(), */ (req, res) => {
         // TODO: logout();

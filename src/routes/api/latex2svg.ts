@@ -5,6 +5,8 @@ import * as api from "../../modules/api";
 import * as expressValidator from "express-validator";
 import { validateWithTerminationOnError } from "../../middleware/expressValidator";
 import * as latexRequestCache from "../../modules/latexRequestCache";
+import type * as types from "./latex2svgTypes";
+export type { types };
 
 
 const debug = debuglog("app-express-route-api");
@@ -14,13 +16,6 @@ let latestRequestDate = "";
 
 const sleep = async (millisec: number): Promise<void> => new Promise(resolve => setTimeout(resolve, millisec));
 
-export interface ParamsDictionary {
-    latexStringHash: string
-    apiVersion: number
-    timeOfRequest: string
-    latexHeaderIncludes: string[]
-    latexString: string
-}
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
@@ -65,7 +60,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             }
         })),
         async (req, res) => {
-            const input: ParamsDictionary = req.body;
+            const input = req.body as types.Latex2SvgRequestApi;
             debug(`Got: latexStringHash=${input.latexStringHash}, apiVersion=${input.apiVersion}`);
             // Check first if the version was already converted
             const id = input.latexStringHash;
@@ -96,10 +91,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 debug("latex2svg: Render of tex to pdf complete");
                 // Add it to the cache
                 latexRequestCache.add(id, { svgData: latex2SvgOut.svgData });
-                return res.status(200).json({
+                const response: types.Latex2SvgResponse = {
                     svgData: latex2SvgOut.svgData,
                     id: input.latexStringHash
-                });
+                };
+                return res.status(200).json(response);
             } catch (err) {
                 debug(`latex2svg: Error when converting tex to pdf: ${err}`);
                 return res.status(500).json({

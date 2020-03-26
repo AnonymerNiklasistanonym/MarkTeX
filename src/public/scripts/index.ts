@@ -13,7 +13,7 @@ const component = (content?: string): HTMLDivElement => {
     return element;
 };
 
-window.onload = (): void => {
+window.addEventListener("load", (): void => {
 
     writeHelloWorld();
 
@@ -43,4 +43,4 @@ window.onload = (): void => {
         text: "This is nice"
     })));
 
-};
+});

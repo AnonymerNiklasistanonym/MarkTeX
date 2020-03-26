@@ -13,6 +13,7 @@ const debug = debuglog("app-express-middleware-express-validator");
  */
 export const validateWithTerminationOnError = (validations: expressValidator.ValidationChain[]) =>
     async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
+        debug(`Validate: ${JSON.stringify(req.body)}`);
         // Run all validations
         await Promise.all(validations.map(validation => validation.run(req)));
         const errors = expressValidator.validationResult(req);
