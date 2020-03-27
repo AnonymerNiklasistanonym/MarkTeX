@@ -1,11 +1,17 @@
 
 {{#if loggedIn}}
 
+<ul>
+<li><a class="button" href="/logout">Log out</a></li>
+</ul>
+
+<br>
+
 <p>Documents:</p>
 <br>
 <ul>
 {{#each documents}}
-<li><a href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
 {{/each}}
 </ul>
 
@@ -15,7 +21,7 @@
 <br>
 <ul>
 {{#each groups}}
-<li><a href="/group/{{this.id}}">{{this.name}}</a></li>
+<li><a class="button" href="/group/{{this.id}}">{{this.name}}</a></li>
 {{/each}}
 </ul>
 
@@ -26,8 +32,8 @@
 <p>You need to login to continue</p>
 <br>
 <ul>
-<li><a href="/account">Create account or log in</a></li>
-<li><a href="/testing">Testing area which is accessible without account</a></li>
+<li><a class="button" href="/login">Create account or log in</a></li>
+<li><a class="button" href="/testing">Testing area which is accessible without account</a></li>
 </ul>
 
 {{/if}}

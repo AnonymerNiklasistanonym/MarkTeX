@@ -1,6 +1,6 @@
-import * as express from "express";
 import * as expressSession from "../middleware/expressSession";
-
+import * as viewRendering from "../view_rendering/view_rendering";
+import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
@@ -17,14 +17,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
             return res.redirect("/");
         }
         // Render login page
+        const header = viewRendering.getHeaderDefaults(options, { sockets: true });
+        header.scripts.push({ path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` });
+        header.title = "MarkTeX Login & Register";
         const messages = expressSession.getMessages(req);
         res.render("login", {
-            header: {
-                scripts: [
-                    { path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` },
-                    { path: "/socket.io/socket.io.js" }
-                ]
-            },
+            header,
             input: {
                 accountName: {
                     errorMessage: "The account name must be between 4 and 16 characters",
