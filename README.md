@@ -59,18 +59,14 @@ To see the debug output through the internal node util package run in the termin
 
 ```sh
 export NODE_DEBUG=app*
+# Executing the following command automatically does that for you
+npm run dev
 ```
 
 The following command automatically updates the server when you change something or you can do it manually by entering `rs` + `ENTER`:
 
 ```sh
-npm run dev
-```
-
-The following command automatically updates the frontend code that is served when you change something or you can do it manually by entering `rs` + `ENTER`:
-
-```sh
-npm run dev:webpack
+npm run dev:watch
 ```
 
 #### Custom types
@@ -125,42 +121,62 @@ The built files can be found in the `dist` directory and the entry point is call
 | Command |  Description |
 | ------- | ------------ |
 | `build` | Build the application |
-| `clean` | Remove all built files |
-| `copy-assets` | Copy any external resources to the `dist` directory |
-| `dev:start` | Build the application and then run it |
-| `dev` | Run the application and restart it automatically if source code is updated |
+| `start` | Run the built application (requires a one time execution of `build`) |
+
+| Command |  Description |
+| ------- | ------------ |
+| `clean` | Remove all temporary files created by running `build`, `docs` and `copy:assets` |
+| `copy:assets` | Copy any external server resources to the `dist` directory (views, style sheets, ...) |
+| `dev` | Build the application and then run it (with debug features for development) |
+| `dev:watch` | Run the application and restart it automatically if source code is updated |
 | `docs` | Create source code documentation in `docs/site` |
-| `lint` | Lint TypeScript files for errors and code style (auto fixes all auto fixable problems) |
-| `start` | Run the built application (requires an existing build) |
-| `todo` | Create a TODO page over all source files to find open TODOs in`docs/todos.md` |
-| `tsc` | Build server side part of the application (but don't copy external resources yet) |
-| `webpack` | Build client side part of the application |
+| `lint` | Lint Typescript files for errors and code style (auto fixes all auto fixable problems) |
 
 ## Dependencies
 
+| Package | Description |
+| --- | ------ |
+| `archiver` | Create file archives |
+| `body-parser` | Parse HTML forms |
+| `compression` | Serve files compressed |
+| `dotenv` | Read bash environment variables from an `.env` file |
+| `express` | Server |
+| `express-handlebars` | Render websites from handlebars templates |
+| `express-session` | Connect website interactions to one session from one user |
+| `express-validator` | Validate and sanitize server requests |
+| `github-markdown-css` | GitHub like rendering for plain markdown elements |
+| `handlebars` | Render websites from handlebars templates |
+| `highlight.js` | Frontend rendering of code sections |
+| `http-errors` | Generate http errors |
+| `js-yaml` | Parse and create YAML files |
+| `katex` | Frontend rendering of LaTeX math |
+| `markdown-it` | Frontend rendering of Markdown text |
+| `socket.io` | Websocket implementation for server backend |
+| `socket.io-client` | Websocket implementation for client frontend |
+| `spdy` | Http2 server for backend |
+| `sqlite3` | Database integration for server backend |
+
+### DevDependencies
+
+These dependencies are not necessary to run this service but to build it or for example run tests.
+
 | Dev | Module | Description |
 | --- | ------ | ----------- |
+| yes | `@types*` | Types for Typescript code for more type security and ease of use (when using an IDE like VSCode) |
 | yes | `chai` | Write test cases |
-| no  | `cross-env` | Cross platform setting of environment variables (only used in `package.json`) |
-| no  | `dotenv` | Read bash environment variables from an `.env` file |
+| yes | `compression-webpack-plugin` | Compress webpack created JavaScript files |
+| `cross-env` | Set environment variables cross platform in `npm run` commands |
+| `eslint`, `eslint-plugin*` | Lint code for errors and code style |
 | yes | `glob` | Get all files given a regex and directory |
-| no  | `handlebars` | Compile HTML code with different inputs quickly and simple |
-| no  | `highlight.js` | Syntax highlighting of code blocks in frontend DOM |
-| no  | `js-yaml` | Handle writing and reading of YAML files |
-| no  | `katex` | LaTeX math rendering in frontend DOM |
 | yes | `leasot` | Find TODOs in files of different types |
-| no  | `markdown-it` | Markdown rendering in frontend DOM |
 | yes | `mocha` | Perform and create tests |
 | yes | `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development |
 | yes | `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel (only used in `package.json`)  |
 | yes | `open` | Open files with their default application |
 | yes | `shelljs` | Use to execute shell commands such as to copy files and remove directories |
-| no  | `socket.io-client` | Websocket implementation for client |
-| no  | `socket.io` | Websocket implementation for server |
-| no  | `sqlite3` | Database |
 | yes | `ts-node` | Run TypeScript files directly (otherwise they must first be compiled to JavaScript files) |
 | yes | `typedoc` | Create HTML documentation of TypeScript files |
-| yes | `webpack` | Bundle node modules (and compile TypeScript files) for client side JavaScript usage |
+| yes | `webpack`, `webpack-cli` | Bundle node modules (and compile TypeScript files) for client side JavaScript usage |
 
 ## Docker
 
