@@ -5,10 +5,10 @@ import * as latex2svg from "./api/latex2svg";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
-export type { latex2svg };
 export type { account };
 export type { document };
 export type { group };
+export type { latex2svg };
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {

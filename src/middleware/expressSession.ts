@@ -1,12 +1,17 @@
-import * as express from "express";
-import createError from "http-errors";
 import { debuglog } from "util";
+import express from "express";
+import httpErrors from "http-errors";
+
 
 const debug = debuglog("app-express-middleware-express-session");
 
 
 export interface SessionInfo {
     accountId: number
+}
+
+export interface AuthenticatedExpressRequestSession {
+    session: SessionInfo
 }
 
 export const getSessionInfo = (req: express.Request): SessionInfo => {
@@ -50,7 +55,7 @@ export const checkAuthentication = (req: express.Request, res: express.Response,
     } else {
         debug("User is not authenticated");
         res.locals.explanation = "Authentication does not check out";
-        next(createError(401));
+        next(httpErrors(401));
     }
 };
 
@@ -63,4 +68,27 @@ export const checkAuthenticationJson = (req: express.Request, res: express.Respo
         debug("User is not authenticated");
         res.status(401).json({ error: "Authentication does not check out" });
     }
+};
+
+export const addMessages = (req: express.Request, ... messages: string[]): void => {
+    debug(`Add: [${messages.join(", ")}]`);
+    if (req.session) {
+        if (req.session.messages) {
+            req.session.messages.push(... messages);
+        } else {
+            req.session.messages = messages;
+        }
+    }
+};
+
+export const getMessages = (req: express.Request, clearMessages = true): string[] => {
+    debug(`Get: [${JSON.stringify(req.session ? req.session.messages : "Error")}]`);
+    if (req.session && req.session.messages) {
+        const messages = req.session.messages;
+        if (clearMessages) {
+            req.session.messages = [];
+        }
+        return messages;
+    }
+    return [];
 };

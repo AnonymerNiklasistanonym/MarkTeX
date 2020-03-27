@@ -15,3 +15,20 @@ export interface CreateResponse {
     authors?: string
     date?: string
 }
+
+export interface UpdateRequest {
+    id: number
+    title?: string
+    authors?: string
+    date?: string
+    content?: string
+}
+
+export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
+
+export interface UpdateResponse {
+    id: number
+    title: string
+    authors?: string
+    date?: string
+}

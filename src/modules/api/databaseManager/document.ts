@@ -21,7 +21,7 @@ export interface CreateInput {
  * @param input Document info.
  * @returns Unique id of document.
  */
-export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
+export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<(number|void)> => {
     const columns = [ "title", "content", "owner" ];
     const values = [ input.title, input.content, accountId ];
     if (input.authors) {
@@ -43,22 +43,100 @@ export const create = async (databasePath: string, accountId: number, input: Cre
     return postResult.lastID;
 };
 
+export interface UpdateInput {
+    id: number
+    title?: string
+    content?: string
+    authors?: string
+    date?: string
+    resources?: CreateInputResource[]
+}
+
 /**
  * Update document.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
+ * @param input Document info.
+ * @returns Unique id of document.
  */
-export const update = (databasePath: string): void => {
-    // TODO
+// eslint-disable-next-line complexity
+export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(number|void)> => {
+    const columns = [];
+    const values = [];
+    if (input.title) {
+        columns.push("title");
+        values.push(input.title);
+    }
+    if (input.content) {
+        columns.push("content");
+        values.push(input.content);
+    }
+    if (input.authors) {
+        columns.push("authors");
+        values.push(input.authors);
+    }
+    if (input.date) {
+        columns.push("date");
+        values.push(input.date);
+    }
+    if (input.resources) {
+        // TODO
+    }
+    values.push(input.id);
+    const postResult = await database.requests.postRequest(
+        databasePath,
+        database.queries.update("document", columns, "id"),
+        values
+    );
+    return postResult.lastID;
 };
+
+export interface RemoveInput {
+    id: number
+}
 
 /**
  * Remove document.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
+ * @param input Document info.
+ * @returns Unique id of removed document.
  */
-export const remove = (databasePath: string): void => {
-    // TODO
+export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<(number|void)> => {
+    const postResult = await database.requests.postRequest(
+        databasePath,
+        database.queries.remove("document", "id"),
+        [input.id]
+    );
+    return postResult.lastID;
+};
+
+export interface ExistsInput {
+    id: number
+}
+
+export interface ExistsDbOut {
+    // eslint-disable-next-line camelcase
+    exists_value: number
+}
+
+/**
+ * Does a document exist.
+ *
+ * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
+ * @param input Document info.
+ * @returns Unique id of removed document.
+ */
+export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<(boolean|void)> => {
+    const postResult = await database.requests.getEachRequest(
+        databasePath,
+        database.queries.exists("document", "id"),
+        [input.id]
+    ) as ExistsDbOut;
+    return postResult.exists_value === 1;
 };
 
 

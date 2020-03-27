@@ -14,61 +14,67 @@ const debug = debuglog("app-express-route-api-account");
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/account/register", async (req, res) => {
-        debug("Register");
+        debug(`Register: ${JSON.stringify(req.body)}`);
+        // Redirect to home page if already authenticated
         if (expressSession.isAuthenticated(req)) {
-            // Redirect to home page if already authenticated
             return res.redirect("/");
         }
         const request = req.body as types.RegisterRequestApi;
         try {
             const accountId = await api.database.account.create(options.databasePath, request);
+            // If register was successful authenticate user
             if (accountId) {
-                const response: types.RegisterResponse = {
-                    id: accountId,
-                    name: request.name
-                };
-                // Authenticate user
                 expressSession.authenticate(req, accountId);
-                return res.status(200).json(response);
+                return res.redirect("/");
             }
-            return res.status(500).json({
-                error: Error("Internal error, no document id was returned")
-            });
+            // If register was not successful redirect to login page
+            expressSession.addMessages(req, "Registering was not successful");
+            return res.redirect("/login");
         } catch (error) {
-            return res.status(500).json({ error });
+            // On any error redirect to login page
+            const databaseError = api.database.getError(error);
+            if (databaseError === api.database.DatabaseError.SQLITE_CONSTRAINT) {
+                expressSession.addMessages(req, "The user name already exists");
+            } else {
+                expressSession.addMessages(req, JSON.stringify(error));
+            }
+            return res.redirect("/login");
         }
     });
 
     app.post("/api/account/login", async (req, res) => {
-        debug("Login, %s", JSON.stringify(req.body));
+        debug(`Login: ${JSON.stringify(req.body)}`);
+        // Redirect to home page if already authenticated
         if (expressSession.isAuthenticated(req)) {
-            // Redirect to home page if already authenticated
             return res.redirect("/");
         }
+        // Try to login
         const request = req.body as types.LoginRequestApi;
         try {
             const accountId = await api.database.account.checkLogin(options.databasePath, request);
+            // If login was successful authenticate user
             if (accountId) {
-                const response: types.LoginResponse = {
-                    id: accountId,
-                    name: request.name
-                };
-                // Authenticate user
                 expressSession.authenticate(req, accountId);
-                return res.status(200).json(response);
+                return res.redirect("/");
             }
-            return res.status(500).json({
-                error: Error("Internal error, no document id was returned")
-            });
+            // If register was not successful redirect to login page
+            expressSession.addMessages(req, "Login was not successful");
+            return res.redirect("/login");
         } catch (error) {
-            return res.status(500).json({ error });
+            // On any error redirect to login page
+            expressSession.addMessages(req, JSON.stringify(error));
+            return res.redirect("/login");
         }
     });
 
     app.post("/api/account/logout", (req, res) => {
-        // Remove authentication
+        debug(`Logout: ${JSON.stringify(req.body)}`);
+        // Redirect to home page if already authenticated
+        if (expressSession.isAuthenticated(req)) {
+            return res.redirect("/");
+        }
+        // Remove authentication and redirect to home page
         expressSession.removeAuthentication(req);
-        // Redirect to home page
         res.redirect("/");
     });
 };

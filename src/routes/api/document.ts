@@ -12,6 +12,25 @@ export type { types };
 
 const debug = debuglog("app-express-route-api-document");
 
+export interface InputSchemaValidationExistingDocumentId {
+    databasePath: string
+    accountId: number
+}
+
+const getSchemaValidationExistingDocumentId = (
+    input: InputSchemaValidationExistingDocumentId
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (id: number): Promise<boolean> => {
+                const documentExists = await api.database.document.exists(input.databasePath, input.accountId, { id });
+                return documentExists !== undefined ? documentExists : false;
+            }
+        },
+        errorMessage: "Must be an existing document id",
+        isInt: true
+    };
+};
 
 const schemaValidationDocumentId: expressValidator.ValidationParamSchema = {
     errorMessage: "Not an int",
@@ -133,17 +152,41 @@ export const register = (app: express.Application, options: StartExpressServerOp
     });
     app.post("/api/document/update",
         expressSession.checkAuthenticationJson,
-        validateWithTerminationOnError(expressValidator.checkSchema({
-            apiVersion: schemaValidationApiVersion,
-            documentContent: schemaValidationDocumentContent,
-            documentId: schemaValidationDocumentId,
-            documentResources: schemaValidationDocumentResources
-        })),
-        (req, res) => {
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
+            await validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidationApiVersion,
+                authors: { isInt: true, optional: true },
+                content: { isString: true, optional: true },
+                date: { isString: true, optional: true },
+                id: getSchemaValidationExistingDocumentId({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                }),
+                title: { isString: true, optional: true }
+            }))(req, res, next);
+        },
+        async (req, res) => {
             debug("Update document");
+            const sessionInfo = expressSession.getSessionInfo(req);
+            const request = req.body as types.UpdateRequest;
             try {
-                // const updateDocument = api.content.updateDocument();
-                return res.status(405).json({ error: Error("Not yet implemented") });
+                const documentId = await api.database.document.update(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                const documentInfo = await api.database.document.get(options.databasePath, { id: request.id });
+                if (documentId && documentInfo) {
+                    const response: types.UpdateResponse = {
+                        authors: documentInfo.authors,
+                        date: documentInfo.date,
+                        id: request.id,
+                        title: documentInfo.title
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({
+                    error: Error("Internal error, no document id was returned")
+                });
             } catch (error) {
                 return res.status(500).json({ error });
             }

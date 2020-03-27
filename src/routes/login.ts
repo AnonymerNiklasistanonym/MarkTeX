@@ -17,6 +17,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             return res.redirect("/");
         }
         // Render login page
+        const messages = expressSession.getMessages(req);
         res.render("login", {
             header: {
                 scripts: [
@@ -38,8 +39,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             },
             layout: "default",
             messages: {
-                exist: false,
-                texts: []
+                exist: messages.length > 0,
+                texts: messages
             }
         });
     });
