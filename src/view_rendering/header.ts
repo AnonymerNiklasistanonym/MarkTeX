@@ -38,7 +38,7 @@ export interface HbsHeader {
     stylesheets: HbsHeaderStylesheets[]
     webApp: HbsHeaderWebApp
     favicon: HbsHeaderFavicon
-    title: string
-    description: string
+    title?: string
+    description?: string
     author: string
 };

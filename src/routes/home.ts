@@ -1,4 +1,5 @@
 import * as expressSession from "../middleware/expressSession";
+import * as viewRendering from "../view_rendering/view_rendering";
 import api from "../modules/api";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
@@ -11,13 +12,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
     // Home page
     app.get("/", (req, res) => {
         // TODO
+        const header = viewRendering.getHeaderDefaults(options, { sockets: true });
+        header.title = "MarkTeX Home";
+        header.description = "Home page of MarkTeX";
+        header.scripts.push({ path: `/scripts/main_bundle.js${options.production ? ".gz" : ""}` });
         res.render("index", {
-            header: {
-                scripts: [
-                    { path: `/scripts/main_bundle.js${options.production ? ".gz" : ""}` },
-                    { path: "/socket.io/socket.io.js" }
-                ]
-            },
+            header,
             layout: "default",
             loggedIn: expressSession.isAuthenticated(req)
         });
@@ -33,20 +33,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         if (documentInfo) {
             const accountInfo = await api.database.account.get(options.databasePath, { id: documentInfo.owner });
             const groupInfo = await api.database.group.get(options.databasePath, { id: documentInfo.group });
+            const header = viewRendering.getHeaderDefaults(options, { marktexRenderer: true, sockets: true });
+            header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
+            header.title = `${documentInfo.title} by ${documentInfo.authors}`;
+            header.description = `${documentInfo.title} by ${documentInfo.authors} from ${documentInfo.date}`;
             res.render("document", {
                 document: { ... documentInfo, group: groupInfo, owner: accountInfo },
-                header: {
-                    scripts: [
-                        { path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` },
-                        { path: "/socket.io/socket.io.js" }
-                    ],
-                    stylesheets: [
-                        { path: "/katex/katex.min.css" },
-                        { path: "/hljs/default.css" },
-                        { path: "/githubmdcss/github-markdown.css" },
-                        { path: "/stylesheets/markdown.css" }
-                    ]
-                },
+                header,
                 layout: "default"
             });
         }

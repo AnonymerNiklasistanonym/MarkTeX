@@ -4,12 +4,13 @@ import * as routesApi from "../routes/api";
 import * as routesHome from "../routes/home";
 import * as routesLogin from "../routes/login";
 import * as routesTesting from "../routes/testing";
+import * as viewRendering from "../view_rendering/view_rendering";
 import bodyParser from "body-parser";
+import compression from "compression";
 import { debuglog } from "util";
 import express from "express";
 import expressHandlebars from "express-handlebars";
 import expressSession from "express-session";
-import { HbsHeader } from "../view_rendering/header";
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
 import httpErrors from "http-errors";
@@ -64,6 +65,17 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
         secret: "secret"
     }));
 
+    app.use(compression({
+        filter: (req: express.Request, res: express.Response) => {
+            if (req.headers["x-no-compression"]) {
+                // don't compress responses with this request header
+                return false;
+            }
+            // fallback to standard filter function
+            return compression.filter(req, res);
+        }
+    }));
+
     // Catch requests
     app.use((req, res, next) => {
         debug("access resource '%s' [%s]", req.originalUrl, expressSessionHelper.getSessionDebugString(req));
@@ -115,39 +127,15 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
             }
         };
         debug("display error page '%s'", errorRenderContent.error);
-        const errorRenderContentHeader: HbsHeader = {
-            author: "AnonymerNiklasistanonym",
-            description: "WIP",
-            favicon: {
-                ico: "/favicon/favicon.ico",
-                png: {
-                    postfix: ".png",
-                    prefix: "/favicon/favicon_",
-                    sizes: [ 16, 48, 128, 180, 196, 256, 512 ]
-                },
-                svg: "/favicon/favicon.svg"
-            },
-            scripts: [
-                { path: "/scripts/error_bundle.js" }
-            ],
-            stylesheets: [
-                { path: "/stylesheets/global.css" },
-                { path: "/stylesheets/debug.css" },
-                { path: "/stylesheets/error.css" }
-            ],
-            title: `Error ${err.status || 500}: ${err.message}`,
-            webApp: {
-                manifestPath: "/manifest.json",
-                name: "TypeScript Express Prototype",
-                themeColor: "#0289ff"
-            }
-        };
+        const header = viewRendering.getHeaderDefaults(options, { error: true });
+        header.description = err.message;
+        header.title = `Error ${err.status || 500}: ${err.message}`;
         res
             .status(err.status || 500)
             .render("error", {
                 layout: "default",
                 ... errorRenderContent,
-                header: errorRenderContentHeader
+                header
             });
     });
 
