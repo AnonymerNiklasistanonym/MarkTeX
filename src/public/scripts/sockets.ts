@@ -5,7 +5,7 @@ export const connectToSocket = (): void => {
 
     const port = 8080;
 
-    const socket = io(`http://localhost:${port}`);
+    const socket = io(`/localhost:${port}`);
 
     socket.on("connect", (clientSocket: SocketIO.Socket | undefined) => {
         console.log("Connected client on port %s.", port);

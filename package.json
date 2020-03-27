@@ -70,6 +70,7 @@
     "markdown-it": "^10.0.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
+    "spdy": "^4.0.1",
     "sqlite3": "^4.1.1"
   },
   "devDependencies": {
@@ -90,6 +91,7 @@
     "@types/shelljs": "^0.8.7",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
+    "@types/spdy": "^3.4.4",
     "@types/sqlite3": "^3.1.6",
     "@types/webpack": "^4.41.8",
     "@typescript-eslint/eslint-plugin": "^2.25.0",

@@ -11,11 +11,14 @@ import { debuglog } from "util";
 import express from "express";
 import expressHandlebars from "express-handlebars";
 import expressSession from "express-session";
+import fs from "fs";
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
+import http from "http";
+import http2 from "http2";
 import httpErrors from "http-errors";
 import path from "path";
-import { Server } from "http";
+import spdy from "spdy";
 
 
 const debug = debuglog("app-express");
@@ -29,7 +32,7 @@ export interface StartExpressServerOptions {
     production: boolean
 }
 
-export const startExpressServer = (options: StartExpressServerOptions): Server => {
+export const getExpressServer = (options: StartExpressServerOptions): express.Express => {
     // Express setup
     const app = express();
     // Express view engine setup
@@ -139,12 +142,62 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
             });
     });
 
+    app.get("/test", (req, res) => {
+        res.send(`Hello World! Via HTTP ${req.httpVersion}`);
+    });
+
+    return app;
+};
+
+
+export const startExpressServerHttp1 = (options: StartExpressServerOptions): http.Server => {
+    const app = getExpressServer(options);
     // Use custom port if defined, otherwise use 8080
     const PORT: number = Number(process.env.SERVER_PORT) || 8080;
 
     // Start the Express server
     return app.listen(PORT, () => {
         // eslint-disable-next-line no-console
-        console.log(`server started at http://localhost:${PORT}`);
+        console.log(`server started at http://localhost:${PORT} (http)`);
+    });
+};
+
+export interface Http2KeyPaths {
+    ca: string
+    cert: string
+    key: string
+}
+
+export const getHttp2KeyPaths = (): Http2KeyPaths => {
+    const sslKeysDir = path.join(__dirname, "..", "..", "keys");
+    return {
+        ca: path.join(sslKeysDir, "ssl.crt"),
+        cert: path.join(sslKeysDir, "ssl.crt"),
+        key: path.join(sslKeysDir, "ssl.key")
+    };
+};
+
+export const findHttp2Keys = (): boolean => {
+    const http2KeyPaths = getHttp2KeyPaths();
+    return fs.existsSync(http2KeyPaths.ca)
+        && fs.existsSync(http2KeyPaths.cert)
+        && fs.existsSync(http2KeyPaths.key);
+};
+
+export const startExpressServerHttp2 = (options: StartExpressServerOptions): http2.Http2Server => {
+    const sslKeysDir = path.join(__dirname, "..", "..", "keys");
+    const httpsOptions: spdy.ServerOptions = {
+        ca: fs.readFileSync(path.join(sslKeysDir, "ssl.crt")),
+        cert: fs.readFileSync(path.join(sslKeysDir, "ssl.crt")),
+        key: fs.readFileSync(path.join(sslKeysDir, "ssl.key"))
+    };
+    const app = getExpressServer(options);
+    // Use custom port if defined, otherwise use 8080
+    const PORT: number = Number(process.env.SERVER_PORT) || 8080;
+
+    // Start the Express server
+    return spdy.createServer(httpsOptions, app).listen(PORT, () => {
+        // eslint-disable-next-line no-console
+        console.log(`server started at http://localhost:${PORT} (http2)`);
     });
 };

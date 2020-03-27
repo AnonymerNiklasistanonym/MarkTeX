@@ -1,12 +1,14 @@
 import { debuglog } from "util";
+import { Http2Server } from "http2";
 import { Server } from "http";
+
 import { Server as SocketServer } from "socket.io";
 
 
 const debug = debuglog("app-socketio");
 
 
-export const bindSocketServer = (httpServer: Server): SocketServer => {
+export const bindSocketServer = (httpServer: (Server|Http2Server)): SocketServer => {
 
     // set up socket.io and bind it to our
     // http server.

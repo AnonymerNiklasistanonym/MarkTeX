@@ -1,13 +1,13 @@
 import * as inkscape from "./modules/inkscape";
 import * as latex from "./modules/latex";
 import * as pandoc from "./modules/pandoc";
+import { findHttp2Keys, startExpressServerHttp1, startExpressServerHttp2 } from "./config/express";
 import api from "./modules/api";
 import { bindSocketServer } from "./config/sockets";
 import { debuglog } from "util";
 import { loadEnvFile } from "./config/env";
 import os from "os";
 import path from "path";
-import { startExpressServer } from "./config/express";
 
 // Debug console
 const debug = debuglog("app");
@@ -28,8 +28,9 @@ api.database.exists(databasePath)
         }
     })
     .then(() => {
-        // Start sever
-        const server = startExpressServer({
+        // Start sever (start http2 server if keys are found)
+        const startServer = findHttp2Keys() ? startExpressServerHttp2 : startExpressServerHttp1;
+        const server = startServer({
             databasePath,
             production: process.env.NODE_ENV !== "development"
         });

@@ -203,3 +203,7 @@ This gives you like 10GB or more free space but also **removes project unrelated
 sudo docker container prune -f
 sudo docker image prune -af
 ```
+
+## Http2
+
+The server runs per default via Http1 but if the script [`create_ssl_certificate.sh`](create_ssl_certificate.sh) is run or the files `ssl.crt` and `ssl.key` can be found in the directory `keys` it automatically switches to the Http2 protocol.
