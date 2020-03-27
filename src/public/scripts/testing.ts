@@ -1,5 +1,5 @@
 import "./webpackVars";
-import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
+import * as marktexDocumentEditor from "./marktex_document_editor";
 
 
 // eslint-disable-next-line no-console
@@ -9,8 +9,13 @@ console.log(`DEBUG_APP=${DEBUG_APP}`);
 window.addEventListener("load", (): void => {
 
     // Get live  input/output elements
-    const liveInput = document.getElementById("testing-live-md-rendering-input-textarea") as HTMLTextAreaElement;
-    const liveOutput = document.getElementById("testing-live-md-rendering-output") as HTMLDivElement;
+    const marktexEditor = document.getElementById("marktex-editor") as HTMLTextAreaElement;
+    const liveInput = document.getElementById("marktex-input") as HTMLTextAreaElement;
+    const liveOutput = document.getElementById("marktex-output") as HTMLDivElement;
+
+    const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLElement;
+    const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLElement;
+    const marktexButtonView = document.getElementById("marktex-button-view") as HTMLElement;
 
     // Setup live input/output elements on load
     if (liveInput !== undefined && liveOutput !== undefined) {
@@ -34,25 +39,19 @@ window.addEventListener("load", (): void => {
             "This is a \\LaTeX block where you can do complicated \\LaTeX commands.\n" +
             "\\end{center}\n";
         }
-        liveOutput.innerHTML = md.render(liveInput.value, { renderTimeString: new Date().toISOString() });
-
-        // eslint-disable-next-line complexity
-        liveInput.addEventListener("input", (event: Event): void => {
-            if (DEBUG_APP) {
-                // eslint-disable-next-line no-console
-                console.debug("Testing: MarkdownIt live input has changed: ", {
-                    content: liveInput.value,
-                    event,
-                    selection: {
-                        direction: liveInput.selectionDirection,
-                        end: liveInput.selectionEnd,
-                        start: liveInput.selectionStart
-                    }
-                });
-            }
-            // Update document preview
-            liveOutput.innerHTML = md.render(liveInput.value, { renderTimeString: new Date().toISOString() });
-            renderLatexBlocks();
+        marktexDocumentEditor.render({
+            marktexEditorInput: liveInput,
+            marktexEditorOutput: liveOutput
+        });
+        marktexDocumentEditor.enableEditorModeSwitching({
+            bothButton: marktexButtonBoth,
+            marktexEditor,
+            onlyEditButton: marktexButtonEdit,
+            onlyViewButton: marktexButtonView
+        });
+        marktexDocumentEditor.enableEditorRendering({
+            marktexEditorInput: liveInput,
+            marktexEditorOutput: liveOutput
         });
     }
 });

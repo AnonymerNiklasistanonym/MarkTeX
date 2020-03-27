@@ -3,9 +3,6 @@
     <button id="testing-live-md-rendering-import-export-button-export-pdf">Export to PDF</button>
     <button id="testing-live-md-rendering-import-export-button-export-zip">Export to ZIP</button>
 </div>
-<div id="testing-live-md-rendering">
-    <div id="testing-live-md-rendering-input">
-        <textarea id="testing-live-md-rendering-input-textarea" name="markdown-input" cols="40" rows="50"></textarea>
-    </div>
-    <div id="testing-live-md-rendering-output" class="markdown-body"></div>
-</div>
+
+{{> marktex_document_editor_buttons idBoth="marktex-button-both" idEdit="marktex-button-edit" idView="marktex-button-view"}}
+{{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output"}}

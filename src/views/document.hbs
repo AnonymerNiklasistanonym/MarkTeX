@@ -20,9 +20,7 @@
 </div>
 
 <p>Editor:</p>
-<div>
-    <div class="markdown-editor">
-        <textarea id="document-content-render-input" cols="40" rows="50">{{document.content}}</textarea>
-    </div>
-    <div class="markdown-body" id="document-content-render-output"></div>
-</div>
+
+
+{{> marktex_document_editor_buttons idBoth="marktex-button-both" idEdit="marktex-button-edit" idView="marktex-button-view"}}
+{{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output" modusViewOnly=true input=document.content}}

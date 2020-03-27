@@ -1,25 +1,34 @@
 import "./webpackVars";
 import * as apiRequests from "./apiRequests";
-import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
+import * as marktexDocumentEditor from "./marktex_document_editor";
 
 
 window.onload = (): void => {
 
-    // Get live  input/output elements
-    const liveInput = document.getElementById("document-content-render-input") as HTMLTextAreaElement;
-    const liveOutput = document.getElementById("document-content-render-output") as HTMLDivElement;
+    // Get live input/output elements
+    const marktexEditor = document.getElementById("marktex-editor") as HTMLTextAreaElement;
+    const liveInput = document.getElementById("marktex-input") as HTMLTextAreaElement;
+    const liveOutput = document.getElementById("marktex-output") as HTMLDivElement;
+
+    const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLElement;
+    const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLElement;
+    const marktexButtonView = document.getElementById("marktex-button-view") as HTMLElement;
 
     // Setup live input/output elements on load
-    if (liveInput !== undefined && liveOutput !== undefined) {
-        // Initial render
-        liveOutput.innerHTML = md.render(liveInput.value, { renderTimeString: new Date().toISOString() });
-        // React to new inputs
-        liveInput.addEventListener("input", (): void => {
-            // Update document render output
-            liveOutput.innerHTML = md.render(liveInput.value, { renderTimeString: new Date().toISOString() });
-            renderLatexBlocks();
-        });
-    }
+    marktexDocumentEditor.render({
+        marktexEditorInput: liveInput,
+        marktexEditorOutput: liveOutput
+    });
+    marktexDocumentEditor.enableEditorModeSwitching({
+        bothButton: marktexButtonBoth,
+        marktexEditor,
+        onlyEditButton: marktexButtonEdit,
+        onlyViewButton: marktexButtonView
+    });
+    marktexDocumentEditor.enableEditorRendering({
+        marktexEditorInput: liveInput,
+        marktexEditorOutput: liveOutput
+    });
 
     // Get document metadata
     const documentId = 2;

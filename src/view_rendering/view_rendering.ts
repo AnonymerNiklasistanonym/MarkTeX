@@ -47,7 +47,7 @@ export const getHeaderDefaults = (
             { path: "/katex/katex.min.css" },
             { path: "/hljs/default.css" },
             { path: "/githubmdcss/github-markdown.css" },
-            { path: "/stylesheets/markdown.css" }
+            { path: "/stylesheets/marktex_document_editor.css" }
         );
     }
     return header;
