@@ -36,7 +36,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             },
             header: {
                 scripts: [
-                    { path: "/scripts/login_bundle.js" },
+                    { path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` },
                     { path: "/socket.io/socket.io.js" }
                 ]
             }

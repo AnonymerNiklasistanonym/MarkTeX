@@ -15,7 +15,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             loggedIn: expressSession.isAuthenticated(req),
             header: {
                 scripts: [
-                    { path: "/scripts/main_bundle.js" },
+                    { path: `/scripts/main_bundle.js${options.production ? ".gz" : ""}` },
                     { path: "/socket.io/socket.io.js" }
                 ]
             }
@@ -63,7 +63,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 group: { ...groupInfo, documents: groupDocuments, owner: accountInfo },
                 header: {
                     scripts: [
-                        { path: "/scripts/main_bundle.js" },
+                        { path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` },
                         { path: "/socket.io/socket.io.js" }
                     ]
                 }
@@ -82,7 +82,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             account: { ...accountInfo, documents: accountDocuments, groups: accountGroups },
             header: {
                 scripts: [
-                    { path: "/scripts/main_bundle.js" },
+                    { path: `/scripts/account_bundle.js${options.production ? ".gz" : ""}` },
                     { path: "/socket.io/socket.io.js" }
                 ]
             }
