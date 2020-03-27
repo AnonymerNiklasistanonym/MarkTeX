@@ -1,18 +1,19 @@
-import * as chai from "chai";
-import { describe } from "mocha";
 import * as docker from "../src/modules/docker";
+import chai from "chai";
+import { describe } from "mocha";
+
 
 describe("docker api", () => {
     it("create docker file", () => {
         const dockerfileString = docker.createDockerfile({
-            image: "pandoc/latex:2.9.2",
-            workdir: "/usr/src",
+            cmd: ["pdf"],
             commands: [
                 "RUN apk add --update make",
                 "COPY ./ ./"
             ],
             entrypoint: ["make"],
-            cmd: ["pdf"]
+            image: "pandoc/latex:2.9.2",
+            workdir: "/usr/src"
         });
         chai.expect(dockerfileString).to.be.a("string");
         chai.assert(dockerfileString.length > 0);

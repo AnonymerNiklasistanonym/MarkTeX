@@ -1,6 +1,6 @@
-import * as shell from "shelljs";
 import { promises as fs } from "fs";
-import * as path from "path";
+import path from "path";
+import shell from "shelljs";
 
 export const createTypedocReadme = async (): Promise<void> => {
 

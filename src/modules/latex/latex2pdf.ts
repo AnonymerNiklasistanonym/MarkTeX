@@ -1,9 +1,12 @@
-import { spawn } from "child_process";
-import { promises as fs } from "fs";
-import * as path from "path";
-import { rmDirRecursive } from "../helper";
 import { debuglog } from "util";
+import { promises as fs } from "fs";
+import path from "path";
+import { rmDirRecursive } from "../helper";
+import { spawn } from "child_process";
+
+
 const debug = debuglog("app-latex");
+
 
 export interface Tex2PdfInputOptions {
     /**
@@ -46,9 +49,9 @@ export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
     // TODO: Log command
     const child = spawn("xelatex", [
         `-jobname=${temporaryPdfName.slice(0, temporaryPdfName.length - 4)}`,
-        ...(input.xelatexOptions !== undefined && input.xelatexOptions.shellEscape
+        ... (input.xelatexOptions !== undefined && input.xelatexOptions.shellEscape
             ? ["-shell-escape"] : []),
-        ...(input.xelatexOptions !== undefined && input.xelatexOptions.interactionNonstop
+        ... (input.xelatexOptions !== undefined && input.xelatexOptions.interactionNonstop
             ? ["-interaction=nonstopmode"] : []),
         temporaryTexName
     ], { cwd: workingDirName });
@@ -67,7 +70,7 @@ export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
                                     + `stdout=${stdout})`));
             }
             fs.readFile(temporaryPdf).then(pdfData => {
-                resolve({ stderr, stdout, pdfData });
+                resolve({ pdfData, stderr, stdout });
             }).catch(reject).then(() => rmDirRecursive(workingDirName));
         });
     });

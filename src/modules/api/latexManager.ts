@@ -1,5 +1,6 @@
-import * as latex from "../latex";
 import * as inkscape from "../inkscape";
+import * as latex from "../latex";
+
 
 export interface LatexData2SvgDataInput {
     headerIncludes: string[]
@@ -17,8 +18,8 @@ export const latex2Svg = async (input: LatexData2SvgDataInput): Promise<inkscape
         xelatexOptions: { interactionNonstop: true }
     });
     const pdf2SvgOut = await inkscape.pdf2Svg({
-        pdfData: tex2PdfOut.pdfData,
-        inkscapeOptions: { usePoppler: true }
+        inkscapeOptions: { usePoppler: true },
+        pdfData: tex2PdfOut.pdfData
     });
     return pdf2SvgOut;
 };

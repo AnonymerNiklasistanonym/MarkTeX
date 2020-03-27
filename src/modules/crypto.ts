@@ -1,10 +1,11 @@
 import * as crypto from "crypto";
 
+
 /**
- * Generates salt (a random string of characters of the given length)
+ * Generates salt (a random string of characters of the given length).
  *
+ * @param length Length of the salt
  * @returns Salt
- * @param length
  */
 export const generateSalt = (length = 4096): string => {
     return crypto
@@ -14,13 +15,13 @@ export const generateSalt = (length = 4096): string => {
 };
 
 /**
- * Generates a password hash
- * Future hint: update hash algorithm >> get supported algorithms:
- * `openssl list -digest-algorithms`
+ * Generates a password hash.
  *
- * @returns Hash
- * @param password
- * @param salt
+ * Get supported algorithms: `openssl list -digest-algorithms`
+ *
+ * @param password The password
+ * @param salt Salt to make password hash more unique
+ * @returns Password hash given the password and a salt
  */
 export const generateHash = (password: string, salt: string): string => {
     return crypto
@@ -29,30 +30,40 @@ export const generateHash = (password: string, salt: string): string => {
         .digest("hex");
 };
 
+/** Container for the hash and salt of a password. */
 export interface HashAndSalt {
+    /** Salt used to create password hash. */
     salt: string
+    /** Hash of the password given a certain algorithm and salt. */
     hash: string
 }
 
 /**
- * Generates a new password hash
+ * Generates a password hash.
  *
- * @returns Salt and calculated hash
- * @param password
- * @param saltLength
+ * @param password The password
+ * @param saltLength Length of the salt used to create the password hash
+ * @returns The password hash and the salt that was used to create it
  */
 export const generateHashAndSalt = (password: string, saltLength = 4096): HashAndSalt => {
     const salt = generateSalt(saltLength);
-    return { salt, hash: generateHash(password, salt) };
+    return { hash: generateHash(password, salt), salt };
 };
 
 /**
- * Checks if a password is correct
+ * Checks if a password is correct compared to the original created password hash.
  *
- * @returns Is password correct
- * @param password
- * @param hashAndSalt
+ * @param password The password
+ * @param hashAndSalt The hash and salt of the original password
+ * @returns True if password correct, else False
  */
 export const checkPassword = (password: string, hashAndSalt: HashAndSalt): boolean => {
     return generateHash(password, hashAndSalt.salt) === hashAndSalt.hash;
+};
+
+export default {
+    checkPassword,
+    generateHash,
+    generateHashAndSalt,
+    generateSalt
 };

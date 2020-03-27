@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { promises as fs, createWriteStream } from "fs";
-import * as path from "path";
-import * as archiver from "archiver";
+import { createWriteStream, promises as fs } from "fs";
+import archiver from "archiver";
+import path from "path";
 
 export const rmDirRecursive = async (dirPath: string): Promise<void> => {
     try {

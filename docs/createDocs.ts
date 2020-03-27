@@ -1,8 +1,8 @@
-import { Application, TSConfigReader, TypeDocReader, SourceFileMode } from "typedoc";
-import { ScriptTarget } from "typescript";
-import path from "path";
-
+import { Application, SourceFileMode, TSConfigReader, TypeDocReader } from "typedoc";
 import { createTypedocReadme } from "./createTypedocReadme";
+import path from "path";
+import { ScriptTarget } from "typescript";
+
 
 /** The default directory where the documentation is generated */
 export const defaultDocsOutputDir = path.join(__dirname, "dist", "site");
@@ -17,10 +17,6 @@ createTypedocReadme().then(() => {
     app.options.addReader(new TypeDocReader());
 
     app.bootstrap({
-        mode: SourceFileMode.Modules,
-        target: ScriptTarget.ESNext,
-        experimentalDecorators: true,
-        ignoreCompilerErrors: false,
         categorizeByGroup: true,
         exclude: [
             "node_modules/**/*",
@@ -28,8 +24,12 @@ createTypedocReadme().then(() => {
             "dist/**/*",
             "tests/**/*"
         ],
+        experimentalDecorators: true,
+        ignoreCompilerErrors: false,
+        mode: SourceFileMode.Modules,
         name: "MarkTeX Modules",
-        readme: path.join(__dirname, "dist", "README.md")
+        readme: path.join(__dirname, "dist", "README.md"),
+        target: ScriptTarget.ESNext
     });
 
     const project = app.convert(app.expandInputFiles(["src"]));

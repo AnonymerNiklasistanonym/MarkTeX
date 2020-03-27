@@ -1,7 +1,8 @@
-import * as chai from "chai";
-import { describe } from "mocha";
 import * as latex from "../src/modules/latex";
+import chai from "chai";
+import { describe } from "mocha";
 import { promises as fs } from "fs";
+
 
 describe("latex api [shell]", () => {
     it("version", async () => {

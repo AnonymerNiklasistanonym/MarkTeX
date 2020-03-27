@@ -1,6 +1,7 @@
-import * as chai from "chai";
-import { describe } from "mocha";
 import * as make from "../src/modules/make";
+import chai from "chai";
+import { describe } from "mocha";
+
 
 describe("make api", () => {
     it("create empty make file", () => {
@@ -26,13 +27,13 @@ describe("make api", () => {
                 value: "--a --b --c"
             } ],
             jobs: [ {
-                name: "defaultJob",
+                commands: ["command"],
                 default: true,
                 dependencies: [ "dependency", "another dependency" ],
-                commands: ["command"]
+                name: "defaultJob"
             },{
-                name: "jobWithNoDependencies",
-                commands: [ "command","anotherCommand" ]
+                commands: [ "command","anotherCommand" ],
+                name: "jobWithNoDependencies"
             } ]
         });
         chai.expect(makeFileString).to.be.a("string");

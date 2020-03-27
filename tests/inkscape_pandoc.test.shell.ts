@@ -1,41 +1,42 @@
-import * as chai from "chai";
-import { describe } from "mocha";
 import * as inkscape from "../src/modules/inkscape";
 import * as pandoc from "../src/modules/pandoc";
+import chai from "chai";
+import { describe } from "mocha";
 import { promises as fs } from "fs";
+
 
 describe("inkscape <-> pandoc [shell]", () => {
     it("convert pdf to svg", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [
             {
-                filename: "a.md",
-                directories: ["blub"],
                 data: "# It works\n\nTest $\\omega$\n",
+                directories: ["blub"],
+                filename: "a.md",
                 sourceFile: true
             },
             {
-                filename: "b.md",
-                directories: ["blab"],
                 data: "# Really\n\nOMG\n$$\\mathbb{O} = \\dfrac{22 + 100}{\\infty}$$\n",
+                directories: ["blab"],
+                filename: "b.md",
                 sourceFile: true
             }
         ];
         const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
             pandocArgs: {
+                pdfEngine: "xelatex",
+                toc: true,
+                tocDepth: 3,
                 variables: [{
                     name: "geometry",
                     value: [ { name: "a4paper" }, { name: "margin=2cm" } ]
-                }],
-                toc: true,
-                tocDepth: 3,
-                pdfEngine: "xelatex"
+                }]
             }
         };
         const outputPdf = await pandoc.md2Pdf({ files, pandocOptions });
         const outputSvg = await inkscape.pdf2Svg({ pdfData: outputPdf.pdfFile });
         const outputSvgPoppler = await inkscape.pdf2Svg({
-            pdfData: outputPdf.pdfFile,
-            inkscapeOptions: { usePoppler: true }
+            inkscapeOptions: { usePoppler: true },
+            pdfData: outputPdf.pdfFile
         });
 
         chai.expect(outputSvg.stdout).to.be.a("string");

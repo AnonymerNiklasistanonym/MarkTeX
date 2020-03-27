@@ -1,8 +1,10 @@
-import { openDatabase } from "./openDatabase";
-import * as sqlite3 from "sqlite3";
 import { debuglog } from "util";
+import { openDatabase } from "./openDatabase";
+import sqlite3 from "sqlite3";
+
 
 const debug = debuglog("app-database-request");
+
 
 export const getEachRequest = async (dbNamePath: string, query: string,
     parameters: (string|number)[] = []): Promise<any> => {

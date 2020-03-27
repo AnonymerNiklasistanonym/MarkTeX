@@ -1,7 +1,8 @@
+
+import { keyboardListener, writeHelloWorld } from "./test";
+import { connectToSocket } from "./sockets";
 import handlebars from "handlebars";
 
-import { writeHelloWorld, keyboardListener } from "./test";
-import { connectToSocket } from "./sockets";
 
 const component = (content?: string): HTMLDivElement => {
     const element = document.createElement("div");
@@ -12,6 +13,7 @@ const component = (content?: string): HTMLDivElement => {
     }
     return element;
 };
+
 
 window.addEventListener("load", (): void => {
 
@@ -38,8 +40,8 @@ window.addEventListener("load", (): void => {
 
     const renderTemplate = handlebars.compile(template);
     document.body.appendChild(component(renderTemplate({
-        name: "haribo",
         age: 42,
+        name: "haribo",
         text: "This is nice"
     })));
 

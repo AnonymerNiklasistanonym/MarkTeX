@@ -1,5 +1,5 @@
-import * as expressValidator from "express-validator";
 import * as express from "express";
+import * as expressValidator from "express-validator";
 import { debuglog } from "util";
 
 const debug = debuglog("app-express-middleware-express-validator");

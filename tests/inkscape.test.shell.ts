@@ -1,6 +1,7 @@
-import * as chai from "chai";
-import { describe } from "mocha";
 import * as inkscape from "../src/modules/inkscape";
+import chai from "chai";
+import { describe } from "mocha";
+
 
 describe("inkscape api [shell]", () => {
     it("version", async () => {

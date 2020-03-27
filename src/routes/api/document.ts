@@ -1,11 +1,12 @@
-import * as express from "express";
-import { StartExpressServerOptions } from "../../config/express";
-import { debuglog } from "util";
-import * as api from "../../modules/api";
-import * as expressValidator from "express-validator";
-import { validateWithTerminationOnError } from "../../middleware/expressValidator";
 import * as expressSession from "../../middleware/expressSession";
+import * as expressValidator from "express-validator";
 import type * as types from "./documentTypes";
+import api from "../../modules/api";
+import { debuglog } from "util";
+import express from "express";
+import { StartExpressServerOptions } from "../../config/express";
+import { validateWithTerminationOnError } from "../../middleware/expressValidator";
+
 export type { types };
 
 
@@ -25,19 +26,16 @@ const schemaValidationDocumentTitle: expressValidator.ValidationParamSchema = {
     isString: true
 };
 const schemaValidationDocumentAuthors: expressValidator.ValidationParamSchema = {
-    optional: true,
     errorMessage: "Not a string",
-    isString: true
+    isString: true,
+    optional: true
 };
 const schemaValidationDocumentDate: expressValidator.ValidationParamSchema = {
-    optional: true,
     errorMessage: "Not a string",
-    isString: true
+    isString: true,
+    optional: true
 };
 const schemaValidationDocumentResources: expressValidator.ValidationParamSchema = {
-    optional: true,
-    errorMessage: "Not an array",
-    isArray: true,
     custom: {
         options: (documentResources: any[]): boolean => {
             for (const documentResource of documentResources) {
@@ -47,10 +45,12 @@ const schemaValidationDocumentResources: expressValidator.ValidationParamSchema 
             }
             return true;
         }
-    }
+    },
+    errorMessage: "Not an array",
+    isArray: true,
+    optional: true
 };
 const schemaValidationApiVersion: expressValidator.ValidationParamSchema = {
-    isInt: true,
     custom: {
         options: (apiVersion: number): boolean => {
             if (apiVersion === 1) {
@@ -58,7 +58,8 @@ const schemaValidationApiVersion: expressValidator.ValidationParamSchema = {
             }
             throw new Error("API version is not supported");
         }
-    }
+    },
+    isInt: true
 };
 
 
@@ -75,12 +76,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
     app.post("/api/document/create",
         expressSession.checkAuthenticationJson,
         validateWithTerminationOnError(expressValidator.checkSchema({
-            content: schemaValidationDocumentContent,
-            title: schemaValidationDocumentTitle,
+            apiVersion: schemaValidationApiVersion,
             authors: schemaValidationDocumentAuthors,
+            content: schemaValidationDocumentContent,
             date: schemaValidationDocumentDate,
             resources: schemaValidationDocumentResources,
-            apiVersion: schemaValidationApiVersion
+            title: schemaValidationDocumentTitle
         })),
         async (req, res) => {
             debug("Create document");
@@ -92,10 +93,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 );
                 if (documentId) {
                     const response: types.CreateResponse = {
-                        id: documentId,
-                        title: request.title,
+                        authors: request.authors,
                         date: request.date,
-                        authors: request.authors
+                        id: documentId,
+                        title: request.title
                     };
                     return res.status(200).json(response);
                 }
@@ -107,24 +108,24 @@ export const register = (app: express.Application, options: StartExpressServerOp
             }
         });
     app.post("/api/document/get", validateWithTerminationOnError(expressValidator.checkSchema({
-        documentId: schemaValidationDocumentId,
-        apiVersion: schemaValidationApiVersion
-    })), async (req, res) => {
+        apiVersion: schemaValidationApiVersion,
+        documentId: schemaValidationDocumentId
+    })), (req, res) => {
         debug("Get document");
         try {
-            const getDocument = await api.content.getDocument(req.body.accountId, req.body.documentId);
+            // const getDocument = await api.content.getDocument(req.body.accountId, req.body.documentId);
             return res.status(405).json({ error: Error("Not yet implemented") });
         } catch (error) {
             return res.status(500).json({ error });
         }
     });
     app.post("/api/document/export", validateWithTerminationOnError(expressValidator.checkSchema({
-        documentId: schemaValidationDocumentId,
-        apiVersion: schemaValidationApiVersion
+        apiVersion: schemaValidationApiVersion,
+        documentId: schemaValidationDocumentId
     })), (req, res) => {
         debug("Export document");
         try {
-            const exportDocument = api.content.exportDocument();
+            // const exportDocument = api.content.exportDocument();
             return res.status(405).json({ error: Error("Not yet implemented") });
         } catch (error) {
             return res.status(500).json({ error });
@@ -133,15 +134,15 @@ export const register = (app: express.Application, options: StartExpressServerOp
     app.post("/api/document/update",
         expressSession.checkAuthenticationJson,
         validateWithTerminationOnError(expressValidator.checkSchema({
-            documentId: schemaValidationDocumentId,
+            apiVersion: schemaValidationApiVersion,
             documentContent: schemaValidationDocumentContent,
-            documentResources: schemaValidationDocumentResources,
-            apiVersion: schemaValidationApiVersion
+            documentId: schemaValidationDocumentId,
+            documentResources: schemaValidationDocumentResources
         })),
         (req, res) => {
             debug("Update document");
             try {
-                const updateDocument = api.content.updateDocument();
+                // const updateDocument = api.content.updateDocument();
                 return res.status(405).json({ error: Error("Not yet implemented") });
             } catch (error) {
                 return res.status(500).json({ error });

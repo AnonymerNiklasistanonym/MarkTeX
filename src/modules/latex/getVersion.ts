@@ -58,8 +58,8 @@ const getVersionFromString = (versionString: string): XelatexVersion | undefined
     }
     for (const match of versionString.matchAll(versionRegex)) {
         return {
-            fullText: versionString,
             engine: match[1],
+            fullText: versionString,
             major: Number(match[2]),
             minor: Number(match[3])
         };

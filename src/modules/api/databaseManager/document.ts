@@ -105,13 +105,13 @@ export const get = async (databasePath: string, input: GetInput): Promise<(GetOu
     ) as GetDbOut;
     if (runResult) {
         return {
-            id: input.id,
-            title: runResult.title,
             authors: runResult.authors,
+            content: runResult.content,
             date: runResult.date,
-            owner: runResult.owner,
             group: runResult.document_group,
-            content: runResult.content
+            id: input.id,
+            owner: runResult.owner,
+            title: runResult.title
         };
     }
 };
@@ -159,13 +159,13 @@ export const getAllFromAuthor = async (databasePath: string, input: GetInput): P
     ) as GetAllDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
-            id: input.id,
-            title: runResult.title,
             authors: runResult.authors,
+            content: runResult.content,
             date: runResult.date,
-            owner: runResult.owner,
             group: runResult.document_group,
-            content: runResult.content
+            id: input.id,
+            owner: runResult.owner,
+            title: runResult.title
         }));
     }
 };
@@ -190,13 +190,13 @@ export const getAllFromGroup = async (databasePath: string, input: GetInput): Pr
     ) as GetDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
-            id: input.id,
-            title: runResult.title,
             authors: runResult.authors,
+            content: runResult.content,
             date: runResult.date,
-            owner: runResult.owner,
             group: runResult.document_group,
-            content: runResult.content
+            id: input.id,
+            owner: runResult.owner,
+            title: runResult.title
         }));
     }
 };

@@ -1,7 +1,8 @@
 import * as express from "express";
-import { StartExpressServerOptions } from "../config/express";
-import * as api from "../modules/api";
 import * as expressSession from "../middleware/expressSession";
+
+import { StartExpressServerOptions } from "../config/express";
+
 
 // TODO Externalize later to do the same checks on the server side
 const regexAccountName = /^\w{4,16}$/;
@@ -17,10 +18,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
         }
         // Render login page
         res.render("login", {
-            layout: "default",
-            messages: {
-                exist: false,
-                texts: []
+            header: {
+                scripts: [
+                    { path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` },
+                    { path: "/socket.io/socket.io.js" }
+                ]
             },
             input: {
                 accountName: {
@@ -34,11 +36,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     pattern: regexAccountPassword.toString().slice(1, -1)
                 }
             },
-            header: {
-                scripts: [
-                    { path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` },
-                    { path: "/socket.io/socket.io.js" }
-                ]
+            layout: "default",
+            messages: {
+                exist: false,
+                texts: []
             }
         });
     });

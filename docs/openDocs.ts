@@ -1,8 +1,8 @@
-import path from "path";
+import { defaultDocsOutputDir } from "./createDocs";
 import { promises as fs } from "fs";
 import open from "open";
-import { defaultDocsOutputDir } from "./createDocs";
-import { exit } from "shelljs";
+import path from "path";
+
 
 (async (): Promise<void> => {
     // Check if the documentation directory exists
@@ -16,7 +16,7 @@ import { exit } from "shelljs";
             // eslint-disable-next-line no-console
             console.error(err);
         }
-        return exit(1);
+        return process.exit(1);
     }
     // Opens the main page of the documentation
     await open(path.join(defaultDocsOutputDir, "index.html"));

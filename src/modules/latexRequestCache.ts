@@ -34,17 +34,17 @@ const latex2SvgCacheMaxSize = 150;
 export const add = (latexStringKey: string, newEntry: LatexRequestCacheInput): void => {
     debug(`Add entry to cache (id=${latexStringKey})`);
     // Add it to the cache
-    latex2SvgCache.set(latexStringKey, { ...newEntry, date: new Date() });
+    latex2SvgCache.set(latexStringKey, { ... newEntry, date: new Date() });
     // If cache reaches a specific size, remove older items
     if (latex2SvgCache.size > latex2SvgCacheMaxSize) {
         let oldestCacheEntry;
         for (const [ key, value ] of latex2SvgCache.entries()) {
             if (oldestCacheEntry) {
                 if (oldestCacheEntry.date > value.date) {
-                    oldestCacheEntry = { id: key, date: value.date };
+                    oldestCacheEntry = { date: value.date, id: key };
                 }
             } else {
-                oldestCacheEntry = { id: key, date: value.date };
+                oldestCacheEntry = { date: value.date, id: key };
             }
         }
         // Remove oldest cache entry

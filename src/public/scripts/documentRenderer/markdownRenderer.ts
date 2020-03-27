@@ -1,13 +1,15 @@
-import MarkdownIt from "markdown-it";
-import * as hljs from "highlight.js";
-export { hljs };
+import "../webpackVars";
 import * as emphasizePlugin from "./emphasizePlugin";
+import * as imagePandocPlugin from "./imagePandocPlugin";
 import * as katexPlugin from "./katexPlugin";
 import * as latexPlugin from "./latexPlugin";
-export { renderLatexBlocks } from "./latexPlugin";
+import hljs from "highlight.js";
+import MarkdownIt from "markdown-it";
+
+export { hljs };
 export { katex } from "./katexPlugin";
-import * as imagePandocPlugin from "./imagePandocPlugin";
-import "../webpackVars";
+export { renderLatexBlocks } from "./latexPlugin";
+
 
 const katexPluginOptions: katexPlugin.Options = {
     onError: (error, originalString) => {
@@ -18,9 +20,6 @@ const katexPluginOptions: katexPlugin.Options = {
 };
 
 export const md = new MarkdownIt({
-    linkify: true,
-    html: true,
-    quotes: "„“‚‘",
     highlight: (str, lang): string | void => {
         if (DEBUG_APP) {
             // eslint-disable-next-line no-console
@@ -36,7 +35,10 @@ export const md = new MarkdownIt({
             }
         }
         return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
-    }
+    },
+    html: true,
+    linkify: true,
+    quotes: "„“‚‘"
 })
     .use(imagePandocPlugin.register)
     .use(emphasizePlugin.register)

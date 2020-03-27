@@ -9,7 +9,6 @@ export const register = (app: express.Application, options: StartExpressServerOp
     app.get("/testing", (req, res) => {
         // TODO: Do everything
         res.render("testing", {
-            layout: "default",
             header: {
                 scripts: [
                     { path: `/scripts/testing_bundle.js${options.production ? ".gz" : ""}` },
@@ -22,7 +21,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     { path: "/stylesheets/markdown.css" },
                     { path: "/stylesheets/testing.css" }
                 ]
-            }
+            },
+            layout: "default"
         });
     });
 };

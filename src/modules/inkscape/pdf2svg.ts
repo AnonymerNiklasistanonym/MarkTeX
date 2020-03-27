@@ -1,10 +1,13 @@
-import { spawn } from "child_process";
-import { promises as fs } from "fs";
-import path from "path";
-import os from "os";
-import { rmDirRecursive } from "../helper";
 import { debuglog } from "util";
+import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
+import { rmDirRecursive } from "../helper";
+import { spawn } from "child_process";
+
+
 const debug = debuglog("app-inkscape");
+
 
 export interface InkscapePdf2SvgInputOptions {
     usePoppler?: boolean
@@ -37,7 +40,7 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
         temporaryPdf,
         "--export-filename",
         temporarySvg,
-        ...(input.inkscapeOptions !== undefined && input.inkscapeOptions.usePoppler ? ["--pdf-poppler"] : [  ]),
+        ... (input.inkscapeOptions !== undefined && input.inkscapeOptions.usePoppler ? ["--pdf-poppler"] : [  ]),
         "--pdf-page",
         input.pageNumber ? String(input.pageNumber) : "1"
     ];

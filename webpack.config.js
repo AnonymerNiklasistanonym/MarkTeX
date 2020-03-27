@@ -25,32 +25,32 @@ if (production) {
 }
 
 module.exports = {
+    devtool: production ? undefined : "inline-source-map",
     entry: {
-        main: "./src/public/scripts/index.ts",
-        error: "./src/public/scripts/error.ts",
-        document: "./src/public/scripts/document.ts",
         account: "./src/public/scripts/account.ts",
+        document: "./src/public/scripts/document.ts",
+        error: "./src/public/scripts/error.ts",
         group: "./src/public/scripts/group.ts",
         login: "./src/public/scripts/login.ts",
+        main: "./src/public/scripts/index.ts",
         testing: "./src/public/scripts/testing.ts"
     },
-    devtool: production ? undefined : "inline-source-map",
     mode: production ? "production" : "development",
     module: {
         rules: [
             {
+                exclude: /node_modules/,
                 test: /\.tsx?$/,
-                use: "ts-loader",
-                exclude: /node_modules/
+                use: "ts-loader"
             }
         ]
-    },
-    plugins,
-    resolve: {
-        extensions: [ ".tsx", ".ts", ".js" ]
     },
     output: {
         filename: "[name]_bundle.js",
         path: path.resolve(__dirname, "dist", "public", "scripts")
+    },
+    plugins,
+    resolve: {
+        extensions: [ ".tsx", ".ts", ".js" ]
     }
 };

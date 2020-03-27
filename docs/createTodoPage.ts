@@ -1,7 +1,8 @@
 import fs from "fs";
-import path from "path";
-import { parse, report } from "leasot";
 import glob from "glob";
+import leasot from "leasot";
+import path from "path";
+
 
 interface Entry {
     file: string
@@ -30,11 +31,11 @@ glob("**/*.{hbs,ts,html,css,yml}", {
             // get the filetype of the file, or force a special parser
             const fileType = path.extname(file);
             // add file for better reporting
-            const todoParser = parse(fileContents, {
+            const todoParser = leasot.parse(fileContents, {
                 extension: fileType,
                 filename: file
             });
-            return report(todoParser);
+            return leasot.report(todoParser);
         })
         .reduce((a, b) => a.concat(b), []);
 

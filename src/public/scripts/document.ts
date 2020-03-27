@@ -1,6 +1,6 @@
-import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
-import * as apiRequests from "./apiRequests";
 import "./webpackVars";
+import * as apiRequests from "./apiRequests";
+import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
 
 
 window.onload = (): void => {
@@ -59,10 +59,10 @@ window.onload = (): void => {
             // eslint-disable-next-line no-console
             console.log("Found JSON data:", jsonData);
             const response = await apiRequests.document.create({
-                content: jsonData.content,
-                title: jsonData.title,
                 authors: jsonData.authors,
-                date: jsonData.date
+                content: jsonData.content,
+                date: jsonData.date,
+                title: jsonData.title
             });
             // TODO Display message
             // eslint-disable-next-line no-console
@@ -75,11 +75,11 @@ window.onload = (): void => {
     const buttonSave = document.getElementById("document-button-save") as HTMLButtonElement;
     buttonSave.addEventListener("click", (): void => {
         apiRequests.document.update({
-            id: documentId,
-            title: "TODO",
             authors: "TODO",
+            content: liveInput.value,
             date: "TODO",
-            content: liveInput.value
+            id: documentId,
+            title: "TODO"
         });
     });
 

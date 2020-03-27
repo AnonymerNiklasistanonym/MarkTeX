@@ -1,6 +1,7 @@
-import * as chai from "chai";
+import chai from "chai";
+import crypto from "../src/modules/crypto";
 import { describe } from "mocha";
-import * as crypto from "../src/modules/crypto";
+
 
 describe("crypto api", () => {
     it("generate salt", () => {

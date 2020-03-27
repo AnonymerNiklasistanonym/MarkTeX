@@ -1,8 +1,9 @@
-import * as chai from "chai";
+import * as database from "../src/modules/database";
+import chai from "chai";
+import { describe } from "mocha";
 import os from "os";
 import path from "path";
-import { describe } from "mocha";
-import * as database from "../src/modules/database";
+
 
 const databaseName = path.join(os.tmpdir(), "test.db");
 

@@ -1,13 +1,16 @@
-import { spawn } from "child_process";
-import { promises as fs } from "fs";
-import path from "path";
-import os from "os";
-import { rmDirRecursive, createZipFile } from "../helper";
-import * as make from "../make";
 import * as docker from "../docker";
+import * as make from "../make";
 import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
+import { createZipFile, rmDirRecursive } from "../helper";
 import { debuglog } from "util";
+import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
+import { spawn } from "child_process";
+
+
 const debug = debuglog("app-pandoc");
+
 
 export interface PandocMd2PdfInputFile {
     /** List of all relative directories in which the file can be found */
@@ -69,7 +72,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         let fileDirPathRelative = ".";
         // Create directory hierarchy in which the file is located
         if (directories) {
-            fileDirPathRelative = path.join(...directories);
+            fileDirPathRelative = path.join(... directories);
             for (const directory of directories) {
                 fileDirPath = path.join(fileDirPath, directory);
                 try {
@@ -114,32 +117,32 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                 { name: "DOCKER", value: "docker" }
             ],
             jobs: [ {
-                name: "pdf",
+                commands: ["$(PANDOC) $(PANDOC_ARGS) -o $(OUTPUT_FILE)"],
                 default: true,
                 dependencies: ["$(SOURCE_FILES)"],
-                commands: ["$(PANDOC) $(PANDOC_ARGS) -o $(OUTPUT_FILE)"]
+                name: "pdf"
             },{
-                name: "docker_image",
-                commands: ["docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME) -f $(DOCKER_FILE) ."]
+                commands: ["docker build $(DOCKER_ARGS) -t $(DOCKER_IMAGE_NAME) -f $(DOCKER_FILE) ."],
+                name: "docker_image"
             },{
-                name: "docker",
-                dependencies: ["docker_image"],
                 commands: [
                     "docker rm -f temp || true",
                     "docker run -ti --name temp $(DOCKER_IMAGE_NAME)",
                     "rm -f $(OUTPUT_FILE)",
                     "docker cp temp:/usr/src/$(OUTPUT_FILE) ./",
                     "docker rm -f temp"
-                ]
+                ],
+                dependencies: ["docker_image"],
+                name: "docker"
             },{
-                name: "viewPdf",
                 commands: [
                     "if [ -x \"$$(command -v xdg-open)\" ]; then \\",
                     "\txdg-open $(OUTPUT_FILE) >/dev/null 2>&1; \\",
                     "else \\",
                     "\tstart $(OUTPUT_FILE) >/dev/null 2>&1; \\",
                     "fi"
-                ]
+                ],
+                name: "viewPdf"
             } ]
         });
         const makefilePath = path.join(workingDirName, "Makefile");
@@ -147,14 +150,14 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         allSourceFiles.push(makefilePath);
         // Create Dockerfile (only for reproduction)
         const dockerfileContent = docker.createDockerfile({
-            image: "pandoc/latex:2.9.2",
-            workdir: "/usr/src",
+            cmd: ["pdf"],
             commands: [
                 "RUN apk add --update make",
                 "COPY ./ ./"
             ],
             entrypoint: ["make"],
-            cmd: ["pdf"]
+            image: "pandoc/latex:2.9.2",
+            workdir: "/usr/src"
         });
         const dockerfilePath = path.join(workingDirName, "Dockerfile");
         await fs.writeFile(dockerfilePath, dockerfileContent);
@@ -201,9 +204,9 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                     fs.readFile(zipOutFilePath)
                 ])).then(data => {
                     resolve({
-                        stdout,
-                        stderr,
                         pdfFile: data[0],
+                        stderr,
+                        stdout,
                         zipFile: data[1]
                     });
                 }).catch(reject).then(() => rmDirRecursive(workingDirName));
@@ -212,9 +215,9 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                     fs.readFile(pdfOutFilePath)
                 ]).then(data => {
                     resolve({
-                        stdout,
+                        pdfFile: data[0],
                         stderr,
-                        pdfFile: data[0]
+                        stdout
                     });
                 }).catch(reject).then(() => rmDirRecursive(workingDirName));
             }

@@ -1,12 +1,11 @@
-import * as express from "express";
-import { StartExpressServerOptions } from "../../config/express";
-import * as expressValidator from "express-validator";
-import { validateWithTerminationOnError } from "../../middleware/expressValidator";
 import * as expressSession from "../../middleware/expressSession";
 import type * as types from "./accountTypes";
-export type { types };
+import api from "../../modules/api";
 import { debuglog } from "util";
-import * as api from "../../modules/api";
+import express from "express";
+import { StartExpressServerOptions } from "../../config/express";
+
+export type { types };
 
 
 const debug = debuglog("app-express-route-api-account");

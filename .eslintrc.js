@@ -31,6 +31,12 @@ module.exports = {
         }
     },
     "rules": {
+        "no-duplicate-imports": "error",
+        "arrow-spacing": "error",
+        "sort-keys": "error",
+        "template-curly-spacing": ["error", "never"],
+        "rest-spread-spacing": ["error", "always"],
+        "sort-imports": ["error", { ignoreCase: true }],
         "keyword-spacing": ["error", { before: true, after: true }],
         "space-before-blocks": ["error", "always"],
         "block-spacing": ["error", "always"],

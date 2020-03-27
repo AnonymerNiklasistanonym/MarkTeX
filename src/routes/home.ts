@@ -1,7 +1,8 @@
-import * as express from "express";
-import { StartExpressServerOptions } from "../config/express";
-import * as api from "../modules/api";
 import * as expressSession from "../middleware/expressSession";
+import api from "../modules/api";
+import express from "express";
+import { StartExpressServerOptions } from "../config/express";
+
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
@@ -11,14 +12,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
     app.get("/", (req, res) => {
         // TODO
         res.render("index", {
-            layout: "default",
-            loggedIn: expressSession.isAuthenticated(req),
             header: {
                 scripts: [
                     { path: `/scripts/main_bundle.js${options.production ? ".gz" : ""}` },
                     { path: "/socket.io/socket.io.js" }
                 ]
-            }
+            },
+            layout: "default",
+            loggedIn: expressSession.isAuthenticated(req)
         });
     });
 
@@ -26,15 +27,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // TODO
         const documentId = Number(req.params.id);
         const documentInfo = await api.database.document.get(options.databasePath, {
-            id: documentId,
-            getContent: true
+            getContent: true,
+            id: documentId
         });
         if (documentInfo) {
             const accountInfo = await api.database.account.get(options.databasePath, { id: documentInfo.owner });
             const groupInfo = await api.database.group.get(options.databasePath, { id: documentInfo.group });
             res.render("document", {
-                layout: "default",
-                document: { ...documentInfo, owner: accountInfo, group: groupInfo },
+                document: { ... documentInfo, group: groupInfo, owner: accountInfo },
                 header: {
                     scripts: [
                         { path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` },
@@ -46,7 +46,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         { path: "/githubmdcss/github-markdown.css" },
                         { path: "/stylesheets/markdown.css" }
                     ]
-                }
+                },
+                layout: "default"
             });
         }
     });
@@ -59,14 +60,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
         if (groupInfo) {
             const accountInfo = await api.database.account.get(options.databasePath, { id: groupInfo.owner });
             res.render("group", {
-                layout: "default",
-                group: { ...groupInfo, documents: groupDocuments, owner: accountInfo },
+                group: { ... groupInfo, documents: groupDocuments, owner: accountInfo },
                 header: {
                     scripts: [
                         { path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` },
                         { path: "/socket.io/socket.io.js" }
                     ]
-                }
+                },
+                layout: "default"
             });
         }
     });
@@ -78,14 +79,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const accountDocuments = await api.database.document.getAllFromAuthor(options.databasePath, { id: accountId });
         const accountGroups = await api.database.group.getAllFromAuthor(options.databasePath, { id: accountId });
         res.render("account", {
-            layout: "default",
-            account: { ...accountInfo, documents: accountDocuments, groups: accountGroups },
+            account: { ... accountInfo, documents: accountDocuments, groups: accountGroups },
             header: {
                 scripts: [
                     { path: `/scripts/account_bundle.js${options.production ? ".gz" : ""}` },
                     { path: "/socket.io/socket.io.js" }
                 ]
-            }
+            },
+            layout: "default"
         });
     });
 };

@@ -1,6 +1,7 @@
-import * as express from "express";
-import { StartExpressServerOptions } from "../config/express";
 import * as expressSession from "../middleware/expressSession";
+import express from "express";
+import { StartExpressServerOptions } from "../config/express";
+
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 

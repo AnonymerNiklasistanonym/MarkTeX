@@ -45,11 +45,11 @@ export const getJson = (input: GetJsonInput): GetJsonOutput => {
     return {
         id: 0,
         jsonData: {
-            type: "DOCUMENT",
-            title: "TODO",
             authors: "TODO",
+            content: "TODO",
             date: "TODO",
-            content: "TODO"
+            title: "TODO",
+            type: "DOCUMENT"
         }
     };
 };
@@ -70,9 +70,9 @@ export const create = async (input: api.document.types.CreateRequest): Promise<a
     try {
         // Make request
         const response = await fetch("/api/document/create", {
-            method: "POST",
+            body: JSON.stringify({ apiVersion: 1, ... input }),
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ apiVersion: 1, ...input })
+            method: "POST"
         });
         if (response.status === 200) {
             // Request was successful

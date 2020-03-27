@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
-import * as MarkdownIt from "markdown-it";
-import * as katex from "katex";
-export { katex };
 import "../webpackVars";
+import katex from "katex";
+import MarkdownIt from "markdown-it";
+
+export { katex };
+
 
 export interface Options {
     onError?: (error: Error, originalString: string) => void

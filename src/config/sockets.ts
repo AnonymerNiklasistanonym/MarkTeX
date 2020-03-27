@@ -1,8 +1,10 @@
-import { Server as SocketServer } from "socket.io";
-import { Server } from "http";
 import { debuglog } from "util";
+import { Server } from "http";
+import { Server as SocketServer } from "socket.io";
+
 
 const debug = debuglog("app-socketio");
+
 
 export const bindSocketServer = (httpServer: Server): SocketServer => {
 

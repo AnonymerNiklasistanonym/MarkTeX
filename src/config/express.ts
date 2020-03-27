@@ -1,24 +1,24 @@
-import express, { Request, Response, NextFunction } from "express";
-import path from "path";
-import exphbs from "express-handlebars";
-import createError, { HttpError } from "http-errors";
-import { Server } from "http";
-import { debuglog } from "util";
-import expressSession from "express-session";
 import * as expressSessionHelper from "../middleware/expressSession";
-import bodyParser from "body-parser";
-
-import { hbsHelpers } from "./hbs";
-import { HbsLayoutError } from "../view_rendering/error";
-import { HbsHeader } from "../view_rendering/header";
-
 import * as routesAccount from "../routes/account";
 import * as routesApi from "../routes/api";
+import * as routesHome from "../routes/home";
 import * as routesLogin from "../routes/login";
 import * as routesTesting from "../routes/testing";
-import * as routesHome from "../routes/home";
+import bodyParser from "body-parser";
+import { debuglog } from "util";
+import express from "express";
+import expressHandlebars from "express-handlebars";
+import expressSession from "express-session";
+import { HbsHeader } from "../view_rendering/header";
+import { hbsHelpers } from "./hbs";
+import { HbsLayoutError } from "../view_rendering/error";
+import httpErrors from "http-errors";
+import path from "path";
+import { Server } from "http";
+
 
 const debug = debuglog("app-express");
+
 
 /** Options for express instance */
 export interface StartExpressServerOptions {
@@ -35,16 +35,16 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     const DIR_VIEWS = path.join(__dirname, "..", "views");
     app.set("view engine", "hbs");
     app.set("views", DIR_VIEWS);
-    app.engine("hbs", exphbs({
-        extname: "hbs",
+    app.engine("hbs", expressHandlebars({
         defaultLayout: "default",
-        layoutsDir: path.join(DIR_VIEWS, "layouts"),
-        partialsDir: path.join(DIR_VIEWS, "partials"),
+        extname: "hbs",
         helpers: hbsHelpers.reduce((map: any, obj) => {
             map[obj.name] = obj.callback;
             // console.log(`Register ${obj.name} as hbs helper`);
             return map;
-        }, {})
+        }, {}),
+        layoutsDir: path.join(DIR_VIEWS, "layouts"),
+        partialsDir: path.join(DIR_VIEWS, "partials")
     }));
 
     // Cache views for much better performance
@@ -59,9 +59,9 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
 
     // Enable sessions for requests
     app.use(expressSession({
-        secret: "secret",
         resave: false,
-        saveUninitialized: true
+        saveUninitialized: true,
+        secret: "secret"
     }));
 
     // Catch requests
@@ -96,26 +96,37 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
     app.use((req, res, next) => {
         debug("resource was not found '%s'", req.originalUrl);
         res.locals.explanation = `The requested resource (${req.originalUrl}) was not found.`;
-        next(createError(404));
+        next(httpErrors(404));
     });
 
     // Page for errors
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
+    app.use((err: httpErrors.HttpError, req: express.Request, res: express.Response, next: express.NextFunction) => {
         // set locals, only providing error in development
         const errorRenderContent: HbsLayoutError = {
             error: {
-                status: err.status || 500,
-                message: err.message,
-                stack: err.stack,
                 explanation: res.locals.explanation,
                 links: [
                     { link: "/", text: "Home" }
-                ]
+                ],
+                message: err.message,
+                stack: err.stack,
+                status: err.status || 500
             }
         };
         debug("display error page '%s'", errorRenderContent.error);
         const errorRenderContentHeader: HbsHeader = {
+            author: "AnonymerNiklasistanonym",
+            description: "WIP",
+            favicon: {
+                ico: "/favicon/favicon.ico",
+                png: {
+                    postfix: ".png",
+                    prefix: "/favicon/favicon_",
+                    sizes: [ 16, 48, 128, 180, 196, 256, 512 ]
+                },
+                svg: "/favicon/favicon.svg"
+            },
             scripts: [
                 { path: "/scripts/error_bundle.js" }
             ],
@@ -125,28 +136,17 @@ export const startExpressServer = (options: StartExpressServerOptions): Server =
                 { path: "/stylesheets/error.css" }
             ],
             title: `Error ${err.status || 500}: ${err.message}`,
-            favicon: {
-                ico: "/favicon/favicon.ico",
-                svg: "/favicon/favicon.svg",
-                png: {
-                    prefix: "/favicon/favicon_",
-                    postfix: ".png",
-                    sizes: [ 16, 48, 128, 180, 196, 256, 512 ]
-                }
-            },
             webApp: {
+                manifestPath: "/manifest.json",
                 name: "TypeScript Express Prototype",
-                themeColor: "#0289ff",
-                manifestPath: "/manifest.json"
-            },
-            description: "WIP",
-            author: "AnonymerNiklasistanonym"
+                themeColor: "#0289ff"
+            }
         };
         res
             .status(err.status || 500)
             .render("error", {
                 layout: "default",
-                ...errorRenderContent,
+                ... errorRenderContent,
                 header: errorRenderContentHeader
             });
     });

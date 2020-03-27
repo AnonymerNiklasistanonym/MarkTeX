@@ -1,5 +1,5 @@
 import * as database from "../../database";
-import * as crypto from "../../crypto";
+import crypto from "../../crypto";
 
 export interface CreateInput {
     name: string
@@ -137,8 +137,8 @@ export const get = async (databasePath: string, input: GetInput): Promise<(GetOu
     if (runResult) {
         return {
             id: input.id,
-            name: runResult.name,
-            isAdmin: runResult.admin === 1
+            isAdmin: runResult.admin === 1,
+            name: runResult.name
         };
     }
 };

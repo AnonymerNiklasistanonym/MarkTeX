@@ -1,9 +1,10 @@
+import * as pandoc from "../src/modules/pandoc";
 import chai from "chai";
 import { describe } from "mocha";
-import * as pandoc from "../src/modules/pandoc";
 import { promises as fs } from "fs";
 import os from "os";
 import path from "path";
+
 
 // Show stack trace on error
 chai.config.includeStack = true;
@@ -23,27 +24,27 @@ describe("pandoc api [shell]", () => {
     it("convert md to pdf", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [
             {
-                filename: "a.md",
-                directories: ["blub"],
                 data: "# It works\n\nTest $\\omega$\n",
+                directories: ["blub"],
+                filename: "a.md",
                 sourceFile: true
             },
             {
-                filename: "b.md",
-                directories: ["blab"],
                 data: "# Really\n\nOMG\n$$\\mathbb{O} = \\dfrac{22 + 100}{\\infty}$$\n",
+                directories: ["blab"],
+                filename: "b.md",
                 sourceFile: true
             }
         ];
         const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
             pandocArgs: {
+                pdfEngine: "xelatex",
+                toc: true,
+                tocDepth: 3,
                 variables: [{
                     name: "geometry",
                     value: [ { name: "a4paper" }, { name: "margin=2cm" } ]
-                }],
-                toc: true,
-                tocDepth: 3,
-                pdfEngine: "xelatex"
+                }]
             }
         };
         try {
@@ -61,7 +62,7 @@ describe("pandoc api [shell]", () => {
         }
 
         try {
-            const outputWithZip = await pandoc.md2Pdf({ files, pandocOptions, options: { createSourceZipFile: true } });
+            const outputWithZip = await pandoc.md2Pdf({ files, options: { createSourceZipFile: true }, pandocOptions });
             chai.expect(outputWithZip.stdout).to.be.a("string");
             chai.expect(outputWithZip.stderr).to.be.a("string");
             chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");

@@ -31,12 +31,12 @@ const regexInkscapeVersion = /^Inkscape ([0-9]+?)\.([0-9]+?)-?\.?(.*?) \((.*), (
 const getVersionFromString = (versionString: string): InkscapeVersion | undefined => {
     for (const match of versionString.matchAll(regexInkscapeVersion)) {
         return {
+            commit: match[4],
+            date: new Date(match[5]),
             fullText: versionString,
             major: Number(match[1]),
             minor: Number(match[2]),
-            patch: match[3],
-            commit: match[4],
-            date: new Date(match[5])
+            patch: match[3]
         };
     }
     return undefined;

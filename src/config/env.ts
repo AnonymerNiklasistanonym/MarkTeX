@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
 import { debuglog } from "util";
+import dotenv from "dotenv";
 
 const debug = debuglog("app-env");
 

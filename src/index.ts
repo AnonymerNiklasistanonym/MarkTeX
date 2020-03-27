@@ -1,14 +1,15 @@
-import { loadEnvFile } from "./config/env";
-import { startExpressServer } from "./config/express";
-import { bindSocketServer } from "./config/sockets";
-import * as api from "./modules/api";
 import * as inkscape from "./modules/inkscape";
-import * as pandoc from "./modules/pandoc";
 import * as latex from "./modules/latex";
+import * as pandoc from "./modules/pandoc";
+import api from "./modules/api";
+import { bindSocketServer } from "./config/sockets";
 import { debuglog } from "util";
-import * as os from "os";
+import { loadEnvFile } from "./config/env";
+import os from "os";
 import path from "path";
+import { startExpressServer } from "./config/express";
 
+// Debug console
 const debug = debuglog("app");
 
 // Load Env File
@@ -16,7 +17,7 @@ loadEnvFile();
 
 // Load database
 const databasePath = path.join(__dirname, "..", "database.db");
-api.database.checkIfDatabaseExists(databasePath)
+api.database.exists(databasePath)
     .then(async exists => {
         // Setup database if non is found
         if (!exists) {

@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/require-await */
-import { promises as fs } from "fs";
 import * as database from "../../database";
 import * as manageDatabaseSetup from "./setupDatabase";
+import { promises as fs } from "fs";
+
 
 /**
  * Check if database already exists.
  *
  * @param databasePath Path to database.
  */
-export const checkIfDatabaseExists = async (databasePath: string): Promise<boolean> => {
+export const exists = async (databasePath: string): Promise<boolean> => {
     try {
         await fs.access(databasePath);
         return true;
@@ -23,7 +24,7 @@ export const checkIfDatabaseExists = async (databasePath: string): Promise<boole
  * @param databasePath Path to database.
  */
 export const createDatabase = async (databasePath: string): Promise<void> => {
-    if (!await checkIfDatabaseExists(databasePath)) {
+    if (!await exists(databasePath)) {
         await database.createDatabase(databasePath);
         await manageDatabaseSetup.setupTables(databasePath);
         await manageDatabaseSetup.setupInitialData(databasePath);
@@ -35,8 +36,8 @@ export const createDatabase = async (databasePath: string): Promise<void> => {
  *
  * @param databasePath Path to database.
  */
-export const resetDatabase = async (databasePath: string): Promise<void> => {
-    if (await checkIfDatabaseExists(databasePath)) {
+export const reset = async (databasePath: string): Promise<void> => {
+    if (await exists(databasePath)) {
         await fs.unlink(databasePath);
     }
     await createDatabase(databasePath);
@@ -47,8 +48,8 @@ export const resetDatabase = async (databasePath: string): Promise<void> => {
  *
  * @param databasePath Path to database.
  */
-export const deleteDatabase = async (databasePath: string): Promise<void> => {
-    if (await checkIfDatabaseExists(databasePath)) {
+export const remove = async (databasePath: string): Promise<void> => {
+    if (await exists(databasePath)) {
         await fs.unlink(databasePath);
     }
 };

@@ -1,10 +1,6 @@
-import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
 import "./webpackVars";
+import { md, renderLatexBlocks } from "./documentRenderer/markdownRenderer";
 
-export interface RequestLatexBlock {
-    svgData: string
-    id: number
-}
 
 // eslint-disable-next-line no-console
 console.log(`DEBUG_APP=${DEBUG_APP}`);
@@ -45,13 +41,13 @@ window.addEventListener("load", (): void => {
             if (DEBUG_APP) {
                 // eslint-disable-next-line no-console
                 console.debug("Testing: MarkdownIt live input has changed: ", {
-                    selection: {
-                        start: liveInput.selectionStart,
-                        end: liveInput.selectionEnd,
-                        direction: liveInput.selectionDirection
-                    },
                     content: liveInput.value,
-                    event
+                    event,
+                    selection: {
+                        direction: liveInput.selectionDirection,
+                        end: liveInput.selectionEnd,
+                        start: liveInput.selectionStart
+                    }
                 });
             }
             // Update document preview

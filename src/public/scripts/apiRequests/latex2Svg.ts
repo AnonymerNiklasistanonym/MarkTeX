@@ -6,17 +6,17 @@ export const latex2Svg = async (
     try {
         // Make request to server
         const response = await fetch("/api/latex2svg", {
-            method: "POST",
+            body: JSON.stringify({
+                apiVersion: 1,
+                latexHeaderIncludes: input.latexHeaderIncludes,
+                latexString: input.latexString,
+                latexStringHash: input.latexStringHash,
+                timeOfRequest: input.timeOfRequest
+            }),
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                apiVersion: 1,
-                latexStringHash: input.latexStringHash,
-                latexString: input.latexString,
-                latexHeaderIncludes: input.latexHeaderIncludes,
-                timeOfRequest: input.timeOfRequest
-            })
+            method: "POST"
         });
         if (response.status === 200) {
             // Request was successful

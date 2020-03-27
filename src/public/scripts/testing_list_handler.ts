@@ -76,7 +76,7 @@ export class NewListHandler {
         const nodeDom = this.createNodeElement(node);
         if (node.listChildren) {
             for (const childNode of node.listChildren) {
-                this.addNode({ ...dom, parentNodeDom: nodeDom }, childNode);
+                this.addNode({ ... dom, parentNodeDom: nodeDom }, childNode);
             }
         }
         if (dom.nextNodeDom !== undefined) {

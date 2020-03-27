@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import * as MarkdownIt from "markdown-it";
 import "../webpackVars";
 import * as apiRequests from "../apiRequests";
+import * as MarkdownIt from "markdown-it";
 
 
 // https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript/34842797#34842797
@@ -114,15 +114,15 @@ export const renderLatexBlocks = (): void => {
         if (DEBUG_APP) {
             // eslint-disable-next-line no-console
             console.debug("Testing: MarkdownIt found a latex block: ", {
-                id: latexBlock.id,
                 content: texContentElement.textContent,
+                id: latexBlock.id,
                 latexHeaderIncludes
             });
         }
         apiRequests.latex2Svg.latex2Svg({
-            latexStringHash: latexBlock.id,
-            latexString: texContentElement.textContent,
             latexHeaderIncludes,
+            latexString: texContentElement.textContent,
+            latexStringHash: latexBlock.id,
             timeOfRequest
         })
             // eslint-disable-next-line complexity

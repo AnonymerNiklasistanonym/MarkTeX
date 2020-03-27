@@ -1,6 +1,5 @@
-
-import * as group from "./types/groups";
 import * as document from "./types/documents";
+import * as group from "./types/groups";
 
 
 /**
@@ -22,12 +21,12 @@ export const getDocument = async (accountId: number, documentId: number): Promis
     console.log(`get document with accountId='${accountId}' and documentId='${documentId}'`);
     await timeout(10);
     return {
-        id: 100,
         adminAccountId: 42,
         dateCreation: new Date(),
         dateLastEdit: new Date(),
-        usersWithPermission: [],
-        metadata: {}
+        id: 100,
+        metadata: {},
+        usersWithPermission: []
     };
 };
 
@@ -69,12 +68,12 @@ export const getGroup = async (accountId: number, groupId: number): Promise<grou
     console.log(`get group with accountId='${accountId}' and groupId='${groupId}'`);
     await timeout(10);
     return {
-        id: 100,
         adminAccountId: 42,
         dateCreation: new Date(),
         dateLastEdit: new Date(),
-        usersWithPermission: [],
-        documents: []
+        documents: [],
+        id: 100,
+        usersWithPermission: []
     };
 };
 
