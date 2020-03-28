@@ -15,6 +15,7 @@ export interface NotificationMessage {
     onClick?: () => void
 }
 
+// eslint-disable-next-line complexity
 export const show = async (input: NotificationMessage): Promise<void> => {
     // Check if API is supported or not
     if (Notification.permission === "denied") {
@@ -23,6 +24,7 @@ export const show = async (input: NotificationMessage): Promise<void> => {
         return;
     }
     if (Notification.permission === "default") {
+        // Ask for permission to show notifications
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
             // eslint-disable-next-line no-console
@@ -33,7 +35,7 @@ export const show = async (input: NotificationMessage): Promise<void> => {
     // Add the text to the notification
     const notificationOptions: NotificationOptions = {
         body: input.body,
-        icon: input.icon,
+        icon: input.icon ? input.icon : "/favicon/favicon_512.png",
         image: input.image
     };
     // Create notification

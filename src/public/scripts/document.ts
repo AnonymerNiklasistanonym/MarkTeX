@@ -76,7 +76,10 @@ window.onload = (): void => {
             });
             await notifications.show({
                 body: `New document was created ${response.title} by ${response.authors} from ${response.date}`,
-                onClick: () => { window.open(`/document/${response.id}`); },
+                onClick: () => {
+                    const documentWindow = window.open(`/document/${response.id}`);
+                    if (documentWindow) { documentWindow.focus(); }
+                },
                 title: `Document was imported: ${response.title}`
             });
         } catch (e) {
