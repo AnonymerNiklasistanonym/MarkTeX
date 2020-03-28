@@ -1,7 +1,7 @@
 import * as docker from "../docker";
 import * as make from "../make";
 import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
-import { createZipFile, rmDirRecursive } from "../helper";
+import { createZipFile, rmDirRecursive, ZipFileFilesFile } from "../helper";
 import { debuglog } from "util";
 import { promises as fs } from "fs";
 import os from "os";
@@ -65,7 +65,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     await fs.mkdir(workingDirName);
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
-    const allSourceFiles: string[] = [];
+    const allSourceFiles: ZipFileFilesFile[] = [];
     for (const file of input.files) {
         const directories = file.directories;
         let fileDirPath = workingDirName;
@@ -88,16 +88,20 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             pandocSourceFiles.push(path.join(fileDirPathRelative, file.filename));
         }
         if (createSourceZipFile) {
-            allSourceFiles.push(path.join(fileDirPath, file.filename));
+            allSourceFiles.push({
+                filePath: path.join(fileDirPath, file.filename),
+                zipFileName: path.join(fileDirPathRelative, file.filename)
+            });
         }
     }
     const pandocArgs = (input.pandocOptions !== undefined && input.pandocOptions.pandocArgs !== undefined)
         ? input.pandocOptions.pandocArgs : {};
     pandocArgs.inputFiles = pandocSourceFiles;
     const pandocConfigContent = createPandocConfigFile(pandocArgs);
-    const pandocConfigPath = path.join(workingDirName, "pandoc.yml");
+    const pandocConfigName = "pandoc.yml";
+    const pandocConfigPath = path.join(workingDirName, pandocConfigName);
     await fs.writeFile(pandocConfigPath, pandocConfigContent);
-    allSourceFiles.push(pandocConfigPath);
+    allSourceFiles.push({ filePath: pandocConfigPath, zipFileName: pandocConfigName });
     if (createSourceZipFile) {
         // Create Makefile (only for reproduction)
         const makefileContent = make.createMakefile({
@@ -142,12 +146,13 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                     "\tstart $(OUTPUT_FILE) >/dev/null 2>&1; \\",
                     "fi"
                 ],
-                name: "viewPdf"
+                name: "view_pdf"
             } ]
         });
-        const makefilePath = path.join(workingDirName, "Makefile");
+        const makefileName = "Makefile";
+        const makefilePath = path.join(workingDirName, makefileName);
         await fs.writeFile(makefilePath, makefileContent);
-        allSourceFiles.push(makefilePath);
+        allSourceFiles.push({ filePath: makefilePath, zipFileName: makefileName });
         // Create Dockerfile (only for reproduction)
         const dockerfileContent = docker.createDockerfile({
             cmd: ["pdf"],
@@ -159,9 +164,10 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             image: "pandoc/latex:2.9.2",
             workdir: "/usr/src"
         });
-        const dockerfilePath = path.join(workingDirName, "Dockerfile");
+        const dockerfileName = "Dockerfile";
+        const dockerfilePath = path.join(workingDirName, dockerfileName);
         await fs.writeFile(dockerfilePath, dockerfileContent);
-        allSourceFiles.push(dockerfilePath);
+        allSourceFiles.push({ filePath: dockerfilePath, zipFileName: dockerfileName });
     }
     // Run command
     const pdfOutFilePath = path.join(workingDirName, "out.pdf");

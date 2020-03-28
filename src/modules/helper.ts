@@ -1,9 +1,15 @@
 /* eslint-disable no-console */
 import { createWriteStream, promises as fs } from "fs";
 import archiver from "archiver";
+import { debuglog } from "util";
 import path from "path";
 
+
+const debug = debuglog("app-helper");
+
+
 export const rmDirRecursive = async (dirPath: string): Promise<void> => {
+    debug(`Remove directory recursively: '${dirPath}'`);
     try {
         // Check if this file even exists
         await fs.access(dirPath);
@@ -29,12 +35,24 @@ export const rmDirRecursive = async (dirPath: string): Promise<void> => {
     }
 };
 
+/** lol */
+export interface ZipFileFilesFile {
+    filePath: string
+    zipFileName?: string
+}
+
+export interface ZipFileFilesDirectory {
+    dirPath: string
+    zipDirName?: string
+}
+
 export interface ZipFileFiles {
-    files?: string[]
-    directories?: string[]
+    files?: ZipFileFilesFile[]
+    directories?: ZipFileFilesDirectory[]
 }
 
 export const createZipFile = async (source: ZipFileFiles, out: string): Promise<void> => {
+    debug(`Create zip file ${JSON.stringify(source)}`);
     const archive = archiver.create("zip", { zlib: { level: 9 } });
     const stream = createWriteStream(out);
 
@@ -44,12 +62,12 @@ export const createZipFile = async (source: ZipFileFiles, out: string): Promise<
             .pipe(stream);
         if (source.files) {
             for (const file of source.files) {
-                archive.file(file, { name: file });
+                archive.file(file.filePath, { name: file.zipFileName ? file.zipFileName : file.filePath });
             }
         }
         if (source.directories) {
             for (const directory of source.directories) {
-                archive.directory(directory, false);
+                archive.directory(directory.dirPath, directory.zipDirName ? directory.zipDirName : false);
             }
         }
         stream.on("close", () => resolve());
