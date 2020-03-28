@@ -32,3 +32,13 @@ export interface UpdateResponse {
     authors?: string
     date?: string
 }
+
+export interface RemoveRequest {
+    id: number
+}
+
+export interface RemoveRequestApi extends RemoveRequest, types.ApiRequest {}
+
+export interface RemoveResponse {
+    id: number
+}

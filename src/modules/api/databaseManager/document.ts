@@ -58,7 +58,7 @@ export interface UpdateInput {
  * @param databasePath Path to database.
  * @param accountId Unique id of account that created the document.
  * @param input Document info.
- * @returns Unique id of document.
+ * @returns True if at least one element was updated otherwise False.
  */
 // eslint-disable-next-line complexity
 export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(boolean|void)> => {
@@ -102,15 +102,15 @@ export interface RemoveInput {
  * @param databasePath Path to database.
  * @param accountId Unique id of account that created the document.
  * @param input Document info.
- * @returns Unique id of removed document.
+ * @returns True if at least one element was removed otherwise False.
  */
-export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<(number|void)> => {
+export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<(boolean|void)> => {
     const postResult = await database.requests.postRequest(
         databasePath,
         database.queries.remove("document", "id"),
         [input.id]
     );
-    return postResult.lastID;
+    return postResult.changes > 0;
 };
 
 export interface ExistsInput {
@@ -128,7 +128,7 @@ export interface ExistsDbOut {
  * @param databasePath Path to database.
  * @param accountId Unique id of account that created the document.
  * @param input Document info.
- * @returns Unique id of removed document.
+ * @returns True if exists otherwise False.
  */
 export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<(boolean|void)> => {
     const postResult = await database.requests.getEachRequest(

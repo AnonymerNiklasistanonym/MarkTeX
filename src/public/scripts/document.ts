@@ -87,15 +87,33 @@ window.onload = (): void => {
             console.error(e);
         }
     }, false);
-    const buttonSave = document.getElementById("document-button-save") as HTMLButtonElement;
-    buttonSave.addEventListener("click", (): void => {
-        apiRequests.document.update({
+    const buttonUpdate = document.getElementById("document-button-update") as HTMLButtonElement;
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    buttonUpdate.addEventListener("click", async () => {
+        const response = await apiRequests.document.update({
             authors: undefined,
             content: liveInput.value,
             date: undefined,
             id: documentId,
             title: undefined
         });
+        await notifications.show({
+            body: `Document was saved ${response.title} by ${response.authors} from ${response.date}`,
+            title: `Document was saved: ${response.title}`
+        });
+    });
+    const buttonRemove = document.getElementById("document-button-remove") as HTMLButtonElement;
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    buttonRemove.addEventListener("click", async () => {
+        const response = await apiRequests.document.remove({ id: documentId });
+        if (response) {
+            await notifications.show({
+                body: `Document was deleted ${"TODO"} by ${"TODO"} from ${"TODO"}`,
+                title: `Document was deleted: ${"TODO"}`
+            });
+            // Redirect user to home page since the document was removed
+            window.location.href = "/";
+        }
     });
 
 };

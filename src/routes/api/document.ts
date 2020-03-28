@@ -169,7 +169,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         async (req, res) => {
             debug("Update document");
             const sessionInfo = expressSession.getSessionInfo(req);
-            const request = req.body as types.UpdateRequest;
+            const request = req.body as types.UpdateRequestApi;
             try {
                 const successful = await api.database.document.update(options.databasePath, sessionInfo.accountId,
                     request
@@ -181,6 +181,39 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         date: documentInfo.date,
                         id: request.id,
                         title: documentInfo.title
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({
+                    error: Error("Internal error, no document id was returned")
+                });
+            } catch (error) {
+                return res.status(500).json({ error });
+            }
+        });
+    app.post("/api/document/remove",
+        expressSession.checkAuthenticationJson,
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
+            await validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidationApiVersion,
+                id: getSchemaValidationExistingDocumentId({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        async (req, res) => {
+            debug("Remove document");
+            const sessionInfo = expressSession.getSessionInfo(req);
+            const request = req.body as types.RemoveRequestApi;
+            try {
+                const successful = await api.database.document.remove(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                if (successful) {
+                    const response: types.RemoveResponse = {
+                        id: request.id
                     };
                     return res.status(200).json(response);
                 }
