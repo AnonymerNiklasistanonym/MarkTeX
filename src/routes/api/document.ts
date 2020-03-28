@@ -156,7 +156,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = req.session as unknown as expressSession.SessionInfo;
             await validateWithTerminationOnError(expressValidator.checkSchema({
                 apiVersion: schemaValidationApiVersion,
-                authors: { isInt: true, optional: true },
+                authors: { isString: true, optional: true },
                 content: { isString: true, optional: true },
                 date: { isString: true, optional: true },
                 id: getSchemaValidationExistingDocumentId({

@@ -1,23 +1,32 @@
 <p>Document:</p>
+<form>
+	<input type="number" id="document-info-id" name="id" value="{{document.id}}" hidden>
+	<input type="number" id="document-info-id-owner" name="owner-id" value="{{document.owner.id}}" hidden>
+	<input type="number" id="document-info-id-group" name="group-id" value="{{document.group.id}}" hidden>
+
+	<label for="document-title">Title:</label><br>
+	<input type="text" id="document-info-title" name="document-title" value="{{document.title}}"><br>
+
+	<label for="document-authors">Authors:</label><br>
+	<input type="text" id="document-info-authors" name="document-authors" value="{{document.authors}}"><br>
+
+	<label for="document-date">Date:</label><br>
+	<input type="text" id="document-info-date" name="document-date" value="{{document.date}}">
+</form>
 <ul>
-{{!-- Replace later with tex fields that make the meta data editable --}}
-    <li>id: "{{document.id}}"</li>
-    <li>title: "{{document.title}}"</li>
-    <li>authors: "{{document.authors}}"</li>
-    <li>date: "{{document.date}}"</li>
-    <li>owner: <a href="/account/{{document.owner.id}}">{{document.owner.name}}</a></li>
-    <li>group: <a href="/account/{{document.group.id}}">{{document.group.name}}</a></li>
+	<li>owner: <a href="/account/{{document.owner.id}}">{{document.owner.name}}</a></li>
+	<li>group: <a href="/account/{{document.group.id}}">{{document.group.name}}</a></li>
 </ul>
 
 <p>Actions:</p>
 <div>
-    <button id="document-button-export-pdf">Export to PDF</button>
-    <button id="document-button-export-zip">Export to ZIP</button>
-    <button id="document-button-export-json">Export document (JSON)</button>
-    <input id="document-input-import-json" type="file" accept="json">
-    <button id="document-button-import-json">Import document (JSON)</button>
-    <button id="document-button-update">Save document</button>
-    <button id="document-button-remove">Delete document</button>
+	<button id="document-button-export-pdf">Export to PDF</button>
+	<button id="document-button-export-zip">Export to ZIP</button>
+	<button id="document-button-export-json">Export document (JSON)</button>
+	<input id="document-input-import-json" type="file" accept="json">
+	<button id="document-button-import-json">Import document (JSON)</button>
+	<button id="document-button-update">Save document</button>
+	<button id="document-button-remove">Delete document</button>
 </div>
 
 <p>Editor:</p>

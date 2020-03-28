@@ -12,9 +12,16 @@ window.onload = (): void => {
     const liveInput = document.getElementById("marktex-input") as HTMLTextAreaElement;
     const liveOutput = document.getElementById("marktex-output") as HTMLDivElement;
 
-    const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLElement;
-    const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLElement;
-    const marktexButtonView = document.getElementById("marktex-button-view") as HTMLElement;
+    const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLAnchorElement;
+    const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLAnchorElement;
+    const marktexButtonView = document.getElementById("marktex-button-view") as HTMLAnchorElement;
+
+    const documentInfoId = document.getElementById("document-info-id") as HTMLInputElement;
+    const documentInfoIdOwner = document.getElementById("document-info-id-owner") as HTMLInputElement;
+    const documentInfoIdGroup = document.getElementById("document-info-id-group") as HTMLInputElement;
+    const documentInfoTitle = document.getElementById("document-info-title") as HTMLInputElement;
+    const documentInfoDate = document.getElementById("document-info-date") as HTMLInputElement;
+    const documentInfoAuthors = document.getElementById("document-info-authors") as HTMLInputElement;
 
     // Setup live input/output elements on load
     marktexDocumentEditor.render({
@@ -96,11 +103,11 @@ window.onload = (): void => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     buttonUpdate.addEventListener("click", async () => {
         const response = await apiRequests.document.update({
-            authors: undefined,
+            authors: documentInfoAuthors.value,
             content: liveInput.value,
-            date: undefined,
+            date: documentInfoDate.value,
             id: documentId,
-            title: undefined
+            title: documentInfoTitle.value
         });
         await notifications.show({
             body: `Document was saved ${response.title} by ${response.authors} from ${response.date}`,

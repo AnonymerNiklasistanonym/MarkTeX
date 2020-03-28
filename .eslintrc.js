@@ -48,6 +48,7 @@ module.exports = {
         "jsdoc/check-types": 0,
         "jsdoc/require-returns-type": 0,
         "jsdoc/require-param-type": 0,
+        "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
         "@typescript-eslint/array-type": "error",
         "@typescript-eslint/indent": "error",
         "@typescript-eslint/member-delimiter-style": [
@@ -77,7 +78,7 @@ module.exports = {
         "@typescript-eslint/unified-signatures": "error",
         "camelcase": "error",
         "comma-dangle": "error",
-        "complexity": ["error", { "max": 5 }],
+        "complexity": ["error", { "max": 10 }],
         "constructor-super": "error",
         "dot-notation": "error",
         "eqeqeq": [
@@ -112,7 +113,7 @@ module.exports = {
         "no-bitwise": "error",
         "no-caller": "error",
         "no-cond-assign": "error",
-        "no-console": "error",
+        "no-console": ["error", { "allow": ["warn", "error"] }],
         "no-debugger": "error",
         "no-empty": "error",
         "no-eval": "error",

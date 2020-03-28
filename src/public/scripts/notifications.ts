@@ -13,6 +13,8 @@ export interface NotificationMessage {
     icon?: string
     /** Listener if the notification was clicked */
     onClick?: () => void
+    /** Open this url when the notification was clicked */
+    onClickUrl?: string
 }
 
 // eslint-disable-next-line complexity
@@ -40,6 +42,12 @@ export const show = async (input: NotificationMessage): Promise<void> => {
     };
     // Create notification
     const notification = new Notification(input.title, notificationOptions);
-    // Add onclick action
+    // Add onclick actions
     if (input.onClick) { notification.addEventListener("click", input.onClick); }
+    if (input.onClickUrl) {
+        notification.addEventListener("click", () => {
+            const documentWindow = window.open(input.onClickUrl);
+            if (documentWindow) { documentWindow.focus(); }
+        });
+    }
 };
