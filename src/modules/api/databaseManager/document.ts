@@ -61,7 +61,7 @@ export interface UpdateInput {
  * @returns Unique id of document.
  */
 // eslint-disable-next-line complexity
-export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(number|void)> => {
+export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(boolean|void)> => {
     const columns = [];
     const values = [];
     if (input.title) {
@@ -89,7 +89,7 @@ export const update = async (databasePath: string, accountId: number, input: Upd
         database.queries.update("document", columns, "id"),
         values
     );
-    return postResult.lastID;
+    return postResult.changes > 0;
 };
 
 export interface RemoveInput {

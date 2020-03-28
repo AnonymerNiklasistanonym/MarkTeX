@@ -62,8 +62,26 @@ export interface UpdateInput {
     content: string
 }
 
-export const update = (input: UpdateInput): void => {
-    // TODO
+export const update = async (input: api.document.types.UpdateRequest): Promise<api.document.types.UpdateResponse> => {
+    try {
+        // Make request
+        const response = await fetch("/api/document/update", {
+            body: JSON.stringify({ apiVersion: 1, ... input }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST"
+        });
+        if (response.status === 200) {
+            // Request was successful
+            const responseJson = await response.json() as api.document.types.UpdateResponse;
+            return responseJson;
+        } else {
+            // Must be an error
+            const responseText = await response.text();
+            throw Error(`Bad response (${response.status}): ${responseText}`);
+        }
+    } catch (e) {
+        throw e;
+    }
 };
 
 export const create = async (input: api.document.types.CreateRequest): Promise<api.document.types.CreateResponse> => {

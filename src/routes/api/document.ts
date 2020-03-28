@@ -171,11 +171,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressSession.getSessionInfo(req);
             const request = req.body as types.UpdateRequest;
             try {
-                const documentId = await api.database.document.update(options.databasePath, sessionInfo.accountId,
+                const successful = await api.database.document.update(options.databasePath, sessionInfo.accountId,
                     request
                 );
                 const documentInfo = await api.database.document.get(options.databasePath, { id: request.id });
-                if (documentId && documentInfo) {
+                if (successful && documentInfo) {
                     const response: types.UpdateResponse = {
                         authors: documentInfo.authors,
                         date: documentInfo.date,

@@ -32,7 +32,7 @@ window.onload = (): void => {
     });
 
     // Get document metadata
-    const documentId = 2;
+    const documentId = Number(window.location.href.split("/").slice(-1)[0]);
 
     // Add button functionalities
     const buttonExportPdf = document.getElementById("document-button-export-pdf") as HTMLButtonElement;
@@ -90,11 +90,11 @@ window.onload = (): void => {
     const buttonSave = document.getElementById("document-button-save") as HTMLButtonElement;
     buttonSave.addEventListener("click", (): void => {
         apiRequests.document.update({
-            authors: "TODO",
+            authors: undefined,
             content: liveInput.value,
-            date: "TODO",
+            date: undefined,
             id: documentId,
-            title: "TODO"
+            title: undefined
         });
     });
 
