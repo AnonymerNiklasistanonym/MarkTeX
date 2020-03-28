@@ -48,6 +48,15 @@ export const removeAuthentication = (req: express.Request): void => {
 
 export const isAuthenticated = (req: express.Request): boolean => req.session && req.session.accountId;
 
+export const redirectIfAuthenticated = (url = "/") =>
+    (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+        if (isAuthenticated(req)) {
+            return res.redirect(url);
+        } else {
+            next();
+        }
+    };
+
 export const checkAuthentication = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
     if (isAuthenticated(req)) {
         debug("User is authenticated");

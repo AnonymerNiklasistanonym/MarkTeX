@@ -2,7 +2,7 @@ import { defaultDocsOutputDir } from "./createDocs";
 import express from "express";
 import { promises as fs } from "fs";
 import open from "open";
-import path from "path";
+
 
 const startStaticDocumentationServer = (port = 8081): Promise<string> => new Promise((resolve) => {
     const app = express();

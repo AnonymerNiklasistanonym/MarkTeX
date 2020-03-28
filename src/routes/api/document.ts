@@ -1,110 +1,36 @@
-import * as expressSession from "../../middleware/expressSession";
+import * as expressMiddlewareSession from "../../middleware/expressSession";
+import * as expressMiddlewareValidator  from "../../middleware/expressValidator";
 import * as expressValidator from "express-validator";
+import * as schemaValidations from "./schemaValidations";
 import type * as types from "./documentTypes";
 import api from "../../modules/api";
 import { debuglog } from "util";
 import express from "express";
 import { StartExpressServerOptions } from "../../config/express";
-import { validateWithTerminationOnError } from "../../middleware/expressValidator";
 
 export type { types };
 
 
 const debug = debuglog("app-express-route-api-document");
 
-export interface InputSchemaValidationExistingDocumentId {
-    databasePath: string
-    accountId: number
-}
-
-const getSchemaValidationExistingDocumentId = (
-    input: InputSchemaValidationExistingDocumentId
-): expressValidator.ValidationParamSchema => {
-    return {
-        custom: {
-            options: async (id: number): Promise<boolean> => {
-                const documentExists = await api.database.document.exists(input.databasePath, input.accountId, { id });
-                return documentExists !== undefined ? documentExists : false;
-            }
-        },
-        errorMessage: "Must be an existing document id",
-        isInt: true
-    };
-};
-
-const schemaValidationDocumentId: expressValidator.ValidationParamSchema = {
-    errorMessage: "Not an int",
-    isInt: true
-};
-const schemaValidationDocumentContent: expressValidator.ValidationParamSchema = {
-    errorMessage: "Not a string",
-    isString: true
-};
-const schemaValidationDocumentTitle: expressValidator.ValidationParamSchema = {
-    errorMessage: "Not a string",
-    isString: true
-};
-const schemaValidationDocumentAuthors: expressValidator.ValidationParamSchema = {
-    errorMessage: "Not a string",
-    isString: true,
-    optional: true
-};
-const schemaValidationDocumentDate: expressValidator.ValidationParamSchema = {
-    errorMessage: "Not a string",
-    isString: true,
-    optional: true
-};
-const schemaValidationDocumentResources: expressValidator.ValidationParamSchema = {
-    custom: {
-        options: (documentResources: any[]): boolean => {
-            for (const documentResource of documentResources) {
-                if (typeof documentResource !== "string") {
-                    throw new Error("Document resources are not a string array");
-                }
-            }
-            return true;
-        }
-    },
-    errorMessage: "Not an array",
-    isArray: true,
-    optional: true
-};
-const schemaValidationApiVersion: expressValidator.ValidationParamSchema = {
-    custom: {
-        options: (apiVersion: number): boolean => {
-            if (apiVersion === 1) {
-                return true;
-            }
-            throw new Error("API version is not supported");
-        }
-    },
-    isInt: true
-};
-
-
-export interface CreateResponse {
-    id: number
-    title: string
-    authors?: string
-    date?: string
-}
-
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/document/create",
-        expressSession.checkAuthenticationJson,
-        validateWithTerminationOnError(expressValidator.checkSchema({
-            apiVersion: schemaValidationApiVersion,
-            authors: schemaValidationDocumentAuthors,
-            content: schemaValidationDocumentContent,
-            date: schemaValidationDocumentDate,
-            resources: schemaValidationDocumentResources,
-            title: schemaValidationDocumentTitle
+        // Validate api input
+        expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            authors: { isString: true, optional: true },
+            content: { isString: true },
+            date: { isString: true, optional: true },
+            title: { isString: true }
         })),
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to create a new document
         async (req, res) => {
             debug("Create document");
-            const sessionInfo = expressSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.CreateRequest;
             try {
                 const documentId = await api.database.document.create(options.databasePath, sessionInfo.accountId,
@@ -119,56 +45,70 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({
-                    error: Error("Internal error, no document id was returned")
-                });
-            } catch (error) {
-                return res.status(500).json({ error });
-            }
+                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+            } catch (error) { return res.status(500).json({ error }); }
         });
-    app.post("/api/document/get", validateWithTerminationOnError(expressValidator.checkSchema({
-        apiVersion: schemaValidationApiVersion,
-        documentId: schemaValidationDocumentId
-    })), (req, res) => {
-        debug("Get document");
-        try {
-            // const getDocument = await api.content.getDocument(req.body.accountId, req.body.documentId);
-            return res.status(405).json({ error: Error("Not yet implemented") });
-        } catch (error) {
-            return res.status(500).json({ error });
-        }
-    });
-    app.post("/api/document/export", validateWithTerminationOnError(expressValidator.checkSchema({
-        apiVersion: schemaValidationApiVersion,
-        documentId: schemaValidationDocumentId
-    })), (req, res) => {
-        debug("Export document");
-        try {
-            // const exportDocument = api.content.exportDocument();
-            return res.status(405).json({ error: Error("Not yet implemented") });
-        } catch (error) {
-            return res.status(500).json({ error });
-        }
-    });
-    app.post("/api/document/update",
-        expressSession.checkAuthenticationJson,
+
+    app.post("/api/document/get",
+        // Validate api input
         async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
-            await validateWithTerminationOnError(expressValidator.checkSchema({
-                apiVersion: schemaValidationApiVersion,
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                getContent: { isBoolean: true, optional: true },
+                id: schemaValidations.getDocumentIdExists({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to get a document
+        async (req, res) => {
+            debug("Get document");
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const request = req.body as types.GetRequest;
+            try {
+                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                if (documentInfo) {
+                    const response: types.GetResponse = {
+                        authors: documentInfo.authors,
+                        content: documentInfo.content,
+                        date: documentInfo.date,
+                        id: request.id,
+                        title: documentInfo.title
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({ error: Error("Internal error, no document info was returned") });
+            } catch (error) { return res.status(500).json({ error }); }
+        });
+
+    app.post("/api/document/update",
+        // Validate api input
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
                 authors: { isString: true, optional: true },
                 content: { isString: true, optional: true },
                 date: { isString: true, optional: true },
-                id: getSchemaValidationExistingDocumentId({
+                id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 }),
                 title: { isString: true, optional: true }
             }))(req, res, next);
         },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to update a document
         async (req, res) => {
             debug("Update document");
-            const sessionInfo = expressSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.UpdateRequestApi;
             try {
                 const successful = await api.database.document.update(options.databasePath, sessionInfo.accountId,
@@ -186,28 +126,28 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({
-                    error: Error("Internal error, no document id was returned")
-                });
-            } catch (error) {
-                return res.status(500).json({ error });
-            }
+                return res.status(500).json({ error: Error("Internal error, update was not successful") });
+            } catch (error) { return res.status(500).json({ error }); }
         });
+
     app.post("/api/document/remove",
-        expressSession.checkAuthenticationJson,
+        // Validate api input
         async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
-            await validateWithTerminationOnError(expressValidator.checkSchema({
-                apiVersion: schemaValidationApiVersion,
-                id: getSchemaValidationExistingDocumentId({
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
             }))(req, res, next);
         },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to remove a document
         async (req, res) => {
             debug("Remove document");
-            const sessionInfo = expressSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.RemoveRequestApi;
             try {
                 const successful = await api.database.document.remove(options.databasePath, sessionInfo.accountId,
@@ -219,28 +159,28 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({
-                    error: Error("Internal error, no document id was returned")
-                });
-            } catch (error) {
-                return res.status(500).json({ error });
-            }
+                return res.status(500).json({ error: Error("Internal error, removal was not successful") });
+            } catch (error) { return res.status(500).json({ error }); }
         });
+
     app.post("/api/document/export/pdf",
-        expressSession.checkAuthenticationJson,
+        // Validate api input
         async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
-            await validateWithTerminationOnError(expressValidator.checkSchema({
-                apiVersion: schemaValidationApiVersion,
-                id: getSchemaValidationExistingDocumentId({
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
             }))(req, res, next);
         },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to export a document to pdf
         async (req, res) => {
             debug("Export document [pdf]");
-            const sessionInfo = expressSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportPdfRequestApi;
             try {
                 const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
@@ -259,28 +199,28 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({
-                    error: Error("Internal error, no document id was returned")
-                });
-            } catch (error) {
-                return res.status(500).json({ error });
-            }
+                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+            } catch (error) { return res.status(500).json({ error }); }
         });
+
     app.post("/api/document/export/zip",
-        expressSession.checkAuthenticationJson,
+        // Validate api input
         async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
-            await validateWithTerminationOnError(expressValidator.checkSchema({
-                apiVersion: schemaValidationApiVersion,
-                id: getSchemaValidationExistingDocumentId({
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
             }))(req, res, next);
         },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to export a documents source files to zip
         async (req, res) => {
             debug("Export document [zip]");
-            const sessionInfo = expressSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportZipRequestApi;
             try {
                 const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
@@ -299,28 +239,28 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({
-                    error: Error("Internal error, no document id was returned")
-                });
-            } catch (error) {
-                return res.status(500).json({ error });
-            }
+                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+            } catch (error) { return res.status(500).json({ error }); }
         });
+
     app.post("/api/document/export/json",
-        expressSession.checkAuthenticationJson,
+        // Validate api input
         async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
-            await validateWithTerminationOnError(expressValidator.checkSchema({
-                apiVersion: schemaValidationApiVersion,
-                id: getSchemaValidationExistingDocumentId({
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
             }))(req, res, next);
         },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to export a document to json
         async (req, res) => {
             debug("Export document [json]");
-            const sessionInfo = expressSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportJsonRequestApi;
             try {
                 const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
@@ -338,11 +278,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({
-                    error: Error("Internal error, no document id was returned")
-                });
-            } catch (error) {
-                return res.status(500).json({ error });
-            }
+                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+            } catch (error) { return res.status(500).json({ error }); }
         });
 };

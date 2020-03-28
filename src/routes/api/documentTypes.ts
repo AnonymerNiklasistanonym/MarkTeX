@@ -83,3 +83,18 @@ export interface ExportJsonResponse {
     id: number
     jsonData: ExportJsonResponseJsonData
 }
+
+export interface GetRequest {
+    id: number
+    getContent?: boolean
+}
+
+export interface GetRequestApi extends GetRequest, types.ApiRequest {}
+
+export interface GetResponse {
+    id: number
+    title: string
+    authors: string
+    date: string
+    content?: string
+}
