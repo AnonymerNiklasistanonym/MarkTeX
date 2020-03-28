@@ -153,23 +153,23 @@ The built files can be found in the `dist` directory and the entry point is call
 
 These dependencies are not necessary to run this service but to build it or for example run tests.
 
-| Dev | Module | Description |
-| --- | ------ | ----------- |
-| yes | `@types*` | Types for Typescript code for more type security and ease of use (when using an IDE like VSCode) |
-| yes | `chai` | Write test cases |
-| yes | `compression-webpack-plugin` | Compress webpack created JavaScript files |
+| Module | Description |
+| ------ | ----------- |
+| `@types*` | Types for Typescript code for more type security and ease of use (when using an IDE like VSCode) |
+| `chai` | Write test cases |
+| `compression-webpack-plugin` | Compress webpack created JavaScript files |
 | `cross-env` | Set environment variables cross platform in `npm run` commands |
 | `eslint`, `eslint-plugin*` | Lint code for errors and code style |
-| yes | `glob` | Get all files given a regex and directory |
-| yes | `leasot` | Find TODOs in files of different types |
-| yes | `mocha` | Perform and create tests |
-| yes | `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development |
-| yes | `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel (only used in `package.json`)  |
-| yes | `open` | Open files with their default application |
-| yes | `shelljs` | Use to execute shell commands such as to copy files and remove directories |
-| yes | `ts-node` | Run TypeScript files directly (otherwise they must first be compiled to JavaScript files) |
-| yes | `typedoc` | Create HTML documentation of TypeScript files |
-| yes | `webpack`, `webpack-cli` | Bundle node modules (and compile TypeScript files) for client side JavaScript usage |
+| `glob` | Get all files given a regex and directory |
+| `leasot` | Find TODOs in files of different types |
+| `mocha` | Perform and create tests |
+| `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development |
+| `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel (only used in `package.json`)  |
+| `open` | Open files with their default application |
+| `shelljs` | Use to execute shell commands such as to copy files and remove directories |
+| `ts-node` | Run TypeScript files directly (otherwise they must first be compiled to JavaScript files) |
+| `typedoc` | Create HTML documentation of TypeScript files |
+| `webpack`, `webpack-cli` | Bundle node modules (and compile TypeScript files) for client side JavaScript usage |
 
 ## Docker
 
