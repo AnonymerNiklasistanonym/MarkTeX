@@ -1,8 +1,8 @@
+import * as helper from "../helper";
 import { debuglog } from "util";
 import { promises as fs } from "fs";
 import os from "os";
 import path from "path";
-import { rmDirRecursive } from "../helper";
 import { spawn } from "child_process";
 
 
@@ -54,13 +54,13 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
         child.on("close", code => {
             const stderr = bufferStderr.toString();
             if (code !== 0) {
-                rmDirRecursive(workingDirName);
+                helper.fileSystem.rmDirRecursive(workingDirName);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
             }
             const stdout = bufferStdout.toString();
             fs.readFile(temporarySvg, { encoding: "utf8" }).then(svgData => {
                 resolve({ stderr, stdout, svgData });
-            }).catch(reject).then(() => rmDirRecursive(workingDirName));
+            }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
         });
     });
 };

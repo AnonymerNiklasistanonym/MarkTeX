@@ -1,7 +1,7 @@
+import * as helper from "../helper";
 import { debuglog } from "util";
 import { promises as fs } from "fs";
 import path from "path";
-import { rmDirRecursive } from "../helper";
 import { spawn } from "child_process";
 
 
@@ -65,13 +65,13 @@ export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
             const stderr = bufferStderr.toString();
             const stdout = bufferStdout.toString();
             if (code !== 0) {
-                rmDirRecursive(workingDirName);
+                helper.fileSystem.rmDirRecursive(workingDirName);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr},`
                                     + `stdout=${stdout})`));
             }
             fs.readFile(temporaryPdf).then(pdfData => {
                 resolve({ pdfData, stderr, stdout });
-            }).catch(reject).then(() => rmDirRecursive(workingDirName));
+            }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
         });
     });
 };

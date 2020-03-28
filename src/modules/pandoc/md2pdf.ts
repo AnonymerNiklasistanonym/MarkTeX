@@ -1,7 +1,7 @@
 import * as docker from "../docker";
+import * as helper from "../helper";
 import * as make from "../make";
 import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
-import { createZipFile, rmDirRecursive, ZipFileFilesFile } from "../helper";
 import { debuglog } from "util";
 import { promises as fs } from "fs";
 import os from "os";
@@ -65,7 +65,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     await fs.mkdir(workingDirName);
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
-    const allSourceFiles: ZipFileFilesFile[] = [];
+    const allSourceFiles: helper.fileSystem.ZipFileFilesFile[] = [];
     for (const file of input.files) {
         const directories = file.directories;
         let fileDirPath = workingDirName;
@@ -197,13 +197,13 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         child.on("close", (code) => {
             const stderr = bufferStderr.toString();
             if (code !== 0) {
-                rmDirRecursive(workingDirName);
+                helper.fileSystem.rmDirRecursive(workingDirName);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
             }
             const stdout = bufferStdout.toString();
             if (createSourceZipFile) {
                 const zipOutFilePath = path.join(workingDirName, `${workingDirTimeStamp}.zip`);
-                createZipFile({
+                helper.fileSystem.createZipFile({
                     files: allSourceFiles
                 }, zipOutFilePath).then(() => Promise.all([
                     fs.readFile(pdfOutFilePath),
@@ -215,7 +215,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                         stdout,
                         zipFile: data[1]
                     });
-                }).catch(reject).then(() => rmDirRecursive(workingDirName));
+                }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
             } else {
                 Promise.all([
                     fs.readFile(pdfOutFilePath)
@@ -225,7 +225,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
                         stderr,
                         stdout
                     });
-                }).catch(reject).then(() => rmDirRecursive(workingDirName));
+                }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
             }
         });
     });
