@@ -1,6 +1,8 @@
 import * as expressSessionHelper from "../middleware/expressSession";
 import * as routesAccount from "../routes/account";
 import * as routesApi from "../routes/api";
+import * as routesDocument from "../routes/document";
+import * as routesGroup from "../routes/group";
 import * as routesHome from "../routes/home";
 import * as routesLogin from "../routes/login";
 import * as routesTesting from "../routes/testing";
@@ -103,6 +105,8 @@ export const getExpressServer = (options: StartExpressServerOptions): express.Ex
     // Configure routes
     routesAccount.register(app, options);
     routesApi.register(app, options);
+    routesDocument.register(app, options);
+    routesGroup.register(app, options);
     routesHome.register(app, options);
     routesLogin.register(app, options);
     routesTesting.register(app, options);

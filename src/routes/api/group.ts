@@ -1,22 +1,27 @@
 import * as expressSession from "../../middleware/expressSession";
+import type * as types from "./groupTypes";
+import api from "../../modules/api";
 import express from "express";
 import { StartExpressServerOptions } from "../../config/express";
+
+export type { types };
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
-    app.post("/api/account/login", /* auth.getCurrentAccount(), */(req, res) => {
-        // TODO: login();
-        expressSession.authenticate(req, 1);
-        // Redirect to home page
-        res.redirect("/");
-        // TODO: Edge case when login false do not redirect
+    app.post("/api/group/create", (req, res) => {
+        // TODO
     });
 
-    app.post("/api/account/logout", /* auth.getCurrentAccount(), */ (req, res) => {
-        // TODO: logout();
-        expressSession.removeAuthentication(req);
-        // Redirect to home page
-        res.redirect("/");
+    app.post("/api/group/get", (req, res) => {
+        // TODO
+    });
+
+    app.post("/api/group/remove", (req, res) => {
+        // TODO
+    });
+
+    app.post("/api/group/update", (req, res) => {
+        // TODO
     });
 };

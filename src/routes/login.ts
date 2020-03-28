@@ -43,4 +43,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
         });
     });
 
+    // Logout route
+    app.get("/logout", (req, res) => {
+        expressSession.removeAuthentication(req);
+        // Redirect to home page
+        res.redirect("/");
+    });
+
 };

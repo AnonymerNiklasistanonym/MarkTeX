@@ -64,15 +64,15 @@ describe("api account", () => {
     it("exists account", async () => {
         await api.database.reset(databasePath);
         const accountName = "TestUser";
-        await api.database.account.create(databasePath, {
+        const accountId = await api.database.account.create(databasePath, {
             name: accountName,
             password: "password"
         });
-        const accountExists = await api.database.account.exists(databasePath, {
+        const accountExists = await api.database.account.exists(databasePath, accountId, {
             name: accountName
         });
         chai.expect(accountExists).to.equal(true);
-        const accountExistsBad = await api.database.account.exists(databasePath, {
+        const accountExistsBad = await api.database.account.exists(databasePath, accountId, {
             name: "does not exist"
         });
         chai.expect(accountExistsBad).to.equal(false);
@@ -105,14 +105,14 @@ describe("api account", () => {
     it("delete account", async () => {
         await api.database.reset(databasePath);
         const accountName = "TestUser";
-        await api.database.account.create(databasePath, {
+        const accountId = await api.database.account.create(databasePath, {
             name: accountName,
             password: "password"
         });
-        await api.database.account.remove(databasePath, {
+        await api.database.account.remove(databasePath, accountId, {
             name: accountName
         });
-        const accountExists = await api.database.account.exists(databasePath, {
+        const accountExists = await api.database.account.exists(databasePath, accountId, {
             name: accountName
         });
         chai.expect(accountExists).to.equal(false);
