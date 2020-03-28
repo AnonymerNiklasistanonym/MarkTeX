@@ -1,14 +1,20 @@
+import * as leasot from "leasot";
 import fs from "fs";
 import glob from "glob";
-import leasot from "leasot";
 import path from "path";
 
 
+/** TODO tag entry */
 interface Entry {
+    /** The file path */
     file: string
-    tag: string
+    /** The tag */
+    tag: "TODO" | "FIXME"
+    /** The line number of the line that contains the tag */
     line: number
+    /** The text after the tag */
     text: string
+    ref: string
 }
 
 glob("**/*.{hbs,ts,html,css,yml}", {
@@ -20,13 +26,11 @@ glob("**/*.{hbs,ts,html,css,yml}", {
 }, (err, files) => {
     if (err) { throw err; }
 
-    /**
-     * All found occurences of any source code tags
-     */
+    /** Get all found occurences of any source code tags */
     const mappedFiles: Entry[] = files
         .map(file => {
             // eslint-disable-next-line no-console
-            console.log("Found file: " + file);
+            console.log(`Found file: '${file}'`);
             const fileContents = fs.readFileSync(file, "utf8");
             // get the filetype of the file, or force a special parser
             const fileType = path.extname(file);
@@ -40,11 +44,12 @@ glob("**/*.{hbs,ts,html,css,yml}", {
         .reduce((a, b) => a.concat(b), []);
 
     /**
-     * Render an entry
+     * Render an TODO tag entry to a Markdown table row
      *
-     * @param entry
+     * @param entry The TODO tag entry that should be rendered
+     * @returns The rendered markdown table row
      */
-    const renderTag = (entry: Entry): string => `| ${entry.tag} | ${entry.text} | ` +
+    const renderTagToMdTableRow = (entry: Entry): string => `| ${entry.tag} | ${entry.text} | ` +
         `${path.extname(entry.file)} | [Link to ${path.basename(entry.file)}](` +
         `https://github.com/AnonymerNiklasistanonym/MarkTeX/blob/master/${entry.file}#L${entry.line}) |`;
 
@@ -52,7 +57,7 @@ glob("**/*.{hbs,ts,html,css,yml}", {
     const fixMeTags = mappedFiles.filter(a => a.tag === "FIXME");
     const otherTags = mappedFiles.filter(a => a.tag !== "FIXME" && a.tag !== "TODO");
     const allTags = [ fixMeTags, todoTags, otherTags ]
-        .reduce((a: string[], b) => a.concat(b.map(renderTag)), []);
+        .reduce((a: string[], b) => a.concat(b.map(renderTagToMdTableRow)), []);
 
     const content = (allTags.length === 0)
         ? "*No open TODO tags found*\n"
