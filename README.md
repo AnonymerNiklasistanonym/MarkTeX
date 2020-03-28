@@ -11,14 +11,15 @@ Webapp for Markdown notes and summaries with LaTeX math and `tikzpicture`s that 
 
 ## Current development state
 
-Basic server is setup (logs, error page, scripts & styles).
+Basic backend and frontend is ready (debug logs, routing, database integration, markdown rendering, pdf/source export).
 
-The current features that are being developed are:
+The current (next) features that are being developed are:
 
-- Backend database integration
-- Backend session integration
-- Frontend Markdown renderer extension with LaTeX `tikzpicture`
-- Frontend button to export to PDF
+- [ ] Optimize client side markdown rendering and pandoc options to have output that looks the same (pandoc image size for markdown images)
+- [ ] Implement socket connection with authorization through express session
+- [ ] Actually use the account information to allow/block certain users from seeing "private" documents
+- [ ] Fix SQLite errors when for example the group page is called with a group that has no documents or the document page from a removed document (they currently just load forever)
+- [ ] Update styles to actually look good (like the error page)
 
 ## Requirements
 
@@ -98,14 +99,6 @@ Then the built files can be run with only a small amount of dependencies (for ex
 # npm install --only=prod
 npm run start
 ```
-
-## TODO list
-
-- [ ] Client side markdown rendering (math block, pandoc image, latex block)
-- [ ] Convert documents to be printable by pandoc (with latex blocks)
-- [ ] Implement socket connection with authorization through express session
-- [ ] Implement express session
-- [ ] Add SQLite database integration
 
 ## Sources
 
