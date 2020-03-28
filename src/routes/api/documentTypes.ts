@@ -64,3 +64,22 @@ export interface ExportZipResponse {
     id: number
     zipData: Buffer
 }
+
+export interface ExportJsonRequest {
+    id: number
+}
+
+export interface ExportJsonRequestApi extends ExportJsonRequest, types.ApiRequest {}
+
+// TODO Reuse interface for import
+export interface ExportJsonResponseJsonData {
+    title: string
+    authors: string
+    date: string
+    content: string
+}
+
+export interface ExportJsonResponse {
+    id: number
+    jsonData: ExportJsonResponseJsonData
+}

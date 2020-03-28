@@ -44,20 +44,20 @@ window.onload = (): void => {
 
     // Add button functionalities
     const buttonExportPdf = document.getElementById("document-button-export-pdf") as HTMLButtonElement;
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     buttonExportPdf.addEventListener("click", async () => {
         const response = await apiRequests.document.getPdf({ id: documentId });
         download.saveAsBinary(response.pdfData, "application/pdf", `document_${response.id}.pdf`);
     });
     const buttonExportZip = document.getElementById("document-button-export-zip") as HTMLButtonElement;
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     buttonExportZip.addEventListener("click", async () => {
         const response = await apiRequests.document.getZip({ id: documentId });
         download.saveAsBinary(response.zipData, " application/zip", `document_${response.id}.zip`);
     });
     const buttonExportJson = document.getElementById("document-button-export-json") as HTMLButtonElement;
-    buttonExportJson.addEventListener("click", (): void => {
-        apiRequests.document.getJson({ id: documentId });
+    buttonExportJson.addEventListener("click", async () => {
+        const response = await apiRequests.document.getJson({ id: documentId });
+        download.saveAsPlainText(JSON.stringify(response.jsonData, null, 4), "application/json",
+            `backup_document_${response.id}.json`);
     });
     const inputImportJson = document.getElementById("document-input-import-json") as HTMLInputElement;
     let jsonData: any = {};
@@ -88,10 +88,7 @@ window.onload = (): void => {
             });
             await notifications.show({
                 body: `New document was created ${response.title} by ${response.authors} from ${response.date}`,
-                onClick: () => {
-                    const documentWindow = window.open(`/document/${response.id}`);
-                    if (documentWindow) { documentWindow.focus(); }
-                },
+                onClickUrl: `/document/${response.id}`,
                 title: `Document was imported: ${response.title}`
             });
         } catch (e) {

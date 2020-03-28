@@ -306,4 +306,43 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 return res.status(500).json({ error });
             }
         });
+    app.post("/api/document/export/json",
+        expressSession.checkAuthenticationJson,
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
+            await validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidationApiVersion,
+                id: getSchemaValidationExistingDocumentId({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        async (req, res) => {
+            debug("Export document [json]");
+            const sessionInfo = expressSession.getSessionInfo(req);
+            const request = req.body as types.ExportJsonRequestApi;
+            try {
+                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                    { ... request, getContent: true }
+                );
+                if (documentInfo) {
+                    const response: types.ExportJsonResponse = {
+                        id: request.id,
+                        jsonData: {
+                            authors: documentInfo.authors,
+                            content: documentInfo.content,
+                            date: documentInfo.date,
+                            title: documentInfo.title
+                        }
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({
+                    error: Error("Internal error, no document id was returned")
+                });
+            } catch (error) {
+                return res.status(500).json({ error });
+            }
+        });
 };

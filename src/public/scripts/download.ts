@@ -13,3 +13,14 @@ export const saveAsBinary = (buffer: Buffer, contentType: string, filename: stri
     console.error(buffer.values());
     console.error(buffer.buffer);
 };
+
+export const saveAsPlainText = (content: string, contentType: string, filename: string): void => {
+    const c = window.document.createElement("a");
+    c.href = window.URL.createObjectURL(new Blob([content], {
+        type: contentType
+    }));
+    c.download = filename;
+    window.document.body.appendChild(c);
+    c.click();
+    window.document.body.removeChild(c);
+};

@@ -1,18 +1,19 @@
 import type * as api from "../../../routes/api";
 
-export const getPdf = async (
-    input: api.document.types.ExportPdfRequest
-): Promise<api.document.types.ExportPdfResponse> => {
+
+const generalApiRequest = async <INPUT_TYPE extends {}, OUTPUT_TYPE extends {}>(
+    requestUrl: string, input: INPUT_TYPE
+): Promise<OUTPUT_TYPE> => {
     try {
         // Make request
-        const response = await fetch("/api/document/export/pdf", {
+        const response = await fetch(requestUrl, {
             body: JSON.stringify({ apiVersion: 1, ... input }),
             headers: { "Content-Type": "application/json" },
             method: "POST"
         });
         if (response.status === 200) {
             // Request was successful
-            const responseJson = await response.json() as api.document.types.ExportPdfResponse;
+            const responseJson = await response.json() as OUTPUT_TYPE;
             // eslint-disable-next-line no-console
             return responseJson;
         } else {
@@ -23,125 +24,46 @@ export const getPdf = async (
     } catch (e) {
         throw e;
     }
+};
+
+export const getPdf = async (
+    input: api.document.types.ExportPdfRequest
+): Promise<api.document.types.ExportPdfResponse> => {
+    return generalApiRequest<api.document.types.ExportPdfRequest, api.document.types.ExportPdfResponse>(
+        "/api/document/export/pdf", input
+    );
 };
 
 export const getZip = async (
     input: api.document.types.ExportZipRequest
 ): Promise<api.document.types.ExportZipResponse> => {
-    try {
-        // Make request
-        const response = await fetch("/api/document/export/zip", {
-            body: JSON.stringify({ apiVersion: 1, ... input }),
-            headers: { "Content-Type": "application/json" },
-            method: "POST"
-        });
-        if (response.status === 200) {
-            // Request was successful
-            const responseJson = await response.json() as api.document.types.ExportZipResponse;
-            // eslint-disable-next-line no-console
-            return responseJson;
-        } else {
-            // Must be an error
-            const responseText = await response.text();
-            throw Error(`Bad response (${response.status}): ${responseText}`);
-        }
-    } catch (e) {
-        throw e;
-    }
+    return generalApiRequest<api.document.types.ExportZipRequest, api.document.types.ExportZipResponse>(
+        "/api/document/export/zip", input
+    );
 };
 
-export interface GetJsonInput {
-    id: number
-}
-
-export interface GetJsonOutput {
-    id: number
-    jsonData: any // TODO
-}
-
-export const getJson = (input: GetJsonInput): GetJsonOutput => {
-    return {
-        id: 0,
-        jsonData: {
-            authors: "TODO",
-            content: "TODO",
-            date: "TODO",
-            title: "TODO",
-            type: "DOCUMENT"
-        }
-    };
+export const getJson = async (
+    input: api.document.types.ExportJsonRequest
+): Promise<api.document.types.ExportJsonResponse> => {
+    return generalApiRequest<api.document.types.ExportJsonRequest, api.document.types.ExportJsonResponse>(
+        "/api/document/export/json", input
+    );
 };
-
-export interface UpdateInput {
-    id: number
-    title: string
-    authors: string
-    date: string
-    content: string
-}
 
 export const update = async (input: api.document.types.UpdateRequest): Promise<api.document.types.UpdateResponse> => {
-    try {
-        // Make request
-        const response = await fetch("/api/document/update", {
-            body: JSON.stringify({ apiVersion: 1, ... input }),
-            headers: { "Content-Type": "application/json" },
-            method: "POST"
-        });
-        if (response.status === 200) {
-            // Request was successful
-            const responseJson = await response.json() as api.document.types.UpdateResponse;
-            return responseJson;
-        } else {
-            // Must be an error
-            const responseText = await response.text();
-            throw Error(`Bad response (${response.status}): ${responseText}`);
-        }
-    } catch (e) {
-        throw e;
-    }
+    return generalApiRequest<api.document.types.UpdateRequest, api.document.types.UpdateResponse>(
+        "/api/document/update", input
+    );
 };
 
 export const create = async (input: api.document.types.CreateRequest): Promise<api.document.types.CreateResponse> => {
-    try {
-        // Make request
-        const response = await fetch("/api/document/create", {
-            body: JSON.stringify({ apiVersion: 1, ... input }),
-            headers: { "Content-Type": "application/json" },
-            method: "POST"
-        });
-        if (response.status === 200) {
-            // Request was successful
-            const responseJson = await response.json() as api.document.types.CreateResponse;
-            return responseJson;
-        } else {
-            // Must be an error
-            const responseText = await response.text();
-            throw Error(`Bad response (${response.status}): ${responseText}`);
-        }
-    } catch (e) {
-        throw e;
-    }
+    return generalApiRequest<api.document.types.CreateRequest, api.document.types.CreateResponse>(
+        "/api/document/create", input
+    );
 };
 
 export const remove = async (input: api.document.types.RemoveRequest): Promise<api.document.types.RemoveResponse> => {
-    try {
-        // Make request
-        const response = await fetch("/api/document/remove", {
-            body: JSON.stringify({ apiVersion: 1, ... input }),
-            headers: { "Content-Type": "application/json" },
-            method: "POST"
-        });
-        if (response.status === 200) {
-            // Request was successful
-            const responseJson = await response.json() as api.document.types.RemoveResponse;
-            return responseJson;
-        } else {
-            // Must be an error
-            const responseText = await response.text();
-            throw Error(`Bad response (${response.status}): ${responseText}`);
-        }
-    } catch (e) {
-        throw e;
-    }
+    return generalApiRequest<api.document.types.RemoveRequest, api.document.types.RemoveResponse>(
+        "/api/document/remove", input
+    );
 };
