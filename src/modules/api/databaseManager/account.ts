@@ -35,9 +35,10 @@ export interface RemoveInput {
  * Remove account.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
  * @param input Remove info.
  */
-export const remove = async (databasePath: string, input: RemoveInput): Promise<void> => {
+export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<void> => {
     await database.requests.postRequest(
         databasePath,
         database.queries.remove("account", "name"),
@@ -57,10 +58,11 @@ export interface ExistsDbOut {
  * Check if account exists.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
  * @param input Account exists info.
  * @returns True if account exists.
  */
-export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
+export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<boolean> => {
     const runResult = await database.requests.getEachRequest(
         databasePath,
         database.queries.exists("account", "name"),
@@ -88,7 +90,9 @@ export interface CheckLoginDbOut {
  * @param input Account login info.
  * @returns If password is correct the account id is returned.
  */
-export const checkLogin = async (databasePath: string, input: CheckLoginInput): Promise<(number|void)> => {
+export const checkLogin = async (
+    databasePath: string, input: CheckLoginInput
+): Promise<(number|void)> => {
     const runResult = await database.requests.getEachRequest(
         databasePath,
         database.queries.select("account", [ "id", "password_hash", "password_salt" ], {
@@ -124,9 +128,10 @@ export interface GetDbOut {
  * Get account.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
  * @param input Account get info.
  */
-export const get = async (databasePath: string, input: GetInput): Promise<(GetOutput|void)> => {
+export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
     const runResult = await database.requests.getEachRequest(
         databasePath,
         database.queries.select("account", [ "name", "admin" ], {

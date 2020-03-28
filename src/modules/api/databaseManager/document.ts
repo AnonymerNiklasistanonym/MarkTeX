@@ -151,7 +151,7 @@ export interface GetOutput {
     date: string
     owner: number
     group: number
-    content?: string
+    content: string
 }
 export interface GetDbOut {
     title: string
@@ -160,16 +160,17 @@ export interface GetDbOut {
     owner: number
     // eslint-disable-next-line camelcase
     document_group: number
-    content?: string
+    content: string
 }
 
 /**
  * Get document.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
  * @param input Document get info.
  */
-export const get = async (databasePath: string, input: GetInput): Promise<(GetOutput|void)> => {
+export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
     const columns = [ "title", "authors", "date", "owner" ];
     if (input.getContent) {
         columns.push("content");
@@ -221,11 +222,14 @@ export interface GetAllDbOut {
  * Get all documents from one author.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
  * @param input Document get info.
  */
-export const getAllFromAuthor = async (databasePath: string, input: GetInput): Promise<(GetOutput[]|void)> => {
+export const getAllFromAuthor = async (
+    databasePath: string, accountId: number, input: GetAllInput
+): Promise<(GetAllOutput[]|void)> => {
     const columns = [ "title", "authors", "date", "owner", "document_group" ];
-    if (input.getContent) {
+    if (input.getContents) {
         columns.push("content");
     }
     const runResults = await database.requests.getAllRequest(
@@ -252,11 +256,14 @@ export const getAllFromAuthor = async (databasePath: string, input: GetInput): P
  * Get all documents from one author.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
  * @param input Document get info.
  */
-export const getAllFromGroup = async (databasePath: string, input: GetInput): Promise<(GetOutput[]|void)> => {
+export const getAllFromGroup = async (
+    databasePath: string, accountId: number, input: GetAllInput
+): Promise<(GetAllOutput[]|void)> => {
     const columns = [ "title", "authors", "date", "owner", "document_group" ];
-    if (input.getContent) {
+    if (input.getContents) {
         columns.push("content");
     }
     const runResults = await database.requests.getAllRequest(
@@ -265,7 +272,7 @@ export const getAllFromGroup = async (databasePath: string, input: GetInput): Pr
             whereColumn: "document_group"
         }),
         [input.id]
-    ) as GetDbOut[];
+    ) as GetAllDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
             authors: runResult.authors,

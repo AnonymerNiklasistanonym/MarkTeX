@@ -22,14 +22,22 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     // View document
     app.get("/document/:id", async (req, res) => {
+        let accountId = 1;
+        if (expressSession.isAuthenticated(req)) {
+            accountId =  expressSession.getSessionInfo(req).accountId;
+        }
         const documentId = Number(req.params.id);
-        const documentInfo = await api.database.document.get(options.databasePath, {
+        const documentInfo = await api.database.document.get(options.databasePath, accountId, {
             getContent: true,
             id: documentId
         });
         if (documentInfo) {
-            const accountInfo = await api.database.account.get(options.databasePath, { id: documentInfo.owner });
-            const groupInfo = await api.database.group.get(options.databasePath, { id: documentInfo.group });
+            const accountInfo = await api.database.account.get(options.databasePath, accountId, {
+                id: documentInfo.owner
+            });
+            const groupInfo = await api.database.group.get(options.databasePath, accountId, {
+                id: documentInfo.group
+            });
             const header = viewRendering.getHeaderDefaults(options, { marktexRenderer: true, sockets: true });
             header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
             header.title = `${documentInfo.title} by ${documentInfo.authors}`;
@@ -43,11 +51,19 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     // View group
     app.get("/group/:id", async (req, res) => {
+        let accountId = 1;
+        if (expressSession.isAuthenticated(req)) {
+            accountId =  expressSession.getSessionInfo(req).accountId;
+        }
         const groupId = Number(req.params.id);
-        const groupInfo = await api.database.group.get(options.databasePath, { id: groupId });
-        const groupDocuments = await api.database.document.getAllFromGroup(options.databasePath, { id: groupId });
+        const groupInfo = await api.database.group.get(options.databasePath, accountId, { id: groupId });
+        const groupDocuments = await api.database.document.getAllFromGroup(options.databasePath, accountId, {
+            id: groupId
+        });
         if (groupInfo) {
-            const accountInfo = await api.database.account.get(options.databasePath, { id: groupInfo.owner });
+            const accountInfo = await api.database.account.get(options.databasePath, accountId, {
+                id: groupInfo.owner
+            });
             const header = viewRendering.getHeaderDefaults(options, { sockets: true });
             header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });
             res.render("group", {
@@ -71,10 +87,20 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     // View account
     app.get("/account/:id", async (req, res, next) => {
-        const accountId = Number(req.params.id);
-        const accountInfo = await api.database.account.get(options.databasePath, { id: accountId });
-        const accountDocuments = await api.database.document.getAllFromAuthor(options.databasePath, { id: accountId });
-        const accountGroups = await api.database.group.getAllFromAuthor(options.databasePath, { id: accountId });
+        let accountId = 1;
+        if (expressSession.isAuthenticated(req)) {
+            accountId =  expressSession.getSessionInfo(req).accountId;
+        }
+        const pageAccountId = Number(req.params.id);
+        const accountInfo = await api.database.account.get(options.databasePath, accountId, {
+            id: pageAccountId
+        });
+        const accountDocuments = await api.database.document.getAllFromAuthor(options.databasePath, accountId, {
+            id: pageAccountId
+        });
+        const accountGroups = await api.database.group.getAllFromAuthor(options.databasePath, accountId, {
+            id: pageAccountId
+        });
         if (accountInfo) {
             const header = viewRendering.getHeaderDefaults(options, { sockets: true });
             header.title = `${accountInfo.name}`;
@@ -84,7 +110,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 header
             });
         } else {
-            next(createHttpError(404, `Account with the ID '${accountId}' was not found`));
+            next(createHttpError(404, `Account with the ID '${pageAccountId}' was not found`));
         }
     });
 };

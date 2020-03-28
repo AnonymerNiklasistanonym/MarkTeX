@@ -59,9 +59,10 @@ export interface GetDbOut {
  * Get group.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the group.
  * @param input Group get info.
  */
-export const get = async (databasePath: string, input: GetInput): Promise<(GetOutput|void)> => {
+export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
     const runResult = await database.requests.getEachRequest(
         databasePath,
         database.queries.select("document_group", [ "name", "owner" ], {
@@ -82,9 +83,12 @@ export const get = async (databasePath: string, input: GetInput): Promise<(GetOu
  * Get all documents from one author.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the group.
  * @param input Document get info.
  */
-export const getAllFromAuthor = async (databasePath: string, input: GetInput): Promise<(GetOutput[]|void)> => {
+export const getAllFromAuthor = async (
+    databasePath: string, accountId: number, input: GetInput
+): Promise<(GetOutput[]|void)> => {
     const runResults = await database.requests.getAllRequest(
         databasePath,
         database.queries.select("document_group", [ "name", "owner" ], {

@@ -174,7 +174,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 const successful = await api.database.document.update(options.databasePath, sessionInfo.accountId,
                     request
                 );
-                const documentInfo = await api.database.document.get(options.databasePath, { id: request.id });
+                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId, {
+                    id: request.id
+                });
                 if (successful && documentInfo) {
                     const response: types.UpdateResponse = {
                         authors: documentInfo.authors,
@@ -214,6 +216,86 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 if (successful) {
                     const response: types.RemoveResponse = {
                         id: request.id
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({
+                    error: Error("Internal error, no document id was returned")
+                });
+            } catch (error) {
+                return res.status(500).json({ error });
+            }
+        });
+    app.post("/api/document/export/pdf",
+        expressSession.checkAuthenticationJson,
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
+            await validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidationApiVersion,
+                id: getSchemaValidationExistingDocumentId({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        async (req, res) => {
+            debug("Export document [pdf]");
+            const sessionInfo = expressSession.getSessionInfo(req);
+            const request = req.body as types.ExportPdfRequestApi;
+            try {
+                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                    { ... request, getContent: true }
+                );
+                if (documentInfo) {
+                    const pdfData = await api.pandoc.document2Pdf({
+                        authors: documentInfo.authors,
+                        content: documentInfo.content,
+                        date: documentInfo.date,
+                        title: documentInfo.title
+                    });
+                    const response: types.ExportPdfResponse = {
+                        id: request.id,
+                        pdfData: pdfData.pdfData
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({
+                    error: Error("Internal error, no document id was returned")
+                });
+            } catch (error) {
+                return res.status(500).json({ error });
+            }
+        });
+    app.post("/api/document/export/zip",
+        expressSession.checkAuthenticationJson,
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressSession.SessionInfo;
+            await validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidationApiVersion,
+                id: getSchemaValidationExistingDocumentId({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        async (req, res) => {
+            debug("Export document [zip]");
+            const sessionInfo = expressSession.getSessionInfo(req);
+            const request = req.body as types.ExportZipRequestApi;
+            try {
+                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                    { ... request, getContent: true }
+                );
+                if (documentInfo) {
+                    const zipData = await api.pandoc.document2Zip({
+                        authors: documentInfo.authors,
+                        content: documentInfo.content,
+                        date: documentInfo.date,
+                        title: documentInfo.title
+                    });
+                    const response: types.ExportZipResponse = {
+                        id: request.id,
+                        zipData: zipData.zipData
                     };
                     return res.status(200).json(response);
                 }

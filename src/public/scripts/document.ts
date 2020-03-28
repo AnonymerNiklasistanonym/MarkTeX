@@ -1,5 +1,6 @@
 import "./webpackVars";
 import * as apiRequests from "./apiRequests";
+import * as download from "./download";
 import * as marktexDocumentEditor from "./marktex_document_editor";
 import * as notifications from "./notifications";
 
@@ -36,12 +37,16 @@ window.onload = (): void => {
 
     // Add button functionalities
     const buttonExportPdf = document.getElementById("document-button-export-pdf") as HTMLButtonElement;
-    buttonExportPdf.addEventListener("click", (): void => {
-        apiRequests.document.getPdf({ id: documentId });
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    buttonExportPdf.addEventListener("click", async () => {
+        const response = await apiRequests.document.getPdf({ id: documentId });
+        download.saveAsBinary(response.pdfData, "application/pdf", `document_${response.id}.pdf`);
     });
     const buttonExportZip = document.getElementById("document-button-export-zip") as HTMLButtonElement;
-    buttonExportZip.addEventListener("click", (): void => {
-        apiRequests.document.getZip({ id: documentId });
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    buttonExportZip.addEventListener("click", async () => {
+        const response = await apiRequests.document.getZip({ id: documentId });
+        download.saveAsBinary(response.zipData, " application/zip", `document_${response.id}.zip`);
     });
     const buttonExportJson = document.getElementById("document-button-export-json") as HTMLButtonElement;
     buttonExportJson.addEventListener("click", (): void => {
