@@ -41,6 +41,6 @@ export const md = new MarkdownIt({
     quotes: "„“‚‘"
 })
     .use(imagePandocPlugin.register)
-    .use(emphasizePlugin.register)
+    // .use(emphasizePlugin.register)
     .use(latexPlugin.register)
     .use(katexPlugin.register, katexPluginOptions);

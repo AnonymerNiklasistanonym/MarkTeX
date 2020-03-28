@@ -1,6 +1,7 @@
 import "./webpackVars";
 import * as apiRequests from "./apiRequests";
 import * as marktexDocumentEditor from "./marktex_document_editor";
+import * as notifications from "./notifications";
 
 
 window.onload = (): void => {
@@ -73,9 +74,11 @@ window.onload = (): void => {
                 date: jsonData.date,
                 title: jsonData.title
             });
-            // TODO Display message
-            // eslint-disable-next-line no-console
-            console.log("Created new document:", response);
+            await notifications.show({
+                body: `New document was created ${response.title} by ${response.authors} from ${response.date}`,
+                onClick: () => { window.open(`/document/${response.id}`); },
+                title: `Document was imported: ${response.title}`
+            });
         } catch (e) {
             // eslint-disable-next-line no-console
             console.error(e);
