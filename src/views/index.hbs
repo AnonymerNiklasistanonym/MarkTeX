@@ -5,6 +5,7 @@
 <ul>
 	<li><a class="button" href="/logout">Log out</a></li>
 	<li><a class="button" id="document-button-add">Create document</a></li>
+	<li><a class="button" id="account-button-remove">Delete account</a></li>
 </ul>
 
 <br>
@@ -26,6 +27,37 @@
 	<li><a class="button" href="/group/{{this.id}}">{{this.name}}</a></li>
 	{{/each}}
 </ul>
+
+<br>
+
+<p>Edit account:</p>
+<br>
+
+{{!-- Account update form section --}}
+<section id="section-account-form">
+	{{!-- Account update form --}}
+	<form id="form-account" action="/api/account/update" method="post">
+		{{!-- Account name --}}
+		<input type="text" name="name" placeholder="Account name..."
+			pattern="{{input.accountName.pattern}}"
+			maxlength="{{input.accountName.maxLength}}"
+			title="{{input.accountName.errorMessage}}"
+			autocomplete="autocomplete-login"
+		required>
+		{{!-- Password --}}
+		<input type="password" name="password" placeholder="Account password..."
+			pattern="{{input.accountPassword.pattern}}"
+			minLength="{{input.accountPassword.minLength}}"
+			title="{{input.accountPassword.errorMessage}}"
+			autocomplete="current-password"
+		required>
+		{{!-- Hidden value of api version --}}
+		<input type="number" name="apiVersion" value="1" hidden>
+		<input id="form-account-id" type="number" name="id" value="{{input.accountId}}" hidden>
+		{{!-- Invisible submit input to allow submission on enter in any of the previous text input fields --}}
+		<input type="submit" value="Update account">
+	</form>
+</section>
 
 {{else}}
 

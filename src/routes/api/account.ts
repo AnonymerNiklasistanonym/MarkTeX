@@ -144,6 +144,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     const response: types.RemoveResponse = {
                         id: request.id
                     };
+                    // When the removed account is the current account remove authentication
+                    if (sessionInfo.accountId === request.id) {
+                        expressMiddlewareSession.removeAuthentication(req);
+                    }
                     return res.status(200).json(response);
                 }
                 return res.status(500).json({ error: Error("Internal error, account removal was not removed") });
@@ -155,7 +159,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
             await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
+                apiVersion: schemaValidations.getApiVersionSupported({ couldBeString: true }),
                 id: schemaValidations.getAccountIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath

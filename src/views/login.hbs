@@ -1,19 +1,23 @@
 {{!--
 Login page template
 --------------------------------------------------------------------------------
-Login page where the user can log himself in to get to the main page.
-Server: When already logged in redirect the user to the main page.
-JavaScript: Through `login.js` the user can also register himself.
---------------------------------------------------------------------------------
-Requires:
-- login.css
-- login.js
---------------------------------------------------------------------------------
-Parameters:
-- accountInput: { pattern: regex-string, maxLength: number, errorMessage:string }
-- passwordInput: { pattern: regex-string, minLength: number, errorMessage:string }
-- messages: { exists: boolean, texts?: string[] }
+{
+	input: {
+		accountName: {
+			pattern: string,
+			maxLength: number,
+			errorMessage: string
+		},
+		accountPassword: {
+			pattern: string,
+			minLength: number,
+			errorMessage: string
+		}
+	}
+	messages: { exist?: boolean, texts?: string[] }
+}
 --}}
+
 
 <div class="container-login">
 	<div class="container-login-message">

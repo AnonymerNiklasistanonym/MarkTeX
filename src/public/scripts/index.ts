@@ -44,4 +44,32 @@ window.addEventListener("load", (): void => {
         });
     }
 
+    // If existing enable account delete button
+    const buttonDeleteAccount = document.getElementById("account-button-remove") as HTMLAnchorElement;
+    const formInputUpdateAccountId = document.getElementById("form-account-id") as HTMLInputElement;
+    if (buttonDeleteAccount && formInputUpdateAccountId) {
+        buttonDeleteAccount.addEventListener("click", async () => {
+            try {
+                const response = await apiRequests.account.remove({
+                    id: formInputUpdateAccountId.valueAsNumber
+                });
+                if (response) {
+                    // Redirect user to home page
+                    window.location.href = `/document/${response.id}`;
+                } else {
+                    await notifications.show({
+                        body: "The response was not OK",
+                        title: "Error: Something went wrong when deleting the account"
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                await notifications.show({
+                    body: (err as Error).message,
+                    title: "Error: Something went wrong when deleting the account"
+                });
+            }
+        });
+    }
+
 });

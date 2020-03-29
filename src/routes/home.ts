@@ -5,6 +5,10 @@ import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
+// TODO Externalize later to do the same checks on the server side
+const regexAccountName = /^\w{4,16}$/;
+const regexAccountPassword = /^.{6,}/;
+
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
     // Home page
@@ -16,6 +20,19 @@ export const register = (app: express.Application, options: StartExpressServerOp
         header.scripts.push({ path: `/scripts/main_bundle.js${options.production ? ".gz" : ""}` });
         res.render("index", {
             header,
+            input: {
+                accountId: expressSession.isAuthenticated(req) ? expressSession.getSessionInfo(req).accountId : 0,
+                accountName: {
+                    errorMessage: "The account name must be between 4 and 16 characters",
+                    maxLength: 16,
+                    pattern: regexAccountName.toString().slice(1, -1)
+                },
+                accountPassword: {
+                    errorMessage: "The password must be at least 6 characters long",
+                    minLength: 6,
+                    pattern: regexAccountPassword.toString().slice(1, -1)
+                }
+            },
             loggedIn: expressSession.isAuthenticated(req)
         });
     });
