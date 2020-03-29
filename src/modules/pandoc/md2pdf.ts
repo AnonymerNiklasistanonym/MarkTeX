@@ -60,12 +60,10 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     // TODO add options for author, date, title
     // TODO test images in all formats
     const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
-    debug("1");
     // Create working directory
     const workingDirTimeStamp = String(Date.now());
     const workingDirName = path.join(os.tmpdir(), workingDirTimeStamp);
     await fs.mkdir(workingDirName);
-    debug("2");
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
     const allSourceFiles: helper.fileSystem.ZipFileFilesFile[] = [];
@@ -97,13 +95,10 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             });
         }
     }
-    debug("3");
     const pandocArgs = (input.pandocOptions !== undefined && input.pandocOptions.pandocArgs !== undefined)
         ? input.pandocOptions.pandocArgs : {};
-    debug("4");
     pandocArgs.inputFiles = pandocSourceFiles;
     const pandocConfigContent = createPandocConfigFile(pandocArgs);
-    debug("5");
     const pandocConfigName = "pandoc.yml";
     const pandocConfigPath = path.join(workingDirName, pandocConfigName);
     await fs.writeFile(pandocConfigPath, pandocConfigContent);

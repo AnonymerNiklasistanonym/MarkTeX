@@ -34,8 +34,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.CreateRequest;
             try {
-                const documentId = await api.database.document.create(options.databasePath, sessionInfo.accountId,
-                    request
+                const documentId = await api.database.document.create(
+                    options.databasePath, sessionInfo.accountId, request
                 );
                 if (documentId) {
                     const response: types.CreateResponse = {
@@ -46,7 +46,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+                throw Error("Internal error: No document id was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -72,8 +72,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.GetRequest;
             try {
-                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
-                    request
+                const documentInfo = await api.database.document.get(
+                    options.databasePath, sessionInfo.accountId, request
                 );
                 if (documentInfo) {
                     const response: types.GetResponse = {
@@ -86,7 +86,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, no document info was returned") });
+                throw Error("Internal error: No document info was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -115,12 +115,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.UpdateRequestApi;
             try {
-                const successful = await api.database.document.update(options.databasePath, sessionInfo.accountId,
-                    request
+                const successful = await api.database.document.update(
+                    options.databasePath, sessionInfo.accountId, request
                 );
-                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId, {
-                    id: request.id
-                });
+                const documentInfo = await api.database.document.get(
+                    options.databasePath, sessionInfo.accountId, { id: request.id }
+                );
                 if (successful && documentInfo) {
                     const response: types.UpdateResponse = {
                         authors: documentInfo.authors,
@@ -128,15 +128,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         id: request.id,
                         title: documentInfo.title
                     };
-                    debug(`Good response: ${JSON.stringify(response)}`);
                     return res.status(200).json(response);
                 }
-                debug(`Bad response (successful=${successful},documentInfo=${JSON.stringify(documentInfo)})`);
-                return res.status(500).json({ error: Error("Internal error, account was not updated") });
-            } catch (error) {
-                debug(`Very bad response: ${JSON.stringify(error)}`);
-                return res.status(500).json({ error });
-            }
+                throw Error("Internal error: Document update was not successful");
+            } catch (error) { return res.status(500).json({ error }); }
         });
 
     app.post("/api/document/remove",
@@ -159,8 +154,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.RemoveRequestApi;
             try {
-                const successful = await api.database.document.remove(options.databasePath, sessionInfo.accountId,
-                    request
+                const successful = await api.database.document.remove(
+                    options.databasePath, sessionInfo.accountId, request
                 );
                 if (successful) {
                     const response: types.RemoveResponse = {
@@ -168,7 +163,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, removal was not successful") });
+                throw Error("Internal error: Account removal was not successful");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -192,7 +187,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportPdfRequestApi;
             try {
-                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                const documentInfo = await api.database.document.get(
+                    options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
@@ -209,7 +205,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                throw Error("Internal error, no document id was returned");
+                throw Error("Internal error: No document info was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -233,7 +229,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportZipRequestApi;
             try {
-                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                const documentInfo = await api.database.document.get(
+                    options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
@@ -250,7 +247,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                throw Error("Internal error, no document id was returned");
+                throw Error("Internal error: No document info was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -274,7 +271,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportJsonRequestApi;
             try {
-                const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
+                const documentInfo = await api.database.document.get(
+                    options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
@@ -290,7 +288,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                throw Error("Internal error, no document id was returned");
+                throw Error("Internal error: No document info was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 };

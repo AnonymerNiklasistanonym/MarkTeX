@@ -1,6 +1,10 @@
 import * as expressValidator from "express-validator";
+import { PdfOptions, PdfOptionsPaperSize } from "../../modules/api/databaseManager/document";
 import api from "../../modules/api";
-import { PdfOptions } from "src/modules/api/databaseManager/document";
+import { debuglog } from "util";
+
+
+const debug = debuglog("app-express-route-api-schema-validation");
 
 export interface InputSchemaValidationExistingDocumentId {
     databasePath: string
@@ -70,8 +74,84 @@ export const getApiVersionSupported = (
 
 export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema => ({
     custom: {
-        options: (pdfOptions: any): boolean => {
-            // TODO
+        // eslint-disable-next-line complexity
+        options: (pdfOptions: PdfOptions): boolean => {
+            const supportedKeys = [
+                "footer", "header", "pageNumbers", "paperSize", "tableOfContents",
+                "useAuthors", "useDate", "useTitle"
+            ];
+            if (pdfOptions === undefined) {
+                return true;
+            }
+            if (typeof pdfOptions !== "object") {
+                throw Error(`Pdf options must be an object (is=${typeof pdfOptions})`);
+            }
+            for (const key of Object.keys(pdfOptions)) {
+                if (!supportedKeys.includes(key)) {
+                    throw Error(`The key '${key}' is not a supported pdf option`);
+                }
+            }
+            if (pdfOptions.useDate !== undefined && typeof pdfOptions.useDate !== "boolean") {
+                throw Error(`The key 'useDate' must be a boolean (is=${typeof pdfOptions.useDate})`);
+            }
+            if (pdfOptions.useAuthors !== undefined && typeof pdfOptions.useAuthors !== "boolean") {
+                throw Error(`The key 'useAuthors' must be a boolean (is=${typeof pdfOptions.useAuthors})`);
+            }
+            if (pdfOptions.useTitle !== undefined && typeof pdfOptions.useTitle !== "boolean") {
+                throw Error(`The key 'useDate' must be a boolean (is=${typeof pdfOptions.useTitle})`);
+            }
+            if (pdfOptions.pageNumbers !== undefined && typeof pdfOptions.pageNumbers !== "boolean") {
+                throw Error(`The key 'pageNumbers' must be a boolean (is=${typeof pdfOptions.pageNumbers})`);
+            }
+            if (pdfOptions.paperSize !== undefined && pdfOptions.paperSize !== PdfOptionsPaperSize.A4) {
+                throw Error(`The key 'paperSize' has an unsupported value (is=${pdfOptions.paperSize},supported=[${
+                    PdfOptionsPaperSize.A4}])`);
+            }
+            if (pdfOptions.paperSize !== undefined && pdfOptions.paperSize !== PdfOptionsPaperSize.A4) {
+                throw Error(`The key 'paperSize' has an unsupported value (is=${pdfOptions.paperSize},supported=[${
+                    PdfOptionsPaperSize.A4}])`);
+            }
+            if (pdfOptions.tableOfContents !== undefined && typeof pdfOptions.tableOfContents !== "object") {
+                throw Error(`The key 'tableOfContents' must be an object (is=${typeof pdfOptions.tableOfContents})`);
+            }
+            if (pdfOptions.footer !== undefined) {
+                if (typeof pdfOptions.footer !== "object") {
+                    throw Error(`The key 'footer' must be an object (is=${typeof pdfOptions.footer})`);
+                }
+                if (pdfOptions.footer.enabled !== undefined && typeof pdfOptions.footer.enabled !== "boolean") {
+                    throw Error(`The key 'footer.enabled' must be a boolean (is=${typeof pdfOptions.footer.enabled})`);
+                }
+                if (pdfOptions.footer.text !== undefined && typeof pdfOptions.footer.text !== "string") {
+                    throw Error(`The key 'footer.text' must be a text (is=${typeof pdfOptions.footer.text})`);
+                }
+            }
+            if (pdfOptions.header !== undefined) {
+                if (typeof pdfOptions.header !== "object") {
+                    throw Error(`The key 'header' must be an object (is=${typeof pdfOptions.header})`);
+                }
+                if (pdfOptions.header.enabled !== undefined && typeof pdfOptions.header.enabled !== "boolean") {
+                    throw Error(`The key 'header.enabled' must be a boolean (is=${typeof pdfOptions.header.enabled})`);
+                }
+                if (pdfOptions.header.text !== undefined && typeof pdfOptions.header.text !== "string") {
+                    throw Error(`The key 'header.text' must be a text (is=${typeof pdfOptions.header.text})`);
+                }
+            }
+            if (pdfOptions.tableOfContents !== undefined) {
+                if (typeof pdfOptions.tableOfContents !== "object") {
+                    throw Error(`The key 'tableOfContents' must be an object (is=${
+                        typeof pdfOptions.tableOfContents})`);
+                }
+                if (pdfOptions.tableOfContents.enabled !== undefined
+                    && typeof pdfOptions.tableOfContents.enabled !== "boolean") {
+                    throw Error(`The key 'tableOfContents.enabled' must be a boolean (is=${
+                        typeof pdfOptions.tableOfContents.enabled})`);
+                }
+                if (pdfOptions.tableOfContents.depth !== undefined
+                    && typeof pdfOptions.tableOfContents.depth !== "number") {
+                    throw Error(`The key 'tableOfContents.depth' must be a number (is=${
+                        typeof pdfOptions.tableOfContents.depth})`);
+                }
+            }
             return true;
         }
     },

@@ -88,10 +88,7 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
     if (input.inputFiles) {
         configObject["input-files"] = input.inputFiles;
     }
-    debug("1");
     if (input.variables) {
-        debug("2");
-        // eslint-disable-next-line complexity
         const reduceVariable = (variable: PandocConfigYmlInputVariable, parentObject: any = {}): any => {
             if (variable.value && variable.value.length > 0) {
                 if (variable.value.length === 1) {
@@ -105,13 +102,16 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
             }
             return parentObject;
         };
-        debug("3");
-        configObject.variables = input.variables.reduce((finalVariableObject: any, variable) =>
-            reduceVariable(variable, finalVariableObject), {});
+        try {
+            configObject.variables = input.variables.reduce((finalVariableObject: any, variable) =>
+                reduceVariable(variable, finalVariableObject), {});
+        } catch (e) {
+            throw Error(`Problem parsing variables for pandoc config file (input=${
+                JSON.stringify(input.variables)
+            },originalError=${JSON.stringify(e)})`);
+        }
     }
-    debug("4");
     if (input.metadata) {
-        debug("5");
         const metadataObject: any = {};
         if (input.metadata.authors) {
             metadataObject.author = input.metadata.authors;
@@ -124,7 +124,6 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
         }
         configObject.metadata = metadataObject;
     }
-    debug("6");
     if (input.pdfEngine) {
         configObject["pdf-engine"] = input.pdfEngine;
     }
@@ -150,6 +149,5 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
                 break;
         };
     }
-    debug(`configObject: ${configObject}`);
     return yaml.dump(configObject);
 };

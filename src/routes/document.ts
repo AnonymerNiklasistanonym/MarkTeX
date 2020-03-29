@@ -69,7 +69,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 type: "number",
                 value: documentInfo.pdfOptions.tableOfContents.depth
             }, {
-                attribute: documentInfo.pdfOptions.pageNumbers ? "checked" : undefined,
+                attribute: documentInfo.pdfOptions.pageNumbers === undefined || documentInfo.pdfOptions.pageNumbers
+                    ? "checked" : undefined,
                 label: "Page numbers",
                 labelAfter: true,
                 name: "page-numbers",
