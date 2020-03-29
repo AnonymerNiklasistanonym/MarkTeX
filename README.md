@@ -15,11 +15,13 @@ Basic backend and frontend is ready (debug logs, routing, database integration, 
 
 The current (next) features that are being developed are:
 
+- [ ] Add option to integrate additional document resources (like pdf, svg, png images)
 - [ ] Optimize client side markdown rendering and pandoc options to have output that looks the same (pandoc image size for markdown images)
 - [ ] Implement socket connection with authorization through express session
 - [ ] Actually use the account information to allow/block certain users from seeing "private" documents
 - [ ] Fix SQLite errors when for example the group page is called with a group that has no documents or the document page from a removed document (they currently just load forever)
 - [ ] Update styles to actually look good (like the error page)
+- [ ] Add custom LaTeX templates to give the user even more options like footer/header and custom styles when converting to PDF
 
 ## Requirements
 

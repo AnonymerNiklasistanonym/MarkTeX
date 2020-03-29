@@ -80,7 +80,6 @@ export const document2Pdf = async (input: Document2PdfInput): Promise<Document2P
             }
         }
     });
-    debug(`pandocOut: ${JSON.stringify(pandocOut)}`);
     return {
         pdfData: pandocOut.pdfFile
     };
