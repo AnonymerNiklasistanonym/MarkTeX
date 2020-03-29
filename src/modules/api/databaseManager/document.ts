@@ -23,6 +23,7 @@ export interface PdfOptionsTableOfContents {
 }
 
 export interface PdfOptions {
+    isPresentation?: boolean
     footer?: PdfOptionsFooter
     header?: PdfOptionsHeader
     pageNumbers?: boolean

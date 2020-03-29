@@ -100,6 +100,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 labelAfter: true,
                 name: "footer",
                 type: "checkbox"
+            }, {
+                attribute: documentInfo.pdfOptions.isPresentation ? "checked" : undefined,
+                label: "Is presentation",
+                labelAfter: true,
+                name: "is-presentation",
+                type: "checkbox"
             } ];
             const header = viewRendering.getHeaderDefaults(options, { marktexRenderer: true, sockets: true });
             header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });

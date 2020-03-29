@@ -78,7 +78,7 @@ export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema 
         options: (pdfOptions: PdfOptions): boolean => {
             const supportedKeys = [
                 "footer", "header", "pageNumbers", "paperSize", "tableOfContents",
-                "useAuthors", "useDate", "useTitle"
+                "useAuthors", "useDate", "useTitle", "isPresentation"
             ];
             if (pdfOptions === undefined) {
                 return true;
@@ -151,6 +151,9 @@ export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema 
                     throw Error(`The key 'tableOfContents.depth' must be a number (is=${
                         typeof pdfOptions.tableOfContents.depth})`);
                 }
+            }
+            if (pdfOptions.isPresentation !== undefined && typeof pdfOptions.isPresentation !== "boolean") {
+                throw Error(`The key 'isPresentation' must be a boolean (is=${typeof pdfOptions.isPresentation})`);
             }
             return true;
         }

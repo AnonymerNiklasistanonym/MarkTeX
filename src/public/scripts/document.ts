@@ -20,7 +20,9 @@ const getDocumentPdfOptions = (): api.document.types.PdfOptions => {
     ) as HTMLInputElement;
     const documentPdfOptionPageNumbers = document.getElementById(idPrefix + "page-numbers") as HTMLInputElement;
     const documentPdfOptionPageSizeA4 = document.getElementById(idPrefix + "a4-paper") as HTMLInputElement;
+    const documentPdfOptionIsPresentation = document.getElementById(idPrefix + "is-presentation") as HTMLInputElement;
     return {
+        isPresentation: documentPdfOptionIsPresentation.checked,
         pageNumbers: documentPdfOptionPageNumbers.checked,
         paperSize: documentPdfOptionPageSizeA4.checked ? PdfOptionsPaperSize.A4 : undefined,
         tableOfContents: {

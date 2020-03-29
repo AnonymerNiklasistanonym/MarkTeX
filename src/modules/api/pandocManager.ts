@@ -44,6 +44,9 @@ const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pan
                 value: [ { name: "a4paper" }, { name: "margin=2cm" } ]
             });
         }
+        if (input.pdfOptions.isPresentation) {
+            pandocArgs.to = "beamer";
+        }
     }
     pandocArgs.variables = pandocArgsVariables;
     pandocArgs.metadata = pandocArgsMetadata;

@@ -113,7 +113,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, no account info was returned") });
+                throw Error("Internal error: Account info was not returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -150,7 +150,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     }
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, account removal was not removed") });
+                throw Error("Internal error: Account removal was not successful");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -188,15 +188,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         id: request.id,
                         name: accountInfo.name
                     };
-                    debug(`Good response: ${JSON.stringify(response)}`);
                     return res.status(200).json(response);
                 }
-                debug(`Bad response (successful=${successful},accountInfo=${JSON.stringify(accountInfo)})`);
-                return res.status(500).json({ error: Error("Internal error, account was not updated") });
-            } catch (error) {
-                debug(`Very bad response: ${JSON.stringify(error)}`);
-                return res.status(500).json({ error });
-            }
+                throw Error("Internal error: Account update was not successful");
+            } catch (error) { return res.status(500).json({ error }); }
         });
 
 };
