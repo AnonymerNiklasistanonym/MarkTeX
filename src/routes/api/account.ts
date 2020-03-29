@@ -82,4 +82,112 @@ export const register = (app: express.Application, options: StartExpressServerOp
             }
         });
 
+    app.post("/api/account/get",
+        // Validate api input
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getAccountIdExists({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to login user
+        async (req, res) => {
+            debug(`Get: ${JSON.stringify(req.body)}`);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const request = req.body as types.GetRequestApi;
+            try {
+                const accountInfo = await api.database.account.get(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                if (accountInfo) {
+                    const response: types.GetResponse = {
+                        admin: accountInfo.admin,
+                        id: accountInfo.id,
+                        name: accountInfo.name
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({ error: Error("Internal error, no account info was returned") });
+            } catch (error) { return res.status(500).json({ error }); }
+        });
+
+    app.post("/api/account/remove",
+        // Validate api input
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getAccountIdExists({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                })
+            }))(req, res, next);
+        },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to login user
+        async (req, res) => {
+            debug(`Remove: ${JSON.stringify(req.body)}`);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const request = req.body as types.RemoveRequestApi;
+            try {
+                const successful = await api.database.account.remove(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                if (successful) {
+                    const response: types.RemoveResponse = {
+                        id: request.id
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({ error: Error("Internal error, account removal was not removed") });
+            } catch (error) { return res.status(500).json({ error }); }
+        });
+
+    app.post("/api/account/update",
+        // Validate api input
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getAccountIdExists({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                }),
+                name: { isString: true, optional: true },
+                password: { isString: true, optional: true }
+            }))(req, res, next);
+        },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to login user
+        async (req, res) => {
+            debug(`Update: ${JSON.stringify(req.body)}`);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const request = req.body as types.UpdateRequestApi;
+            try {
+                const successful = await api.database.account.update(options.databasePath, sessionInfo.accountId,
+                    request
+                );
+                const accountInfo = await api.database.account.get(options.databasePath, sessionInfo.accountId, {
+                    id: request.id
+                });
+                if (successful && accountInfo) {
+                    const response: types.UpdateResponse = {
+                        admin: accountInfo.admin,
+                        id: request.id,
+                        name: accountInfo.name
+                    };
+                    return res.status(200).json(response);
+                }
+                return res.status(500).json({ error: Error("Internal error, account was not updated") });
+            } catch (error) { return res.status(500).json({ error }); }
+        });
+
 };

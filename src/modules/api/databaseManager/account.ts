@@ -28,7 +28,7 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
 
 
 export interface RemoveInput {
-    name: string
+    id: number
 }
 
 /**
@@ -38,16 +38,20 @@ export interface RemoveInput {
  * @param accountId Unique id of account that created the document.
  * @param input Remove info.
  */
-export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<void> => {
-    await database.requests.postRequest(
+export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
+    const postResult = await database.requests.postRequest(
         databasePath,
-        database.queries.remove("account", "name"),
-        [input.name]
+        database.queries.remove("account", "id"),
+        [input.id]
     );
+    return postResult.changes > 0;
 };
 
-export interface ExistsInput {
+export interface ExistsNameInput {
     name: string
+}
+export interface ExistsInput {
+    id: number
 }
 export interface ExistsDbOut {
     // eslint-disable-next-line camelcase
@@ -62,11 +66,30 @@ export interface ExistsDbOut {
  * @param input Account exists info.
  * @returns True if account exists.
  */
-export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<boolean> => {
+export const existsName = async (
+    databasePath: string, accountId: number, input: ExistsNameInput
+): Promise<boolean> => {
     const runResult = await database.requests.getEachRequest(
         databasePath,
         database.queries.exists("account", "name"),
         [input.name]
+    ) as ExistsDbOut;
+    return runResult.exists_value === 1;
+};
+
+/**
+ * Check if account exists.
+ *
+ * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
+ * @param input Account exists info.
+ * @returns True if account exists.
+ */
+export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<boolean> => {
+    const runResult = await database.requests.getEachRequest(
+        databasePath,
+        database.queries.exists("account", "id"),
+        [input.id]
     ) as ExistsDbOut;
     return runResult.exists_value === 1;
 };
@@ -117,7 +140,7 @@ export interface GetInput {
 export interface GetOutput {
     id: number
     name: string
-    isAdmin: boolean
+    admin: boolean
 }
 export interface GetDbOut {
     name: string
@@ -141,9 +164,48 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
     ) as GetDbOut;
     if (runResult) {
         return {
+            admin: runResult.admin === 1,
             id: input.id,
-            isAdmin: runResult.admin === 1,
             name: runResult.name
         };
     }
+};
+
+export interface UpdateInput {
+    id: number
+    name?: string
+    password?: string
+    admin?: boolean
+}
+
+/**
+ * Update account.
+ *
+ * @param databasePath Path to database.
+ * @param accountId Unique id of account that created the document.
+ * @param input Account get info.
+ */
+export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(boolean|void)> => {
+    const columns = [];
+    const values = [];
+    if (input.admin) {
+        columns.push("admin");
+        values.push(input.admin ? 1 : 0);
+    }
+    if (input.password) {
+        const hashAndSalt = crypto.generateHashAndSalt(input.password);
+        columns.push("password_hash", "password_salt");
+        values.push(hashAndSalt.hash, hashAndSalt.salt);
+    }
+    if (input.name) {
+        columns.push("name");
+        values.push(input.name);
+    }
+    values.push(input.id);
+    const postResult = await database.requests.postRequest(
+        databasePath,
+        database.queries.update("account", columns, "id"),
+        values
+    );
+    return postResult.changes > 0;
 };

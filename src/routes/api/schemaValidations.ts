@@ -21,6 +21,26 @@ export const getDocumentIdExists = (
     };
 };
 
+export interface InputSchemaValidationExistingAccountId {
+    databasePath: string
+    accountId: number
+}
+
+export const getAccountIdExists = (
+    input: InputSchemaValidationExistingAccountId
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (id: number): Promise<boolean> => {
+                const accountExists = await api.database.account.exists(input.databasePath, input.accountId, { id });
+                return accountExists !== undefined ? accountExists : false;
+            }
+        },
+        errorMessage: "Must be an existing account id",
+        isInt: true
+    };
+};
+
 export interface GetApiVersionSupportedOptions {
     couldBeString?: boolean
     supportedApiVersions?: number[]
