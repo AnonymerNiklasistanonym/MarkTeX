@@ -1,5 +1,6 @@
 import * as expressValidator from "express-validator";
 import api from "../../modules/api";
+import { PdfOptions } from "src/modules/api/databaseManager/document";
 
 export interface InputSchemaValidationExistingDocumentId {
     databasePath: string
@@ -65,4 +66,14 @@ export const getApiVersionSupported = (
         }
     },
     isInt: options.couldBeString ? undefined : true
+});
+
+export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema => ({
+    custom: {
+        options: (pdfOptions: any): boolean => {
+            // TODO
+            return true;
+        }
+    },
+    optional: true
 });

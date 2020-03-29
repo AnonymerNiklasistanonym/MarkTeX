@@ -1,4 +1,8 @@
 import * as yaml from "js-yaml";
+import { debuglog } from "util";
+
+
+const debug = debuglog("app-pandoc-config-yml");
 
 // TODO Add the other options too: https://pandoc.org/MANUAL.html#default-files
 
@@ -70,6 +74,7 @@ export const createPandocConfigFileVersion = "1.0.0";
 
 // eslint-disable-next-line complexity
 export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
+    debug(`createPandocConfigFile ${JSON.stringify(input)}`);
     const configObject: any = {};
     if (input.from) {
         configObject.from = input.from;
@@ -83,7 +88,9 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
     if (input.inputFiles) {
         configObject["input-files"] = input.inputFiles;
     }
+    debug("1");
     if (input.variables) {
+        debug("2");
         // eslint-disable-next-line complexity
         const reduceVariable = (variable: PandocConfigYmlInputVariable, parentObject: any = {}): any => {
             if (variable.value && variable.value.length > 0) {
@@ -98,10 +105,13 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
             }
             return parentObject;
         };
+        debug("3");
         configObject.variables = input.variables.reduce((finalVariableObject: any, variable) =>
             reduceVariable(variable, finalVariableObject), {});
     }
+    debug("4");
     if (input.metadata) {
+        debug("5");
         const metadataObject: any = {};
         if (input.metadata.authors) {
             metadataObject.author = input.metadata.authors;
@@ -114,6 +124,7 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
         }
         configObject.metadata = metadataObject;
     }
+    debug("6");
     if (input.pdfEngine) {
         configObject["pdf-engine"] = input.pdfEngine;
     }
@@ -139,5 +150,6 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
                 break;
         };
     }
+    debug(`configObject: ${configObject}`);
     return yaml.dump(configObject);
 };

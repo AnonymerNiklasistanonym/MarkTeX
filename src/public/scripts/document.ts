@@ -1,9 +1,37 @@
 import "./webpackVars";
+import type * as api from "../../routes/api";
 import * as apiRequests from "./apiRequests";
 import * as download from "./download";
 import * as marktexDocumentEditor from "./marktex_document_editor";
 import * as notifications from "./notifications";
+import { PdfOptionsPaperSize } from "../../routes/api/documentTypes";
 
+
+const getDocumentPdfOptions = (): api.document.types.PdfOptions => {
+    const idPrefix = "input-pdf-options-";
+    const documentPdfOptionUseTitle = document.getElementById(idPrefix + "use-title") as HTMLInputElement;
+    const documentPdfOptionUseAuthors = document.getElementById(idPrefix + "use-authors") as HTMLInputElement;
+    const documentPdfOptionUseDate = document.getElementById(idPrefix + "use-date") as HTMLInputElement;
+    const documentPdfOptionTableOfContents = document.getElementById(
+        idPrefix + "table-of-contents"
+    ) as HTMLInputElement;
+    const documentPdfOptionTableOfContentsDepth = document.getElementById(
+        idPrefix + "table-of-contents-depth"
+    ) as HTMLInputElement;
+    const documentPdfOptionPageNumbers = document.getElementById(idPrefix + "page-numbers") as HTMLInputElement;
+    const documentPdfOptionPageSizeA4 = document.getElementById(idPrefix + "a4-paper") as HTMLInputElement;
+    return {
+        pageNumbers: documentPdfOptionPageNumbers.checked,
+        paperSize: documentPdfOptionPageSizeA4.checked ? PdfOptionsPaperSize.A4 : undefined,
+        tableOfContents: {
+            depth: Number(documentPdfOptionTableOfContentsDepth.value),
+            enabled: documentPdfOptionTableOfContents.checked
+        },
+        useAuthors: documentPdfOptionUseAuthors.checked,
+        useDate: documentPdfOptionUseDate.checked,
+        useTitle: documentPdfOptionUseTitle.checked
+    };
+};
 
 window.onload = (): void => {
 
@@ -104,6 +132,7 @@ window.onload = (): void => {
             content: liveInput.value,
             date: documentInfoDate.value,
             id: documentId,
+            pdfOptions: getDocumentPdfOptions(),
             title: documentInfoTitle.value
         });
         await notifications.show({

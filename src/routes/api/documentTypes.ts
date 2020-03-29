@@ -1,10 +1,38 @@
 import * as types from "./apiTypes";
 
+export interface PdfOptionsFooter {
+    enabled?: string
+    text?: string
+}
+export interface PdfOptionsHeader {
+    enabled?: string
+    text?: string
+}
+export enum PdfOptionsPaperSize {
+    A4 = "A4"
+}
+export interface PdfOptionsTableOfContents {
+    depth?: number
+    enabled?: boolean
+}
+
+export interface PdfOptions {
+    footer?: PdfOptionsFooter
+    header?: PdfOptionsHeader
+    pageNumbers?: boolean
+    paperSize?: PdfOptionsPaperSize
+    tableOfContents?: PdfOptionsTableOfContents
+    useAuthors?: boolean
+    useDate?: boolean
+    useTitle?: boolean
+}
+
 export interface CreateRequest {
     title: string
     authors?: string
     date?: string
     content: string
+    pdfOptions?: PdfOptions
 }
 
 export interface CreateRequestApi extends CreateRequest, types.ApiRequest {}
@@ -22,6 +50,7 @@ export interface UpdateRequest {
     authors?: string
     date?: string
     content?: string
+    pdfOptions?: PdfOptions
 }
 
 export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
@@ -74,9 +103,10 @@ export interface ExportJsonRequestApi extends ExportJsonRequest, types.ApiReques
 // TODO Reuse interface for import
 export interface ExportJsonResponseJsonData {
     title: string
-    authors: string
-    date: string
-    content: string
+    authors?: string
+    date?: string
+    content?: string
+    pdfOptions?: PdfOptions
 }
 
 export interface ExportJsonResponse {
@@ -87,6 +117,7 @@ export interface ExportJsonResponse {
 export interface GetRequest {
     id: number
     getContent?: boolean
+    getPdfOptions?: boolean
 }
 
 export interface GetRequestApi extends GetRequest, types.ApiRequest {}
@@ -94,7 +125,8 @@ export interface GetRequestApi extends GetRequest, types.ApiRequest {}
 export interface GetResponse {
     id: number
     title: string
-    authors: string
-    date: string
+    authors?: string
+    date?: string
     content?: string
+    pdfOptions?: PdfOptions
 }

@@ -1,6 +1,7 @@
 import { HbsHeader } from "./header";
 import { StartExpressServerOptions } from "../config/express";
-export * from "./header";
+export * as header from "./header";
+export * as pdfOptions from "./pdfOptions";
 
 export interface TemplateOptions {
     error?: boolean

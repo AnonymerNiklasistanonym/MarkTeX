@@ -1,8 +1,36 @@
 import * as database from "../../database";
 
+
 export interface CreateInputResource {
     relativePath: string
     content: string | Buffer
+}
+
+export interface PdfOptionsFooter {
+    enabled?: string
+    text?: string
+}
+export interface PdfOptionsHeader {
+    enabled?: string
+    text?: string
+}
+export enum PdfOptionsPaperSize {
+    A4 = "A4"
+}
+export interface PdfOptionsTableOfContents {
+    depth?: number
+    enabled?: boolean
+}
+
+export interface PdfOptions {
+    footer?: PdfOptionsFooter
+    header?: PdfOptionsHeader
+    pageNumbers?: boolean
+    paperSize?: PdfOptionsPaperSize
+    tableOfContents?: PdfOptionsTableOfContents
+    useAuthors?: boolean
+    useDate?: boolean
+    useTitle?: boolean
 }
 
 export interface CreateInput {
@@ -10,6 +38,7 @@ export interface CreateInput {
     content: string
     authors?: string
     date?: string
+    pdfOptions?: PdfOptions
     resources?: CreateInputResource[]
 }
 
@@ -33,7 +62,12 @@ export const create = async (databasePath: string, accountId: number, input: Cre
         values.push(input.date);
     }
     if (input.resources) {
-        // TODO
+        // TODO Implement
+    }
+    if (input.pdfOptions) {
+        // TODO Do better (SQL style with custom columns/tables, sanitize input)
+        columns.push("pdf_options");
+        values.push(JSON.stringify(input.pdfOptions));
     }
     const postResult = await database.requests.postRequest(
         databasePath,
@@ -49,6 +83,7 @@ export interface UpdateInput {
     content?: string
     authors?: string
     date?: string
+    pdfOptions?: PdfOptions
     resources?: CreateInputResource[]
 }
 
@@ -82,6 +117,11 @@ export const update = async (databasePath: string, accountId: number, input: Upd
     }
     if (input.resources) {
         // TODO
+    }
+    if (input.pdfOptions) {
+        // TODO Do better (SQL style with custom columns/tables, sanitize input)
+        columns.push("pdf_options");
+        values.push(JSON.stringify(input.pdfOptions));
     }
     values.push(input.id);
     const postResult = await database.requests.postRequest(
@@ -143,15 +183,17 @@ export const exists = async (databasePath: string, accountId: number, input: Exi
 export interface GetInput {
     id: number
     getContent?: boolean
+    getPdfOptions?: boolean
 }
 export interface GetOutput {
     id: number
     title: string
-    authors: string
-    date: string
+    authors?: string
+    date?: string
     owner: number
-    group: number
+    group?: number
     content: string
+    pdfOptions?: PdfOptions
 }
 export interface GetDbOut {
     title: string
@@ -161,6 +203,8 @@ export interface GetDbOut {
     // eslint-disable-next-line camelcase
     document_group: number
     content: string
+    // eslint-disable-next-line camelcase
+    pdf_options: string
 }
 
 /**
@@ -175,6 +219,9 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
     if (input.getContent) {
         columns.push("content");
     }
+    if (input.getPdfOptions) {
+        columns.push("pdf_options");
+    }
     const runResult = await database.requests.getEachRequest(
         databasePath,
         database.queries.select("document", columns, {
@@ -183,13 +230,18 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
         [input.id]
     ) as GetDbOut;
     if (runResult) {
+        let pdfOptions;
+        if (runResult.pdf_options && runResult.pdf_options !== null) {
+            pdfOptions = JSON.parse(runResult.pdf_options);
+        }
         return {
-            authors: runResult.authors,
+            authors: runResult.authors !== null ? runResult.authors : undefined,
             content: runResult.content,
-            date: runResult.date,
-            group: runResult.document_group,
+            date: runResult.date !== null ? runResult.date : undefined,
+            group: runResult.document_group !== null ? runResult.document_group : undefined,
             id: input.id,
             owner: runResult.owner,
+            pdfOptions,
             title: runResult.title
         };
     }
@@ -202,10 +254,10 @@ export interface GetAllInput {
 export interface GetAllOutput {
     id: number
     title: string
-    authors: string
-    date: string
+    authors?: string
+    date?: string
     owner: number
-    group: number
+    group?: number
     content?: string
 }
 export interface GetAllDbOut {
@@ -241,10 +293,10 @@ export const getAllFromAuthor = async (
     ) as GetAllDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
-            authors: runResult.authors,
+            authors: runResult.authors !== null ? runResult.authors : undefined,
             content: runResult.content,
-            date: runResult.date,
-            group: runResult.document_group,
+            date: runResult.date !== null ? runResult.date : undefined,
+            group: runResult.document_group !== null ? runResult.document_group : undefined,
             id: input.id,
             owner: runResult.owner,
             title: runResult.title

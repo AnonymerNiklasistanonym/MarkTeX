@@ -29,8 +29,23 @@
 	<button id="document-button-remove">Delete document</button>
 </div>
 
-<p>Editor:</p>
+<section id="section-pdf-options">
+	<p>PDF options:</p>
+	<form>
+		{{#each document.pdfOptions}}
+		{{#if this.labelBefore}}
+		<label for="pdf-options-{{this.name}}">{{this.label}}</label><br>
+		{{/if}}
+		<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
+		{{#if this.labelAfter}}
+		<label for="pdf-options-{{this.name}}">{{this.label}}</label>
+		{{/if}}
+		<br>
+		{{/each}}
+	</form>
+</section>
 
+<p>Editor:</p>
 
 {{> marktex_document_editor_buttons idBoth="marktex-button-both" idEdit="marktex-button-edit" idView="marktex-button-view"}}
 {{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output" modusViewOnly=true input=document.content}}

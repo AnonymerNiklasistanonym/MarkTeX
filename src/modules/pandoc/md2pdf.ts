@@ -55,14 +55,17 @@ export interface PandocMd2Pdf {
 
 // eslint-disable-next-line complexity
 export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> => {
+    debug(`md2Pdf: ${JSON.stringify(input)}`);
     // TODO beamer example
     // TODO add options for author, date, title
     // TODO test images in all formats
     const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
+    debug("1");
     // Create working directory
     const workingDirTimeStamp = String(Date.now());
     const workingDirName = path.join(os.tmpdir(), workingDirTimeStamp);
     await fs.mkdir(workingDirName);
+    debug("2");
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
     const allSourceFiles: helper.fileSystem.ZipFileFilesFile[] = [];
@@ -94,10 +97,13 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             });
         }
     }
+    debug("3");
     const pandocArgs = (input.pandocOptions !== undefined && input.pandocOptions.pandocArgs !== undefined)
         ? input.pandocOptions.pandocArgs : {};
+    debug("4");
     pandocArgs.inputFiles = pandocSourceFiles;
     const pandocConfigContent = createPandocConfigFile(pandocArgs);
+    debug("5");
     const pandocConfigName = "pandoc.yml";
     const pandocConfigPath = path.join(workingDirName, pandocConfigName);
     await fs.writeFile(pandocConfigPath, pandocConfigContent);
@@ -195,6 +201,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     });
     return new Promise((resolve, reject) => {
         child.on("close", (code) => {
+            debug(`Child process exited with ${code}`);
             const stderr = bufferStderr.toString();
             if (code !== 0) {
                 helper.fileSystem.rmDirRecursive(workingDirName);

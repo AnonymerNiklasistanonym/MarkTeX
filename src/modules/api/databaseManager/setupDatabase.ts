@@ -75,6 +75,9 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.TEXT
         }, {
+            name: "pdf_options",
+            type: database.queries.CreateTableColumnType.TEXT
+        }, {
             foreign: {
                 column: "id",
                 options: ["ON DELETE CASCADE ON UPDATE NO ACTION"],

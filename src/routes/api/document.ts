@@ -23,6 +23,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             authors: { isString: true, optional: true },
             content: { isString: true },
             date: { isString: true, optional: true },
+            pdfOptions: schemaValidations.getDocumentPdfOptions(),
             title: { isString: true }
         })),
         // Check if session is authenticated
@@ -56,6 +57,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 getContent: { isBoolean: true, optional: true },
+                getPdfOptions: { isBoolean: true, optional: true },
                 id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
@@ -79,6 +81,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         content: documentInfo.content,
                         date: documentInfo.date,
                         id: request.id,
+                        pdfOptions: documentInfo.pdfOptions,
                         title: documentInfo.title
                     };
                     return res.status(200).json(response);
@@ -100,6 +103,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 }),
+                pdfOptions: schemaValidations.getDocumentPdfOptions(),
                 title: { isString: true, optional: true }
             }))(req, res, next);
         },
@@ -124,10 +128,15 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         id: request.id,
                         title: documentInfo.title
                     };
+                    debug(`Good response: ${JSON.stringify(response)}`);
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, update was not successful") });
-            } catch (error) { return res.status(500).json({ error }); }
+                debug(`Bad response (successful=${successful},documentInfo=${JSON.stringify(documentInfo)})`);
+                return res.status(500).json({ error: Error("Internal error, account was not updated") });
+            } catch (error) {
+                debug(`Very bad response: ${JSON.stringify(error)}`);
+                return res.status(500).json({ error });
+            }
         });
 
     app.post("/api/document/remove",
@@ -184,13 +193,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const request = req.body as types.ExportPdfRequestApi;
             try {
                 const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
-                    { ... request, getContent: true }
+                    { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
                     const pdfData = await api.pandoc.document2Pdf({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
                         date: documentInfo.date,
+                        pdfOptions: documentInfo.pdfOptions,
                         title: documentInfo.title
                     });
                     const response: types.ExportPdfResponse = {
@@ -199,7 +209,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+                throw Error("Internal error, no document id was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -224,13 +234,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const request = req.body as types.ExportZipRequestApi;
             try {
                 const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
-                    { ... request, getContent: true }
+                    { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
                     const zipData = await api.pandoc.document2Zip({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
                         date: documentInfo.date,
+                        pdfOptions: documentInfo.pdfOptions,
                         title: documentInfo.title
                     });
                     const response: types.ExportZipResponse = {
@@ -239,7 +250,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+                throw Error("Internal error, no document id was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -264,7 +275,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const request = req.body as types.ExportJsonRequestApi;
             try {
                 const documentInfo = await api.database.document.get(options.databasePath, sessionInfo.accountId,
-                    { ... request, getContent: true }
+                    { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
                     const response: types.ExportJsonResponse = {
@@ -273,12 +284,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
                             authors: documentInfo.authors,
                             content: documentInfo.content,
                             date: documentInfo.date,
+                            pdfOptions: documentInfo.pdfOptions,
                             title: documentInfo.title
                         }
                     };
                     return res.status(200).json(response);
                 }
-                return res.status(500).json({ error: Error("Internal error, no document id was returned") });
+                throw Error("Internal error, no document id was returned");
             } catch (error) { return res.status(500).json({ error }); }
         });
 };

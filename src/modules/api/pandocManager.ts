@@ -1,22 +1,61 @@
 import * as pandoc from "../pandoc";
+import { PdfOptions, PdfOptionsPaperSize } from "./databaseManager/document";
+import { debuglog } from "util";
 
-const pandocOptions: pandoc.PandocMd2PdfInputPandocOptions = {
-    pandocArgs: {
-        pdfEngine: "xelatex",
-        toc: false,
-        tocDepth: 3,
-        variables: [{
-            name: "geometry",
-            value: [ { name: "a4paper" }, { name: "margin=2cm" } ]
-        }]
+
+const debug = debuglog("app-api-pandoc-manager");
+
+
+// eslint-disable-next-line complexity
+const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pandoc.PandocConfigYmlInput => {
+    const pandocArgs: pandoc.PandocConfigYmlInput = {};
+    const pandocArgsMetadata: pandoc.PandocConfigYmlInputMetadata = {};
+    const pandocArgsVariables: pandoc.PandocConfigYmlInputVariable[] = [];
+    if (input.pdfOptions) {
+        if (input.pdfOptions.useAuthors) {
+            pandocArgsMetadata.authors = input.authors ? [input.authors] : [];
+        }
+        if (input.pdfOptions.useDate) {
+            pandocArgsMetadata.date = input.date;
+        }
+        if (input.pdfOptions.useTitle) {
+            pandocArgsMetadata.title = input.title;
+        }
+        if (input.pdfOptions.tableOfContents) {
+            if (input.pdfOptions.tableOfContents.depth) {
+                pandocArgs.tocDepth = input.pdfOptions.tableOfContents.depth;
+            }
+            if (input.pdfOptions.tableOfContents.enabled !== undefined) {
+                pandocArgs.toc = input.pdfOptions.tableOfContents.enabled;
+            }
+        }
+        if (input.pdfOptions.pageNumbers === false) {
+            pandocArgsVariables.push({ name: "pagestyle", value: [{ name: "empty" }] });
+        }
+        if (input.pdfOptions.footer) {
+            // TODO
+        }
+        if (input.pdfOptions.header) {
+            // TODO
+        }
+        if (input.pdfOptions.paperSize && input.pdfOptions.paperSize === PdfOptionsPaperSize.A4) {
+            pandocArgsVariables.push({
+                name: "geometry",
+                value: [ { name: "a4paper" }, { name: "margin=2cm" } ]
+            });
+        }
     }
+    pandocArgs.variables = pandocArgsVariables;
+    pandocArgs.metadata = pandocArgsMetadata;
+    return pandocArgs;
 };
 
 export interface Document2PdfInput {
-    title: string
+    authors?: string
     content: string
-    authors: string
-    date: string
+    date?: string
+    pdfOptions?: PdfOptions
+    title: string
 };
 
 export interface Document2PdfOutput {
@@ -24,24 +63,32 @@ export interface Document2PdfOutput {
 };
 
 export const document2Pdf = async (input: Document2PdfInput): Promise<Document2PdfOutput> => {
+    debug(`document2Pdf: ${JSON.stringify(input)}`);
     const pandocOut = await pandoc.md2Pdf({
         files: [{
             data: input.content,
             filename: "document.md",
             sourceFile: true
         }],
-        pandocOptions
+        pandocOptions: {
+            pandocArgs: {
+                pdfEngine: "xelatex",
+                ... pdfOptionsToPandocArgs(input)
+            }
+        }
     });
+    debug(`pandocOut: ${JSON.stringify(pandocOut)}`);
     return {
         pdfData: pandocOut.pdfFile
     };
 };
 
 export interface Document2ZipInput {
-    title: string
+    authors?: string
     content: string
-    authors: string
-    date: string
+    date?: string
+    pdfOptions?: PdfOptions
+    title: string
 };
 
 export interface Document2ZipOutput {
@@ -49,6 +96,7 @@ export interface Document2ZipOutput {
 };
 
 export const document2Zip = async (input: Document2ZipInput): Promise<Document2ZipOutput> => {
+    debug(`document2Zip: ${JSON.stringify(input)}`);
     const pandocOut = await pandoc.md2Pdf({
         files: [{
             data: input.content,
@@ -56,7 +104,12 @@ export const document2Zip = async (input: Document2ZipInput): Promise<Document2Z
             sourceFile: true
         }],
         options: { createSourceZipFile: true },
-        pandocOptions
+        pandocOptions: {
+            pandocArgs: {
+                pdfEngine: "xelatex",
+                ... pdfOptionsToPandocArgs(input)
+            }
+        }
     });
     if (pandocOut.zipFile) {
         return {
