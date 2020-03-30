@@ -145,7 +145,7 @@ input.input-text {
     padding: var(--global-input-text-padding-top-bottom) var(--global-input-text-padding-right-left);
 }
 
-ul.actions, ul.actions-vertical {
+ul.actions, ul.actions-vertical, ul.element-list {
     list-style: none;
     padding: 1em 0;
     margin: 0;
@@ -154,7 +154,6 @@ ul.actions, ul.actions-vertical {
 ul.actions-vertical > li {
     display: inline-block;
 }
-
 
 ul.messages {
     list-style: none;

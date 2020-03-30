@@ -8,7 +8,7 @@
 
 		<section class="section-home" id="section-home-actions">
 			<h2>Actions:</h2>
-			<ul class="actions">
+			<ul class="actions-vertical">
 				{{#if loggedIn}}
 				<li><a class="button" href="/logout">Log out</a></li>
 				<li><a class="button" id="document-button-add">Create document</a></li>
@@ -57,6 +57,7 @@
 					maxlength="{{input.accountName.maxLength}}"
 					title="{{input.accountName.errorMessage}}"
 					autocomplete="autocomplete-login"
+					value="{{input.accountName.value}}"
 				required>
 				{{!-- Password --}}
 				<input class="input-text" type="password" name="password" placeholder="Account password..."
