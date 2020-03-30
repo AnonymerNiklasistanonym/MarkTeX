@@ -5,6 +5,7 @@ import * as latex from "../latex";
 export interface LatexData2SvgDataInput {
     headerIncludes: string[]
     latexString: string
+    usePoppler?: boolean
 }
 
 export const latex2Svg = async (input: LatexData2SvgDataInput): Promise<inkscape.InkscapePdf2Svg> => {
@@ -18,7 +19,7 @@ export const latex2Svg = async (input: LatexData2SvgDataInput): Promise<inkscape
         xelatexOptions: { interactionNonstop: true }
     });
     const pdf2SvgOut = await inkscape.pdf2Svg({
-        inkscapeOptions: { usePoppler: true },
+        inkscapeOptions: { usePoppler: input.usePoppler },
         pdfData: tex2PdfOut.pdfData
     });
     return pdf2SvgOut;

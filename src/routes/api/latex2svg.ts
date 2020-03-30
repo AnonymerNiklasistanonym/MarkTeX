@@ -58,7 +58,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             timeOfRequest: {
                 errorMessage: "Not a string",
                 isString: true
-            }
+            },
+            usePoppler: { isBoolean: true, optional: true }
         })),
         async (req, res) => {
             const input = req.body as types.Latex2SvgRequestApi;
@@ -87,7 +88,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 debug("latex2svg: Start rendering of tex to svg");
                 const latex2SvgOut = await api.latex.latex2Svg({
                     headerIncludes: input.latexHeaderIncludes,
-                    latexString: input.latexString
+                    latexString: input.latexString,
+                    usePoppler: input.usePoppler
                 });
                 debug("latex2svg: Render of tex to pdf complete");
                 // Add it to the cache

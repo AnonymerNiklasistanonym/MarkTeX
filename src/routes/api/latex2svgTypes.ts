@@ -5,6 +5,7 @@ export interface Latex2SvgRequest {
     timeOfRequest: string
     latexHeaderIncludes: string[]
     latexString: string
+    usePoppler: boolean
 }
 
 export interface Latex2SvgRequestApi extends Latex2SvgRequest, types.ApiRequest {}
