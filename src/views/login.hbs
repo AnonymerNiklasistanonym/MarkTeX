@@ -20,19 +20,20 @@ Login page template
 
 
 <div class="container-login">
-	<div class="container-login-message">
+	<div class="container-login-content">
 
-		{{!-- Title --}}
 		<h1>Login/Register</h1>
 
-		<br><br>
+		<br>
 
 		{{!-- Display messages (example: login was unsuccessful) --}}
 		{{#if messages.exist}}
 		<section id="section-login-messages">
-			{{#each messages.texts}}
-			<p class="message">{{this}}</p>
-			{{/each}}
+			<ul class="messages">
+				{{#each messages.texts}}
+				<li><p class="message">{{this}}</p></li>
+				{{/each}}
+			</ul>
 		</section>
 		{{/if}}
 
@@ -41,14 +42,14 @@ Login page template
 			{{!-- Login input form --}}
 			<form id="form-login-register" action="/api/account/login" method="post">
 				{{!-- Account name --}}
-				<input type="text" name="name" placeholder="Account name..."
+				<input class="input-text " type="text" name="name" placeholder="Account name..."
 					pattern="{{input.accountName.pattern}}"
 					maxlength="{{input.accountName.maxLength}}"
 					title="{{input.accountName.errorMessage}}"
 					autocomplete="autocomplete-login"
 				required>
 				{{!-- Password --}}
-				<input type="password" name="password" placeholder="Account password..."
+				<input class="input-text" type="password" name="password" placeholder="Account password..."
 					pattern="{{input.accountPassword.pattern}}"
 					minLength="{{input.accountPassword.minLength}}"
 					title="{{input.accountPassword.errorMessage}}"
@@ -60,12 +61,12 @@ Login page template
 				<input id="formSubmit" type="submit" hidden>
 			</form>
 			{{!-- Login input buttons --}}
-			<div class="loginActions">
+			<ul class="actions-vertical">
 				{{!-- Login button --}}
-				<a class="button" id="login-button-login">Login</a>
+				<li><a class="button" id="login-button-login">Login</a></li>
 				{{!-- Register button --}}
-				<a class="button" id="login-button-register">Register</a>
-			</div>
+				<li><a class="button" id="login-button-register">Register</a></li>
+			</ul>
 		</section>
 	</div>
 </div>

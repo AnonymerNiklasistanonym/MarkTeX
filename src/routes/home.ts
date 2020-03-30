@@ -17,8 +17,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const header = viewRendering.getHeaderDefaults(options, { sockets: true });
         header.title = "MarkTeX Home";
         header.description = "Home page of MarkTeX";
-        header.scripts.push({ path: `/scripts/main_bundle.js${options.production ? ".gz" : ""}` });
-        res.render("index", {
+        header.stylesheets.push({ path: "/stylesheets/home.css" });
+        header.scripts.push({ path: `/scripts/home_bundle.js${options.production ? ".gz" : ""}` });
+        res.render("home", {
             header,
             input: {
                 accountId: expressSession.isAuthenticated(req) ? expressSession.getSessionInfo(req).accountId : 0,

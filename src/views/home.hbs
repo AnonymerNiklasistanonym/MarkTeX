@@ -1,0 +1,72 @@
+
+<div class="container-home">
+	<div class="container-home-content">
+
+		<h1>Welcome to MarkTeX</h1>
+
+		<br>
+
+		<section class="section-home" id="section-home-actions">
+			<h2>Actions:</h2>
+			<ul class="actions">
+				{{#if loggedIn}}
+				<li><a class="button" href="/logout">Log out</a></li>
+				<li><a class="button" id="document-button-add">Create document</a></li>
+				<li><a class="button" id="account-button-remove">Delete account</a></li>
+				{{else}}
+				<li><a class="button" href="/login">Create account or log in</a></li>
+				{{/if}}
+				<li><a class="button" href="/testing">Testing area which is accessible without account</a></li>
+			</ul>
+		</section>
+
+		{{#if loggedIn}}
+
+		<section class="section-home" id="section-home-documents">
+			<h2>Documents:</h2>
+			<ul class="element-list">
+				{{#each documents}}
+				<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+				{{/each}}
+			</ul>
+		</section>
+
+		<section class="section-home" id="section-home-groups">
+			<h2>Groups:</h2>
+			<ul class="element-list">
+				{{#each groups}}
+				<li><a class="button" href="/group/{{this.id}}">{{this.name}}</a></li>
+				{{/each}}
+			</ul>
+		</section>
+
+		<section class="section-home" id="section-home-account">
+			<h2>Account:</h2>
+			{{!-- Account update form --}}
+			<form id="form-account" action="/api/account/update" method="post">
+				{{!-- Account name --}}
+				<input class="input-text" type="text" name="name" placeholder="Account name..."
+					pattern="{{input.accountName.pattern}}"
+					maxlength="{{input.accountName.maxLength}}"
+					title="{{input.accountName.errorMessage}}"
+					autocomplete="autocomplete-login"
+				required>
+				{{!-- Password --}}
+				<input class="input-text" type="password" name="password" placeholder="Account password..."
+					pattern="{{input.accountPassword.pattern}}"
+					minLength="{{input.accountPassword.minLength}}"
+					title="{{input.accountPassword.errorMessage}}"
+					autocomplete="current-password"
+				required>
+				{{!-- Hidden value of api version --}}
+				<input type="number" name="apiVersion" value="1" hidden>
+				<input id="form-account-id" type="number" name="id" value="{{input.accountId}}" hidden>
+				{{!-- Invisible submit input to allow submission on enter in any of the previous text input fields --}}
+				<input type="submit" value="Update account">
+			</form>
+		</section>
+
+		{{/if}}
+
+	</div>
+</div>

@@ -18,6 +18,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         }
         // Render login page
         const header = viewRendering.getHeaderDefaults(options, { sockets: true });
+        header.stylesheets.push({ path: "/stylesheets/login.css" });
         header.scripts.push({ path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` });
         header.title = "MarkTeX Login & Register";
         const messages = expressSession.getMessages(req);

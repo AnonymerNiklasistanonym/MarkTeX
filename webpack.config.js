@@ -31,8 +31,8 @@ module.exports = {
         document: "./src/public/scripts/document.ts",
         error: "./src/public/scripts/error.ts",
         group: "./src/public/scripts/group.ts",
+        home: "./src/public/scripts/home.ts",
         login: "./src/public/scripts/login.ts",
-        main: "./src/public/scripts/index.ts",
         testing: "./src/public/scripts/testing.ts"
     },
     mode: production ? "production" : "development",
