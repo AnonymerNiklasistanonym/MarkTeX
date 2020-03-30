@@ -1,5 +1,4 @@
-.PHONY: clean docker_build docker_build_image docker_run docker_run_image
-.PHONY: docker_build_fallback
+.PHONY: clean docker_build docker_build_image docker_run docker_run_image docker_export_build docker_export_run remove_all_stopped_docker_containers
 
 DOCKER_FILE_BUILD=./docker/build/Dockerfile
 DOCKER_FILE_RUN=./docker/run/Dockerfile
@@ -55,21 +54,3 @@ remove_all_stopped_docker_containers:
 clean:
 	rm -rf dist node_modules docs/site docker/dist .nyc_output coverage
 	rm -f .env .env.docker docs/todos.md
-
-dev:
-	export NODE_ENV="development"; \
-	npm install
-	npm run dev
-
-build:
-	rm -rf dist node_modules
-	export NODE_ENV="development"; \
-	npm install
-	export NODE_ENV="production"; \
-	npm run build
-	rm -rf node_modules
-	export NODE_ENV="production"; \
-	npm install --only=prod
-
-run:
-	npm run start
