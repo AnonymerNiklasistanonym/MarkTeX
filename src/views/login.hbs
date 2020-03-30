@@ -28,7 +28,7 @@ Login page template
 
 		{{!-- Display messages (example: login was unsuccessful) --}}
 		{{#if messages.exist}}
-		<section id="section-login-messages">
+		<section class="section-login" id="section-login-messages">
 			<ul class="messages">
 				{{#each messages.texts}}
 				<li><p class="message">{{this}}</p></li>
@@ -38,7 +38,7 @@ Login page template
 		{{/if}}
 
 		{{!-- Login/Register form --}}
-		<section id="section-login-form">
+		<section class="section-login" id="section-login-form">
 			{{!-- Login input form --}}
 			<form id="form-login-register" action="/api/account/login" method="post">
 				{{!-- Account name --}}

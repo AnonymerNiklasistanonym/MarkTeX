@@ -43,19 +43,38 @@ export interface EnableEditorModeSwitchingInput {
     onlyEditButton: HTMLElement
     onlyViewButton: HTMLElement
     marktexEditor: HTMLElement
+    selectedButtonClass: string
 }
 
 export const enableEditorModeSwitching = (input: EnableEditorModeSwitchingInput): void => {
     input.bothButton.addEventListener("click", () => {
         input.marktexEditor.classList.remove("only-edit");
         input.marktexEditor.classList.remove("only-view");
+
+        input.bothButton.classList.remove(input.selectedButtonClass);
+        input.onlyEditButton.classList.remove(input.selectedButtonClass);
+        input.onlyViewButton.classList.remove(input.selectedButtonClass);
+
+        input.bothButton.classList.add(input.selectedButtonClass);
     });
     input.onlyEditButton.addEventListener("click", () => {
         input.marktexEditor.classList.remove("only-view");
         input.marktexEditor.classList.add("only-edit");
+
+        input.bothButton.classList.remove(input.selectedButtonClass);
+        input.onlyEditButton.classList.remove(input.selectedButtonClass);
+        input.onlyViewButton.classList.remove(input.selectedButtonClass);
+
+        input.onlyEditButton.classList.add(input.selectedButtonClass);
     });
     input.onlyViewButton.addEventListener("click", () => {
         input.marktexEditor.classList.remove("only-edit");
         input.marktexEditor.classList.add("only-view");
+
+        input.bothButton.classList.remove(input.selectedButtonClass);
+        input.onlyEditButton.classList.remove(input.selectedButtonClass);
+        input.onlyViewButton.classList.remove(input.selectedButtonClass);
+
+        input.onlyViewButton.classList.add(input.selectedButtonClass);
     });
 };

@@ -126,9 +126,13 @@ a.button {
     display: inline-flex;
 }
 
-a.button:hover {
+a.button.selected, a.button:hover {
     background-color: var(--global-button-background-hovered);
     color: white;
+}
+
+a.button.selected {
+    cursor: auto;
 }
 
 input.input-text {
@@ -151,6 +155,7 @@ ul.actions-vertical > li {
     display: inline-block;
 }
 
+
 ul.messages {
     list-style: none;
     padding: 1em 0;
@@ -161,4 +166,14 @@ ul.messages > li {
     background-color: #d7d7d7;
     padding: 0.2em 1em;
     border-radius: 4px;
+}
+
+.can-be-toggled {
+    max-height: 100vh;
+    overflow: hidden;
+    transition: max-height .25s ease-in-out;
+}
+
+.can-be-toggled.hide-element {
+    max-height: 0px;
 }

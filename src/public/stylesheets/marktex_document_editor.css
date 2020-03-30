@@ -1,3 +1,7 @@
+:root {
+    --markdown-editor-textarea-padding: 1em;
+}
+
 div.container-marktex-editor {
 	width: 100%;
 	display: grid;
@@ -21,9 +25,11 @@ div.container-marktex-editor.only-view > div.container-marktex-editor-input {
 }
 
 div.container-marktex-editor > div.container-marktex-editor-input > textarea {
-	width: 100%;
-	padding: 1em;
-	resize: none;
+	width: calc(100% - 2 * var(--markdown-editor-textarea-padding));
+	padding: var(--markdown-editor-textarea-padding);
+	resize: vertical;
+	/** Initial height as high as screen */
+	height: 100vh;
 }
 
 div.container-marktex-editor > div.container-marktex-editor-output {
@@ -44,19 +50,7 @@ div.container-marktex-editor > div.container-marktex-editor-output > div {
 	width: 100%;
 }
 
-div.container-marktex-editor-buttons {
-	width: 100%;
-}
-
-div.container-marktex-editor-buttons > div.container-marktex-editor-buttons-main {
-	width: 100%;
-}
-
-div.container-marktex-editor-buttons > div.container-marktex-editor-buttons-main > a.marktex-editor-button {
-	background-color: red
-}
-
-.markdown-body {
+.markdown-body, .markdown-body-page {
 	box-sizing: border-box;
 	min-width: 200px;
 	max-width: 980px;
@@ -64,8 +58,18 @@ div.container-marktex-editor-buttons > div.container-marktex-editor-buttons-main
 	padding: 45px;
 }
 
+.markdown-body-page {
+	box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0, 0, 0, 0.23),0px 1px 3px 0px rgba(0, 0, 0, 0.35);
+	border-radius: 4px;
+}
+
+
 @media (max-width: 767px) {
 	.markdown-body {
 		padding: 15px;
+	}
+	.markdown-body-page {
+		box-shadow: none;
+		border-radius: none;
 	}
 }

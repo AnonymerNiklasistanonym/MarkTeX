@@ -72,4 +72,45 @@ window.addEventListener("load", (): void => {
         });
     }
 
+    const inputImportJson = document.getElementById("document-input-import-json") as HTMLInputElement;
+    const buttonImportJson = document.getElementById("document-button-import-json") as HTMLButtonElement;
+
+    if (inputImportJson && buttonImportJson) {
+        let jsonData: any = {};
+        inputImportJson.addEventListener("change", (): void => {
+            const fileReader = new FileReader();
+            fileReader.onload = (): void => {
+                const text = String(fileReader.result);
+                jsonData = JSON.parse(text);
+                // eslint-disable-next-line no-console
+                console.log("Read a JSON file:", text, jsonData);
+                // TODO Verify JSON file content
+            };
+            if (inputImportJson.files && inputImportJson.files.length > 0) {
+                fileReader.readAsText(inputImportJson.files[0]);
+            }
+        });
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        buttonImportJson.addEventListener("click", async () => {
+            try {
+                // eslint-disable-next-line no-console
+                console.log("Found JSON data:", jsonData);
+                const response = await apiRequests.document.create({
+                    authors: jsonData.authors,
+                    content: jsonData.content,
+                    date: jsonData.date,
+                    title: jsonData.title
+                });
+                await notifications.show({
+                    body: `New document was created ${response.title} by ${response.authors} from ${response.date}`,
+                    onClickUrl: `/document/${response.id}`,
+                    title: `Document was imported: ${response.title}`
+                });
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.error(e);
+            }
+        }, false);
+    }
+
 });

@@ -47,7 +47,8 @@ window.addEventListener("load", (): void => {
             bothButton: marktexButtonBoth,
             marktexEditor,
             onlyEditButton: marktexButtonEdit,
-            onlyViewButton: marktexButtonView
+            onlyViewButton: marktexButtonView,
+            selectedButtonClass: "selected"
         });
         marktexDocumentEditor.enableEditorRendering({
             marktexEditorInput: liveInput,

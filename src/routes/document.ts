@@ -121,6 +121,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 type: "checkbox"
             } ];
             const header = viewRendering.getHeaderDefaults(options, { marktexRenderer: true, sockets: true });
+            header.stylesheets.push({ path: "/stylesheets/document.css" });
             header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
             header.title = `${documentInfo.title} by ${documentInfo.authors}`;
             header.description = `${documentInfo.title} by ${documentInfo.authors} from ${documentInfo.date}`;

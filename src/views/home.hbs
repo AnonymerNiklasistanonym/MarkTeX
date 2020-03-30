@@ -18,6 +18,13 @@
 				{{/if}}
 				<li><a class="button" href="/testing">Testing area which is accessible without account</a></li>
 			</ul>
+
+			{{#if loggedIn}}
+			<input class="button"id="document-input-import-json" type="file" accept="json">
+			<ul class="actions">
+				<li><a class="button" id="document-button-import-json">Import document (JSON)</a></li>
+			</ul>
+			{{/if}}
 		</section>
 
 		{{#if loggedIn}}

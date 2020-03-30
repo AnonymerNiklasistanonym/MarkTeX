@@ -46,13 +46,16 @@ window.onload = (): void => {
     const liveInput = document.getElementById("marktex-input") as HTMLTextAreaElement;
     const liveOutput = document.getElementById("marktex-output") as HTMLDivElement;
 
+    const documentTitleSpan = document.getElementById("document-title") as HTMLSpanElement;
+    const documentAuthorsSpan = document.getElementById("document-authors") as HTMLSpanElement;
+
     const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLAnchorElement;
     const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLAnchorElement;
     const marktexButtonView = document.getElementById("marktex-button-view") as HTMLAnchorElement;
 
-    const documentInfoId = document.getElementById("document-info-id") as HTMLInputElement;
-    const documentInfoIdOwner = document.getElementById("document-info-id-owner") as HTMLInputElement;
-    const documentInfoIdGroup = document.getElementById("document-info-id-group") as HTMLInputElement;
+    // const documentInfoId = document.getElementById("document-info-id") as HTMLInputElement;
+    // const documentInfoIdOwner = document.getElementById("document-info-id-owner") as HTMLInputElement;
+    // const documentInfoIdGroup = document.getElementById("document-info-id-group") as HTMLInputElement;
     const documentInfoTitle = document.getElementById("document-info-title") as HTMLInputElement;
     const documentInfoDate = document.getElementById("document-info-date") as HTMLInputElement;
     const documentInfoAuthors = document.getElementById("document-info-authors") as HTMLInputElement;
@@ -66,7 +69,8 @@ window.onload = (): void => {
         bothButton: marktexButtonBoth,
         marktexEditor,
         onlyEditButton: marktexButtonEdit,
-        onlyViewButton: marktexButtonView
+        onlyViewButton: marktexButtonView,
+        selectedButtonClass: "selected"
     });
     marktexDocumentEditor.enableEditorRendering({
         marktexEditorInput: liveInput,
@@ -93,43 +97,6 @@ window.onload = (): void => {
         download.saveAsPlainText(JSON.stringify(response.jsonData, null, 4), "application/json",
             `backup_document_${response.id}.json`);
     });
-    const inputImportJson = document.getElementById("document-input-import-json") as HTMLInputElement;
-    let jsonData: any = {};
-    inputImportJson.addEventListener("change", (): void => {
-        const fileReader = new FileReader();
-        fileReader.onload = (): void => {
-            const text = String(fileReader.result);
-            jsonData = JSON.parse(text);
-            // eslint-disable-next-line no-console
-            console.log("Read a JSON file:", text, jsonData);
-            // TODO Verify JSON file content
-        };
-        if (inputImportJson.files && inputImportJson.files.length > 0) {
-            fileReader.readAsText(inputImportJson.files[0]);
-        }
-    });
-    const buttonImportJson = document.getElementById("document-button-import-json") as HTMLButtonElement;
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    buttonImportJson.addEventListener("click", async () => {
-        try {
-            // eslint-disable-next-line no-console
-            console.log("Found JSON data:", jsonData);
-            const response = await apiRequests.document.create({
-                authors: jsonData.authors,
-                content: jsonData.content,
-                date: jsonData.date,
-                title: jsonData.title
-            });
-            await notifications.show({
-                body: `New document was created ${response.title} by ${response.authors} from ${response.date}`,
-                onClickUrl: `/document/${response.id}`,
-                title: `Document was imported: ${response.title}`
-            });
-        } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error(e);
-        }
-    }, false);
     const buttonUpdate = document.getElementById("document-button-update") as HTMLButtonElement;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     buttonUpdate.addEventListener("click", async () => {
@@ -145,6 +112,8 @@ window.onload = (): void => {
             body: `Document was saved ${response.title} by ${response.authors} from ${response.date}`,
             title: `Document was saved: ${response.title}`
         });
+        documentTitleSpan.innerText = response.title;
+        documentAuthorsSpan.innerText = response.authors ? `by ${response.authors}` : "";
     });
     const buttonRemove = document.getElementById("document-button-remove") as HTMLButtonElement;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -159,5 +128,12 @@ window.onload = (): void => {
             window.location.href = "/";
         }
     });
+
+    const toggleMetadata = document.getElementById("document-button-edit-metadata") as HTMLElement;
+    const togglePdfOptions = document.getElementById("document-button-edit-pdf-options") as HTMLElement;
+    const sectionMetadata = document.getElementById("section-document-metadata") as HTMLElement;
+    const sectionPdfOptions = document.getElementById("section-document-pdf-options") as HTMLElement;
+    toggleMetadata.addEventListener("click", () => { sectionMetadata.classList.toggle("hide-element"); });
+    togglePdfOptions.addEventListener("click", () => { sectionPdfOptions.classList.toggle("hide-element"); });
 
 };

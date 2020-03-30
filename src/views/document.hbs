@@ -1,51 +1,81 @@
-<p>Document:</p>
-<form>
-	<input type="number" id="document-info-id" name="id" value="{{document.id}}" hidden>
-	<input type="number" id="document-info-id-owner" name="owner-id" value="{{document.owner.id}}" hidden>
-	<input type="number" id="document-info-id-group" name="group-id" value="{{document.group.id}}" hidden>
+<div class="container-document">
+	<div class="container-document-content">
 
-	<label for="document-title">Title:</label><br>
-	<input type="text" id="document-info-title" name="document-title" value="{{document.title}}"><br>
+		<h1>Document: <span id="document-title">{{document.title}}</span> <span id="document-authors">{{#if document.authors}}by {{document.authors}}{{/if}}</span></h1>
 
-	<label for="document-authors">Authors:</label><br>
-	<input type="text" id="document-info-authors" name="document-authors" value="{{document.authors}}"><br>
-
-	<label for="document-date">Date:</label><br>
-	<input type="text" id="document-info-date" name="document-date" value="{{document.date}}">
-</form>
-<ul>
-	<li>owner: <a href="/account/{{document.owner.id}}">{{document.owner.name}}</a></li>
-	<li>group: <a href="/account/{{document.group.id}}">{{document.group.name}}</a></li>
-</ul>
-
-<p>Actions:</p>
-<div>
-	<button id="document-button-export-pdf">Export to PDF</button>
-	<button id="document-button-export-zip">Export to ZIP</button>
-	<button id="document-button-export-json">Export document (JSON)</button>
-	<input id="document-input-import-json" type="file" accept="json">
-	<button id="document-button-import-json">Import document (JSON)</button>
-	<button id="document-button-update">Save document</button>
-	<button id="document-button-remove">Delete document</button>
-</div>
-
-<section id="section-pdf-options">
-	<p>PDF options:</p>
-	<form>
-		{{#each document.pdfOptions}}
-		{{#if this.labelBefore}}
-		<label for="pdf-options-{{this.name}}">{{this.label}}</label><br>
-		{{/if}}
-		<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
-		{{#if this.labelAfter}}
-		<label for="pdf-options-{{this.name}}">{{this.label}}</label>
-		{{/if}}
 		<br>
-		{{/each}}
-	</form>
-</section>
 
-<p>Editor:</p>
+		{{!-- Display messages  --}}
+		{{#if messages.exist}}
+		<section class="section-document" id="section-document-messages">
+			<ul class="messages">
+				{{#each messages.texts}}
+				<li><p class="message">{{this}}</p></li>
+				{{/each}}
+			</ul>
+		</section>
+		{{/if}}
 
-{{> marktex_document_editor_buttons idBoth="marktex-button-both" idEdit="marktex-button-edit" idView="marktex-button-view"}}
-{{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output" modusViewOnly=true input=document.content}}
+		<section class="section-document" id="section-document-actions">
+			<h2>Actions:</h2>
+			<ul class="actions-vertical">
+				<li><a class="button" id="document-button-edit-metadata">Toggle edit metadata</a></li>
+				<li><a class="button" id="document-button-edit-pdf-options">Toggle edit PDF options</a></li>
+			</ul>
+			<ul class="actions-vertical">
+				<li><a class="button" id="document-button-export-pdf">Export to PDF</a></li>
+				<li><a class="button" id="document-button-export-zip">Export to ZIP</a></li>
+				<li><a class="button" id="document-button-export-json">Export document (JSON)</a></li>
+				<li><a class="button" id="document-button-update">Save document</a></li>
+				<li><a class="button" id="document-button-remove">Delete document</a></li>
+			</ul>
+		</section>
+
+		<section class="section-document can-be-toggled hide-element" id="section-document-metadata">
+			<h2>Metadata:</h2>
+			<form>
+				<input type="number" id="document-info-id" name="id" value="{{document.id}}" hidden>
+				<input type="number" id="document-info-id-owner" name="owner-id" value="{{document.owner.id}}" hidden>
+				<input type="number" id="document-info-id-group" name="group-id" value="{{document.group.id}}" hidden>
+
+				<label for="document-title">Title:</label><br>
+				<input type="text" id="document-info-title" name="document-title" value="{{document.title}}"><br>
+
+				<label for="document-authors">Authors:</label><br>
+				<input type="text" id="document-info-authors" name="document-authors" value="{{document.authors}}"><br>
+
+				<label for="document-date">Date:</label><br>
+				<input type="text" id="document-info-date" name="document-date" value="{{document.date}}">
+			</form>
+			<ul>
+				<li>owner: <a href="/account/{{document.owner.id}}">{{document.owner.name}}</a></li>
+				<li>group: <a href="/account/{{document.group.id}}">{{document.group.name}}</a></li>
+			</ul>
+		</section>
+
+		<section class="section-document can-be-toggled hide-element" id="section-document-pdf-options">
+			<h2>PDF options:</h2>
+			<form>
+				{{#each document.pdfOptions}}
+				{{#if this.labelBefore}}
+				<label for="pdf-options-{{this.name}}">{{this.label}}</label><br>
+				{{/if}}
+				<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
+				{{#if this.labelAfter}}
+				<label for="pdf-options-{{this.name}}">{{this.label}}</label>
+				{{/if}}
+				<br>
+				{{/each}}
+			</form>
+		</section>
+
+		<section class="section-document" id="section-document-editor">
+			<h2>Editor:</h2>
+
+			<ul class="actions-vertical">
+				<li><a class="button" id="marktex-button-both">Both</a></li>
+				<li><a class="button" id="marktex-button-edit">Edit</a></li>
+				<li><a class="button selected" id="marktex-button-view">View</a></li>
+			</ul>
+			{{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output" modusViewOnly=true input=document.content}}
+		</section>
