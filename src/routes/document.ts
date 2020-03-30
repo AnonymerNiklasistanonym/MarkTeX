@@ -2,6 +2,7 @@ import * as expressSession from "../middleware/expressSession";
 import * as viewRendering from "../view_rendering/view_rendering";
 import api from "../modules/api";
 import express from "express";
+import { PdfOptionsPaperSize } from "../modules/api/databaseManager/documentPdfOptions";
 import { StartExpressServerOptions } from "../config/express";
 
 
@@ -50,7 +51,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 name: "use-date",
                 type: "checkbox"
             }, {
-                attribute: documentInfo.pdfOptions.paperSize === api.database.document.PdfOptionsPaperSize.A4
+                attribute: documentInfo.pdfOptions.paperSize === PdfOptionsPaperSize.A4
                     ? "checked" : undefined,
                 label: "A4 paper",
                 labelAfter: true,
@@ -99,6 +100,18 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 label: "Footer",
                 labelAfter: true,
                 name: "footer",
+                type: "checkbox"
+            }, {
+                attribute: documentInfo.pdfOptions.landscape ? "checked" : undefined,
+                label: "Landscape",
+                labelAfter: true,
+                name: "landscape",
+                type: "checkbox"
+            }, {
+                attribute: documentInfo.pdfOptions.twoColumns ? "checked" : undefined,
+                label: "Two columns",
+                labelAfter: true,
+                name: "two-columns",
                 type: "checkbox"
             }, {
                 attribute: documentInfo.pdfOptions.isPresentation ? "checked" : undefined,

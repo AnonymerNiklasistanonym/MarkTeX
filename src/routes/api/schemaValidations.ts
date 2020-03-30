@@ -1,5 +1,5 @@
 import * as expressValidator from "express-validator";
-import { PdfOptions, PdfOptionsPaperSize } from "../../modules/api/databaseManager/document";
+import { PdfOptions, PdfOptionsPaperSize } from "../../modules/api/databaseManager/documentPdfOptions";
 import api from "../../modules/api";
 import { debuglog } from "util";
 
@@ -78,7 +78,8 @@ export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema 
         options: (pdfOptions: PdfOptions): boolean => {
             const supportedKeys = [
                 "footer", "header", "pageNumbers", "paperSize", "tableOfContents",
-                "useAuthors", "useDate", "useTitle", "isPresentation"
+                "useAuthors", "useDate", "useTitle", "isPresentation", "landscape",
+                "twoColumns"
             ];
             if (pdfOptions === undefined) {
                 return true;
@@ -154,6 +155,12 @@ export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema 
             }
             if (pdfOptions.isPresentation !== undefined && typeof pdfOptions.isPresentation !== "boolean") {
                 throw Error(`The key 'isPresentation' must be a boolean (is=${typeof pdfOptions.isPresentation})`);
+            }
+            if (pdfOptions.twoColumns !== undefined && typeof pdfOptions.twoColumns !== "boolean") {
+                throw Error(`The key 'twoColumns' must be a boolean (is=${typeof pdfOptions.twoColumns})`);
+            }
+            if (pdfOptions.landscape !== undefined && typeof pdfOptions.landscape !== "boolean") {
+                throw Error(`The key 'landscape' must be a boolean (is=${typeof pdfOptions.landscape})`);
             }
             return true;
         }

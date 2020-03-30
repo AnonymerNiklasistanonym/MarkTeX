@@ -4,10 +4,10 @@ import * as apiRequests from "./apiRequests";
 import * as download from "./download";
 import * as marktexDocumentEditor from "./marktex_document_editor";
 import * as notifications from "./notifications";
-import { PdfOptionsPaperSize } from "../../routes/api/documentTypes";
+import { PdfOptions, PdfOptionsPaperSize } from "../../modules/api/databaseManager/documentPdfOptions";
 
 
-const getDocumentPdfOptions = (): api.document.types.PdfOptions => {
+const getDocumentPdfOptions = (): PdfOptions => {
     const idPrefix = "input-pdf-options-";
     const documentPdfOptionUseTitle = document.getElementById(idPrefix + "use-title") as HTMLInputElement;
     const documentPdfOptionUseAuthors = document.getElementById(idPrefix + "use-authors") as HTMLInputElement;
@@ -21,14 +21,18 @@ const getDocumentPdfOptions = (): api.document.types.PdfOptions => {
     const documentPdfOptionPageNumbers = document.getElementById(idPrefix + "page-numbers") as HTMLInputElement;
     const documentPdfOptionPageSizeA4 = document.getElementById(idPrefix + "a4-paper") as HTMLInputElement;
     const documentPdfOptionIsPresentation = document.getElementById(idPrefix + "is-presentation") as HTMLInputElement;
+    const documentPdfOptionTwoColumns = document.getElementById(idPrefix + "two-columns") as HTMLInputElement;
+    const documentPdfOptionLandscape = document.getElementById(idPrefix + "landscape") as HTMLInputElement;
     return {
         isPresentation: documentPdfOptionIsPresentation.checked,
+        landscape: documentPdfOptionLandscape.checked,
         pageNumbers: documentPdfOptionPageNumbers.checked,
         paperSize: documentPdfOptionPageSizeA4.checked ? PdfOptionsPaperSize.A4 : undefined,
         tableOfContents: {
             depth: Number(documentPdfOptionTableOfContentsDepth.value),
             enabled: documentPdfOptionTableOfContents.checked
         },
+        twoColumns: documentPdfOptionTwoColumns.checked,
         useAuthors: documentPdfOptionUseAuthors.checked,
         useDate: documentPdfOptionUseDate.checked,
         useTitle: documentPdfOptionUseTitle.checked

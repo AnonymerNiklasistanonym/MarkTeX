@@ -132,7 +132,44 @@ export const setupInitialData = async (databasePath: string): Promise<void> => {
         "\n" +
         "\\begin{center}\n" +
         "This is a \\LaTeX block where you can do complicated \\LaTeX commands.\n" +
-        "\\end{center}\n",
+        "\\end{center}\n" +
+        "\n" +
+        "\\begin{tikzpicture}[->, >=stealth', auto, semithick, node distance=3cm]\n" +
+        "% header-includes: \\usepackage{tikz} \\usetikzlibrary{automata,arrows,positioning,calc}\n" +
+        "\\tikzstyle{every state}=[fill=white,draw=black,thick,text=black,scale=1]\n" +
+        "\\node[state]    (L)               {$L$};\n" +
+        "\\node[state]    (B)[right of=L]   {$B$};\n" +
+        "\\node[state]    (K)[right of=B]   {$K$};\n" +
+        "\\path\n" +
+        "(L) edge[loop left]     node{$0.1$} (L)\n" +
+        "    edge[bend left=10]  node{$0.3$} (B)\n" +
+        "    edge[bend left=50]  node{$0.6$} (K)\n" +
+        "(B) edge[loop above]    node{$0.1$} (B)\n" +
+        "    edge[bend left=10] node{$0.3$} (L)\n" +
+        "    edge[bend left=10]  node{$0.6$} (K)\n" +
+        "(K) edge[loop right]    node{$0.8$} (K)\n" +
+        "    edge[bend left=50] node{$0.1$} (L)\n" +
+        "    edge[bend left=10] node{$0.1$} (B)\n" +
+        ";\n" +
+        "\\end{tikzpicture}\n" +
+        "\n" +
+        "\\begin{tikzpicture}[->, >=stealth', auto, semithick, node distance=3cm]\n" +
+        "% header-includes: \\usepackage{tikz} \\usetikzlibrary{automata,arrows,positioning,calc}\n" +
+        "\\tikzstyle{every state}=[fill=white,draw=black,thick,text=black,scale=1]\n" +
+        "\\node[state] (X1)                   {$X_1$};\n" +
+        "\\node[state] (X2) [right of=X1] {$X_2$};\n" +
+        "\\node[state] (X3) [right of=X2] {$X_3$};\n" +
+        "\\node[state] (Y1) [below of=X1] {$Y_1$};\n" +
+        "\\node[state] (Y2) [below of=X2] {$Y_2$};\n" +
+        "\\node[state] (Y3) [below of=X3] {$Y_3$};\n" +
+        "\\path\n" +
+        "(X1) edge     node{$T$}         (X2)\n" +
+        "     edge     node{}            (Y1)\n" +
+        "(X2) edge     node{$T$}         (X3)\n" +
+        "     edge     node{}            (Y2)\n" +
+        "(X3) edge     node{}            (Y3)\n" +
+        ";\n" +
+        "\\end{tikzpicture}\n",
         title: "Example Document"
     });
     await databaseManagerDocument.create(databasePath, accountIdTestUser, {

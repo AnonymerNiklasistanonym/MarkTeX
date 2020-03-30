@@ -1,16 +1,18 @@
 import * as pandoc from "../pandoc";
-import { PdfOptions, PdfOptionsPaperSize } from "./databaseManager/document";
+import { PdfOptions, PdfOptionsPaperSize } from "./databaseManager/documentPdfOptions";
 import { debuglog } from "util";
 
 
 const debug = debuglog("app-api-pandoc-manager");
 
+// TODO Create seperated options for presentations and documents
 
 // eslint-disable-next-line complexity
 const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pandoc.PandocConfigYmlInput => {
     const pandocArgs: pandoc.PandocConfigYmlInput = {};
     const pandocArgsMetadata: pandoc.PandocConfigYmlInputMetadata = {};
     const pandocArgsVariables: pandoc.PandocConfigYmlInputVariable[] = [];
+    const pandocArgsClassoption: string[] = [];
     if (input.pdfOptions) {
         if (input.pdfOptions.useAuthors) {
             pandocArgsMetadata.authors = input.authors ? [input.authors] : [];
@@ -47,10 +49,51 @@ const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pan
         if (input.pdfOptions.isPresentation) {
             pandocArgs.to = "beamer";
         }
+        if (input.pdfOptions.landscape || input.pdfOptions.twoColumns) {
+            const values = [];
+            if (input.pdfOptions.landscape) {
+                values.push({ name: "landscape" });
+            }
+            if (input.pdfOptions.twoColumns) {
+                values.push({ name: "twocolumn" });
+            }
+            if (values.length > 0) {
+                pandocArgsVariables.push({
+                    name: "classoption",
+                    value: values
+                });
+            }
+        }
     }
-    pandocArgs.variables = pandocArgsVariables;
-    pandocArgs.metadata = pandocArgsMetadata;
+
+    if (pandocArgsVariables.length > 0) {
+        pandocArgs.variables = pandocArgsVariables;
+    }
+    if (pandocArgsMetadata && Object.keys(pandocArgsMetadata).length > 0) {
+        pandocArgs.metadata = pandocArgsMetadata;
+    }
+    debug(`processed pandoc args: ${JSON.stringify(pandocArgs)}`);
     return pandocArgs;
+};
+
+const extractHeaderIncludesAndAddPandocHeader = (content: string): string => {
+    const allHeaderIncludes: string[] = [];
+    const lines = content.split("\n").map(a => a.trim());
+    const headerIncludesString = "% header-includes: ";
+    for (const line of lines) {
+        if (line.startsWith(headerIncludesString)) {
+            const headerIncludes = line
+                .slice(headerIncludesString.length, line.length)
+                .split(" ")
+                .filter(a => a.length > 0);
+            allHeaderIncludes.push(... headerIncludes);
+        }
+    }
+    if (allHeaderIncludes.length > 0) {
+        const allUniqueHeaderIncludes = [... new Set(allHeaderIncludes)];
+        return `---\nheader-includes: |\n  ${allUniqueHeaderIncludes.join("\n  ")}\n---\n\n${content}`;
+    }
+    return content;
 };
 
 export interface Document2PdfInput {
@@ -69,7 +112,7 @@ export const document2Pdf = async (input: Document2PdfInput): Promise<Document2P
     debug(`document2Pdf: ${JSON.stringify(input)}`);
     const pandocOut = await pandoc.md2Pdf({
         files: [{
-            data: input.content,
+            data: extractHeaderIncludesAndAddPandocHeader(input.content),
             filename: "document.md",
             sourceFile: true
         }],
@@ -101,7 +144,7 @@ export const document2Zip = async (input: Document2ZipInput): Promise<Document2Z
     debug(`document2Zip: ${JSON.stringify(input)}`);
     const pandocOut = await pandoc.md2Pdf({
         files: [{
-            data: input.content,
+            data: extractHeaderIncludesAndAddPandocHeader(input.content),
             filename: "document.md",
             sourceFile: true
         }],

@@ -31,6 +31,9 @@ div.container-marktex-editor > div.container-marktex-editor-output {
 	display: block;
 	background-color: white;
 }
+div.container-marktex-editor > div.container-marktex-editor-output .markdown-latex-block p {
+	display: none;
+}
 
 div.container-marktex-editor.only-edit > div.container-marktex-editor-output {
 	width: 100%;

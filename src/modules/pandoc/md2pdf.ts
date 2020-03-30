@@ -2,6 +2,7 @@ import * as docker from "../docker";
 import * as helper from "../helper";
 import * as make from "../make";
 import { createPandocConfigFile, PandocConfigYmlInput } from "./pandocConfigYml";
+import crypto from "crypto";
 import { debuglog } from "util";
 import { promises as fs } from "fs";
 import os from "os";
@@ -61,7 +62,9 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
     // TODO test images in all formats
     const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
     // Create working directory
-    const workingDirTimeStamp = String(Date.now());
+    const workingDirTimeStamp = String(
+        Date.now() + crypto.createHash("md5").update(JSON.stringify(input)).digest("hex")
+    );
     const workingDirName = path.join(os.tmpdir(), workingDirTimeStamp);
     await fs.mkdir(workingDirName);
     // Copy all files to working directory
@@ -99,6 +102,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         ? input.pandocOptions.pandocArgs : {};
     pandocArgs.inputFiles = pandocSourceFiles;
     const pandocConfigContent = createPandocConfigFile(pandocArgs);
+    debug(`pandoc.yml: input="${JSON.stringify(pandocArgs)}",output="${pandocConfigContent}"`);
     const pandocConfigName = "pandoc.yml";
     const pandocConfigPath = path.join(workingDirName, pandocConfigName);
     await fs.writeFile(pandocConfigPath, pandocConfigContent);

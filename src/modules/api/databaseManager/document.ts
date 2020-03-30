@@ -1,37 +1,9 @@
 import * as database from "../../database";
-
+import * as pdfOptions from "./documentPdfOptions";
 
 export interface CreateInputResource {
     relativePath: string
     content: string | Buffer
-}
-
-export interface PdfOptionsFooter {
-    enabled?: string
-    text?: string
-}
-export interface PdfOptionsHeader {
-    enabled?: string
-    text?: string
-}
-export enum PdfOptionsPaperSize {
-    A4 = "A4"
-}
-export interface PdfOptionsTableOfContents {
-    depth?: number
-    enabled?: boolean
-}
-
-export interface PdfOptions {
-    isPresentation?: boolean
-    footer?: PdfOptionsFooter
-    header?: PdfOptionsHeader
-    pageNumbers?: boolean
-    paperSize?: PdfOptionsPaperSize
-    tableOfContents?: PdfOptionsTableOfContents
-    useAuthors?: boolean
-    useDate?: boolean
-    useTitle?: boolean
 }
 
 export interface CreateInput {
@@ -39,7 +11,7 @@ export interface CreateInput {
     content: string
     authors?: string
     date?: string
-    pdfOptions?: PdfOptions
+    pdfOptions?: pdfOptions.PdfOptions
     resources?: CreateInputResource[]
 }
 
@@ -84,7 +56,7 @@ export interface UpdateInput {
     content?: string
     authors?: string
     date?: string
-    pdfOptions?: PdfOptions
+    pdfOptions?: pdfOptions.PdfOptions
     resources?: CreateInputResource[]
 }
 
@@ -194,7 +166,7 @@ export interface GetOutput {
     owner: number
     group?: number
     content: string
-    pdfOptions?: PdfOptions
+    pdfOptions?: pdfOptions.PdfOptions
 }
 export interface GetDbOut {
     title: string
@@ -231,9 +203,9 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
         [input.id]
     ) as GetDbOut;
     if (runResult) {
-        let pdfOptions;
+        let pdfOptionsObj;
         if (runResult.pdf_options && runResult.pdf_options !== null) {
-            pdfOptions = JSON.parse(runResult.pdf_options);
+            pdfOptionsObj = JSON.parse(runResult.pdf_options);
         }
         return {
             authors: runResult.authors !== null ? runResult.authors : undefined,
@@ -242,7 +214,7 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
             group: runResult.document_group !== null ? runResult.document_group : undefined,
             id: input.id,
             owner: runResult.owner,
-            pdfOptions,
+            pdfOptions: pdfOptionsObj,
             title: runResult.title
         };
     }

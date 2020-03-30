@@ -27,6 +27,7 @@ export interface PandocConfigYmlInput {
      * - draft
      */
     variables?: PandocConfigYmlInputVariable[]
+
     metadata?: PandocConfigYmlInputMetadata
     /**
      * @example

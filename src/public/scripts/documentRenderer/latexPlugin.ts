@@ -18,7 +18,7 @@ export const register = (md: MarkdownIt): void => {
         let currentString = state.src.slice(posBeginCurrentLine,posEndCurrentLine);
 
         // Check if the first line starts with a \begin{
-        if (!currentString.startsWith("\\begin{center}")) { return false; }
+        if (!currentString.startsWith("\\begin{")) { return false; }
 
         if (DEBUG_APP) {
             console.debug("MarkdownIt>Plugin>Latex: BEGIN block found");
@@ -38,7 +38,7 @@ export const register = (md: MarkdownIt): void => {
             state.line++;
 
             if (currentString.startsWith(headerIncludesString)) {
-                currentString = currentString.slice(headerIncludesString.length ,currentString.length);
+                currentString = currentString.slice(headerIncludesString.length, currentString.length);
                 headerIncludes = currentString.split(" ").filter(a => a.length !== 0);
                 if (DEBUG_APP) {
                     console.debug("MarkdownIt>Plugin>Latex: Found header includes", headerIncludes);
@@ -48,7 +48,7 @@ export const register = (md: MarkdownIt): void => {
                 latexString += `\n${currentString}`;
             }
 
-        } while (!currentString.startsWith("\\end{center}") && currentLine <= endLine);
+        } while (!currentString.startsWith("\\end{") && currentLine <= endLine);
 
         if (currentLine > endLine) {
             if (DEBUG_APP) {
@@ -81,7 +81,7 @@ export const register = (md: MarkdownIt): void => {
                           + `with the header includes: '${headerIncludes}'`);
         }
         return `<div class="markdown-latex-block" id="${latexStringHash}" `
-               + `header-includes="${headerIncludes.join(",")}">`
+               + `header-includes="${headerIncludes.join(" ")}">`
                + `<p>${latexString}</p>`
                + "<svg class=\"loading\"><text x=\"10\" y=\"20\" style=\"fill:red;\">Currently Loading</text></svg>"
                + "</div>";
@@ -103,7 +103,7 @@ export const renderLatexBlocks = (): void => {
         const headerIncludeString = latexBlock.getAttribute("header-includes");
         const latexHeaderIncludes =
             (headerIncludeString !== undefined && headerIncludeString !== null)
-                ? headerIncludeString.split(",") : [];
+                ? headerIncludeString.split(" ") : [];
         const texContentElement = latexBlock.querySelector("p");
         if (texContentElement === undefined || texContentElement == null
             || texContentElement.textContent === undefined || texContentElement.textContent === null) {
