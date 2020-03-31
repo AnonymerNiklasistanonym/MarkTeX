@@ -3,8 +3,10 @@ export interface MakeInput {
     definitions: MakeInputDefinition[]
     /**
      * @example
-     * jobname: dependency
-     *      ./commands.sh
+     * all: defaultJob
+     *
+     * job: dependency
+     *      commands
      */
     jobs: MakeInputJob[]
 };
@@ -17,7 +19,7 @@ export interface MakeInputDefinition {
 
 /**
  * @example
- * all: nameIfOptional
+ * all: nameIfDefaultOptional
  *
  * name: optionalDependency1 optionalDependency2
  *      command1
