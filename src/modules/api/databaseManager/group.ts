@@ -15,7 +15,7 @@ export interface CreateInput {
 export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
     const columns = [ "name", "owner" ];
     const values = [ input.name, accountId ];
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.insert("document_group", columns),
         values
@@ -50,9 +50,12 @@ export interface GetOutput {
     owner: number
 }
 export interface GetDbOut {
-    id: number
     name: string
     owner: number
+}
+export interface GetAllFromOwnerDbOut {
+    id: number
+    name: string
 }
 
 /**
@@ -63,7 +66,7 @@ export interface GetDbOut {
  * @param input Group get info.
  */
 export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
-    const runResult = await database.requests.getEachRequest(
+    const runResult = await database.requests.getEach(
         databasePath,
         database.queries.select("document_group", [ "name", "owner" ], {
             whereColumn: "id"
@@ -86,21 +89,21 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
  * @param accountId Unique id of account that created the group.
  * @param input Document get info.
  */
-export const getAllFromAuthor = async (
+export const getAllFromOwner = async (
     databasePath: string, accountId: number, input: GetInput
 ): Promise<(GetOutput[]|void)> => {
-    const runResults = await database.requests.getAllRequest(
+    const runResults = await database.requests.getAll(
         databasePath,
-        database.queries.select("document_group", [ "name", "owner" ], {
+        database.queries.select("document_group", [ "id", "name" ], {
             whereColumn: "owner"
         }),
         [input.id]
-    ) as GetDbOut[];
+    ) as GetAllFromOwnerDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
-            id: input.id,
+            id: runResult.id,
             name: runResult.name,
-            owner: runResult.owner
+            owner: input.id
         }));
     }
 };

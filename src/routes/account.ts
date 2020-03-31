@@ -29,10 +29,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const accountInfo = await api.database.account.get(options.databasePath, accountId, {
             id: pageAccountId
         });
-        const accountDocuments = await api.database.document.getAllFromAuthor(options.databasePath, accountId, {
+        const accountDocuments = await api.database.document.getAllFromOwner(options.databasePath, accountId, {
             id: pageAccountId
         });
-        const accountGroups = await api.database.group.getAllFromAuthor(options.databasePath, accountId, {
+        const accountGroups = await api.database.group.getAllFromOwner(options.databasePath, accountId, {
             id: pageAccountId
         });
         if (accountInfo) {

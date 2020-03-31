@@ -1,8 +1,5 @@
-export * from "./database/openDatabase";
-export * from "./database/createDatabase";
-// TODO Enable later when implemented: export * as queries from "./database/databaseQueries";
-// For now use the following two lines
-import * as queries from "./database/databaseQueries";
+import * as queries from "./database/queries";
 export { queries };
-import * as requests from "./database/databaseRequests";
+import * as requests from "./database/requests";
 export { requests };
+export * from "./database/management";

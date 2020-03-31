@@ -18,7 +18,7 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
     const columns = [ "name", "password_hash", "password_salt", "admin" ];
     const hashAndSalt = crypto.generateHashAndSalt(input.password);
     const values: (string|number)[] = [ input.name, hashAndSalt.hash, hashAndSalt.salt, input.admin ? 1 : 0 ];
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.insert("account", columns),
         values
@@ -39,7 +39,7 @@ export interface RemoveInput {
  * @param input Remove info.
  */
 export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.remove("account", "id"),
         [input.id]
@@ -69,7 +69,7 @@ export interface ExistsDbOut {
 export const existsName = async (
     databasePath: string, accountId: number, input: ExistsNameInput
 ): Promise<boolean> => {
-    const runResult = await database.requests.getEachRequest(
+    const runResult = await database.requests.getEach(
         databasePath,
         database.queries.exists("account", "name"),
         [input.name]
@@ -86,7 +86,7 @@ export const existsName = async (
  * @returns True if account exists.
  */
 export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEachRequest(
+    const runResult = await database.requests.getEach(
         databasePath,
         database.queries.exists("account", "id"),
         [input.id]
@@ -116,7 +116,7 @@ export interface CheckLoginDbOut {
 export const checkLogin = async (
     databasePath: string, input: CheckLoginInput
 ): Promise<(number|void)> => {
-    const runResult = await database.requests.getEachRequest(
+    const runResult = await database.requests.getEach(
         databasePath,
         database.queries.select("account", [ "id", "password_hash", "password_salt" ], {
             whereColumn: "name"
@@ -155,7 +155,7 @@ export interface GetDbOut {
  * @param input Account get info.
  */
 export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
-    const runResult = await database.requests.getEachRequest(
+    const runResult = await database.requests.getEach(
         databasePath,
         database.queries.select("account", [ "name", "admin" ], {
             whereColumn: "id"
@@ -202,7 +202,7 @@ export const update = async (databasePath: string, accountId: number, input: Upd
         values.push(input.name);
     }
     values.push(input.id);
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.update("account", columns, "id"),
         values

@@ -5,12 +5,12 @@
  * DELETE FROM tableName: string WHERE whereColumn=?;
  * ```
  *
+ * @param tableName Sanitized table name
+ * @param whereColumnName Sanitized column on which value a row should be removed
  * @returns Query
- * @param tableName
- * @param whereColumn
  */
-export const remove = (tableName: string, whereColumn = "id"): string => {
-    return `DELETE FROM ${tableName} WHERE ${whereColumn}=?;`;
+export const remove = (tableName: string, whereColumnName = "id"): string => {
+    return `DELETE FROM ${tableName} WHERE ${whereColumnName}=?;`;
 };
 
 /**
@@ -19,13 +19,13 @@ export const remove = (tableName: string, whereColumn = "id"): string => {
  * INSERT INTO tableName: string(column_0, column_i, column_n) VALUES(?, ?, ?);
  * ```
  *
+ * @param tableName Sanitized table name
+ * @param columnNames Sanitized column names that should be overwritten with new values
  * @returns Query
- * @param tableName
- * @param columns
  */
-export const insert = (tableName: string, columns: string[]): string => {
-    return `INSERT INTO ${tableName}(${columns.join(",")}) ` +
-        `VALUES(${columns.map(() => "?").join(",")});`;
+export const insert = (tableName: string, columnNames: string[]): string => {
+    return `INSERT INTO ${tableName}(${columnNames.join(",")}) ` +
+        `VALUES(${columnNames.map(() => "?").join(",")});`;
 };
 
 /**
@@ -34,12 +34,12 @@ export const insert = (tableName: string, columns: string[]): string => {
  * SELECT EXISTS(SELECT 1 FROM tableName: string WHERE column=? AS exists_value;
  * ```
  *
+ * @param tableName Sanitized table name
+ * @param whereColumnName Sanitized column name which is checked for existing with query value
  * @returns Query
- * @param tableName
- * @param column
  */
-export const exists = (tableName: string, column = "id"): string => {
-    return `SELECT EXISTS(SELECT 1 FROM ${tableName} WHERE ${column}=?) AS exists_value;`;
+export const exists = (tableName: string, whereColumnName = "id"): string => {
+    return `SELECT EXISTS(SELECT 1 FROM ${tableName} WHERE ${whereColumnName}=?) AS exists_value;`;
 };
 
 export interface SelectQueryInnerJoin {
@@ -109,10 +109,10 @@ export interface SelectQueryOptions {
  * SELECT column_0 FROM tableName: string ORDER BY column_0 ASC;
  * ```
  *
- * @returns Query
  * @param tableName
  * @param columns
  * @param options
+ * @returns Query
  */
 // eslint-disable-next-line complexity
 export const select = (tableName: string, columns: string[], options?: SelectQueryOptions): string => {

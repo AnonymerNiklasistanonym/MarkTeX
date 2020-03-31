@@ -42,7 +42,7 @@ export const create = async (databasePath: string, accountId: number, input: Cre
         columns.push("pdf_options");
         values.push(JSON.stringify(input.pdfOptions));
     }
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.insert("document", columns),
         values
@@ -97,7 +97,7 @@ export const update = async (databasePath: string, accountId: number, input: Upd
         values.push(JSON.stringify(input.pdfOptions));
     }
     values.push(input.id);
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.update("document", columns, "id"),
         values
@@ -118,7 +118,7 @@ export interface RemoveInput {
  * @returns True if at least one element was removed otherwise False.
  */
 export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<(boolean|void)> => {
-    const postResult = await database.requests.postRequest(
+    const postResult = await database.requests.post(
         databasePath,
         database.queries.remove("document", "id"),
         [input.id]
@@ -144,7 +144,7 @@ export interface ExistsDbOut {
  * @returns True if exists otherwise False.
  */
 export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<(boolean|void)> => {
-    const postResult = await database.requests.getEachRequest(
+    const postResult = await database.requests.getEach(
         databasePath,
         database.queries.exists("document", "id"),
         [input.id]
@@ -195,7 +195,7 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
     if (input.getPdfOptions) {
         columns.push("pdf_options");
     }
-    const runResult = await database.requests.getEachRequest(
+    const runResult = await database.requests.getEach(
         databasePath,
         database.queries.select("document", columns, {
             whereColumn: "id"
@@ -233,13 +233,22 @@ export interface GetAllOutput {
     group?: number
     content?: string
 }
-export interface GetAllDbOut {
+export interface GetAllFromOwnerDbOut {
+    id: number
     title: string
-    authors: string
-    date: string
-    owner: number
+    authors?: string
+    date?: string
     // eslint-disable-next-line camelcase
     document_group: number
+    content?: string
+}
+
+export interface GetAllFromGroupDbOut {
+    id: number
+    title: string
+    authors?: string
+    date?: string
+    owner: number
     content?: string
 }
 
@@ -250,28 +259,28 @@ export interface GetAllDbOut {
  * @param accountId Unique id of account that created the document.
  * @param input Document get info.
  */
-export const getAllFromAuthor = async (
+export const getAllFromOwner = async (
     databasePath: string, accountId: number, input: GetAllInput
 ): Promise<(GetAllOutput[]|void)> => {
-    const columns = [ "title", "authors", "date", "owner", "document_group" ];
+    const columns = [ "id", "title", "authors", "date", "document_group" ];
     if (input.getContents) {
         columns.push("content");
     }
-    const runResults = await database.requests.getAllRequest(
+    const runResults = await database.requests.getAll(
         databasePath,
         database.queries.select("document", columns, {
             whereColumn: "owner"
         }),
         [input.id]
-    ) as GetAllDbOut[];
+    ) as GetAllFromOwnerDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
             authors: runResult.authors !== null ? runResult.authors : undefined,
             content: runResult.content,
             date: runResult.date !== null ? runResult.date : undefined,
             group: runResult.document_group !== null ? runResult.document_group : undefined,
-            id: input.id,
-            owner: runResult.owner,
+            id: runResult.id,
+            owner: input.id,
             title: runResult.title
         }));
     }
@@ -287,24 +296,24 @@ export const getAllFromAuthor = async (
 export const getAllFromGroup = async (
     databasePath: string, accountId: number, input: GetAllInput
 ): Promise<(GetAllOutput[]|void)> => {
-    const columns = [ "title", "authors", "date", "owner", "document_group" ];
+    const columns = [ "id", "title", "authors", "date", "owner" ];
     if (input.getContents) {
         columns.push("content");
     }
-    const runResults = await database.requests.getAllRequest(
+    const runResults = await database.requests.getAll(
         databasePath,
         database.queries.select("document", columns, {
             whereColumn: "document_group"
         }),
         [input.id]
-    ) as GetAllDbOut[];
+    ) as GetAllFromGroupDbOut[];
     if (runResults) {
         return runResults.map(runResult => ({
             authors: runResult.authors,
             content: runResult.content,
             date: runResult.date,
-            group: runResult.document_group,
-            id: input.id,
+            group: input.id,
+            id: runResult.id,
             owner: runResult.owner,
             title: runResult.title
         }));

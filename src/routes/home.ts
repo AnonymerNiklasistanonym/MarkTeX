@@ -28,7 +28,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const accountInfo = await api.database.account.get(
             options.databasePath, sessioninfo.accountId, { id: sessioninfo.accountId  }
         );
-        const accountDocuments = await api.database.document.getAllFromAuthor(
+        const accountDocuments = await api.database.document.getAllFromOwner(
             options.databasePath, sessioninfo.accountId, { id: sessioninfo.accountId }
         );
         if (!accountInfo || !accountDocuments) {

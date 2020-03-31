@@ -20,10 +20,10 @@ describe("api database management", () => {
         await api.database.remove(databasePath);
         const existsBad = await api.database.exists(databasePath);
         chai.expect(existsBad).to.equal(false);
-        await api.database.createDatabase(databasePath);
+        await api.database.create(databasePath);
         const exists = await api.database.exists(databasePath);
         chai.expect(exists).to.equal(true);
-        await api.database.createDatabase(databasePath);
+        await api.database.create(databasePath);
         chai.expect(exists).to.equal(true);
     });
     it("reset database", async () => {

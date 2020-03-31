@@ -22,7 +22,7 @@ api.database.exists(databasePath)
         // Setup database if non is found
         if (!exists) {
             debug("setup database '%s' as it does not exist", databasePath);
-            await api.database.createDatabase(databasePath);
+            await api.database.create(databasePath);
         } else {
             debug("database '%s' found", databasePath);
         }

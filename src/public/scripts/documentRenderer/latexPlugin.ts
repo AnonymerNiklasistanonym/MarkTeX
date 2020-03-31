@@ -28,7 +28,7 @@ export const register = (md: MarkdownIt): void => {
         const headerIncludesString = "% header-includes: ";
         let headerIncludes: string[] = [];
         const usePopplerString = "% use-poppler";
-        let usePoppler: boolean = false;
+        let usePoppler = false;
 
         do {
 

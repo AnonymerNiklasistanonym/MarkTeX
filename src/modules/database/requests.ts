@@ -1,17 +1,33 @@
 import { debuglog } from "util";
-import { openDatabase } from "./openDatabase";
+import { open } from "../database";
 import sqlite3 from "sqlite3";
 
 
 const debug = debuglog("app-database-request");
 
 
-export const getEachRequest = async (dbNamePath: string, query: string,
+export enum ErrorCodePostRequest {
+    SQLITE_ERROR = 1,
+    SQLITE_CONSTRAINT = "SQLITE_CONSTRAINT"
+}
+
+
+export const isDatabaseError = (error: any): boolean => {
+    if (error && error.code) {
+        if (error.code === ErrorCodePostRequest.SQLITE_CONSTRAINT) {
+            return true;
+        }
+    }
+    return false;
+};
+
+
+export const getEach = async (dbNamePath: string, query: string,
     parameters: (string|number)[] = []): Promise<any> => {
 
-    const db = await openDatabase(dbNamePath);
+    const db = await open(dbNamePath);
     db.on("trace", debug);
-    debug(`Run query: "${query}"`);
+    debug(`Run query get each: "${query}"`);
     let requestedElement: any;
     return new Promise((resolve, reject) => db.each(query, parameters,
         (err, row) => {
@@ -23,39 +39,44 @@ export const getEachRequest = async (dbNamePath: string, query: string,
             }
         },
         err => {
-            let previousError = false;
             if (err) {
-                previousError = true;
                 debug(`Database error: ${JSON.stringify(err)}`);
-                reject(err);
             }
             db.close(errClose => {
-                if (!previousError && errClose) {
+                if (errClose) {
                     debug(`Database close error: ${JSON.stringify(errClose)}`);
-                    reject(errClose);
-                } else {
-                    debug(`Run result: "${JSON.stringify(requestedElement)}"`);
-                    resolve(requestedElement);
                 }
+                if (err || errClose) {
+                    return reject(err ? err : errClose);
+                }
+                debug(`Run result: "${JSON.stringify(requestedElement)}"`);
+                resolve(requestedElement);
             });
         })
     );
 };
 
-export const getAllRequest = async (dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<any> => {
+export const getAll = async (dbNamePath: string, query: string,
+    parameters: (string|number)[] = []): Promise<any[]> => {
 
-    const db = await openDatabase(dbNamePath);
+    const db = await open(dbNamePath);
     db.on("trace", debug);
-    debug(`Run query: "${query}"`);
+    debug(`Run query get all: "${query}"`);
     return new Promise((resolve, reject) => db.all(query, parameters,
         (err, rows) => {
             if (err) {
                 debug(`Database error each: ${JSON.stringify(err)}`);
-                reject(err);
-            } else {
-                resolve(rows);
             }
+            db.close(errClose => {
+                if (errClose) {
+                    debug(`Database close error: ${JSON.stringify(errClose)}`);
+                }
+                if (err || errClose) {
+                    return reject(err ? err : errClose);
+                }
+                debug(`Run result: "${JSON.stringify(rows)}"`);
+                resolve(rows);
+            });
         })
     );
 };
@@ -68,25 +89,26 @@ export const getAllRequest = async (dbNamePath: string, query: string,
  * @param parameters Query data.
  * @returns Post result
  */
-export const postRequest = async (dbNamePath: string, query: string,
+export const post = async (dbNamePath: string, query: string,
     parameters: (string|number)[] = []): Promise<sqlite3.RunResult> => {
 
-    const db = await openDatabase(dbNamePath);
+    const db = await open(dbNamePath);
     db.on("trace", debug);
-    debug(`Run query: "${query}"`);
+    debug(`Run query post: "${query}"`);
     return new Promise((resolve, reject) => db.run(query, parameters,
         function (err) {
             if (err) {
                 debug(`Database error each: ${JSON.stringify(err)}`);
-                reject(err);
-            } else {
-                debug(`Database post result: ${JSON.stringify(this)}`);
-                resolve(this);
             }
             db.close(errClose => {
                 if (errClose) {
                     debug(`Database close error: ${JSON.stringify(errClose)}`);
                 }
+                if (err || errClose) {
+                    return reject(err ? err : errClose);
+                }
+                debug(`Database post result: ${JSON.stringify(this)}`);
+                resolve(this);
             });
         })
     );

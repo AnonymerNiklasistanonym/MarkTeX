@@ -10,7 +10,7 @@ import * as databaseManagerGroup from "./group";
  */
 export const setupTables = async (databasePath: string): Promise<void> => {
     // Account table
-    await database.requests.postRequest(
+    await database.requests.post(
         databasePath,
         database.queries.createTable("account", [ {
             name: "id",
@@ -34,7 +34,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             type: database.queries.CreateTableColumnType.INTEGER
         } ], true));
     // Group table
-    await database.requests.postRequest(
+    await database.requests.post(
         databasePath,
         database.queries.createTable("document_group", [ {
             name: "id",
@@ -54,7 +54,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             type: database.queries.CreateTableColumnType.INTEGER
         } ], true));
     // Document table
-    await database.requests.postRequest(
+    await database.requests.post(
         databasePath,
         database.queries.createTable("document", [ {
             name: "id",
