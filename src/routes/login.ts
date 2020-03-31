@@ -21,6 +21,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         header.stylesheets.push({ path: "/stylesheets/login.css" });
         header.scripts.push({ path: `/scripts/login_bundle.js${options.production ? ".gz" : ""}` });
         header.title = "MarkTeX Login & Register";
+        const navigationBar = viewRendering.getNavigationBarDefaults(options);
         const messages = expressSession.getMessages(req);
         res.render("login", {
             header,
@@ -40,7 +41,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             messages: {
                 exist: messages.length > 0,
                 texts: messages
-            }
+            },
+            navigationBar
         });
     });
 

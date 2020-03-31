@@ -22,7 +22,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
     // View account
     app.get("/account/:id", async (req, res, next) => {
         let accountId = 1;
-        if (expressSession.isAuthenticated(req)) {
+        const loggedIn = expressSession.isAuthenticated(req);
+        if (loggedIn) {
             accountId =  expressSession.getSessionInfo(req).accountId;
         }
         const pageAccountId = Number(req.params.id);
@@ -39,9 +40,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const header = viewRendering.getHeaderDefaults(options, { sockets: true });
             header.title = `${accountInfo.name}`;
             header.scripts.push({ path: `/scripts/account_bundle.js${options.production ? ".gz" : ""}` });
+            const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
             return res.render("account", {
                 account: { ... accountInfo, documents: accountDocuments, groups: accountGroups },
-                header
+                header,
+                navigationBar
             });
         } else {
             next(createHttpError(404, `Account with the ID '${pageAccountId}' was not found`));

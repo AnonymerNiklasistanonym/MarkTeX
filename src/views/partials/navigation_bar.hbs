@@ -1,0 +1,7 @@
+<div class="container-navigation-bar">
+	<ul class="navigation-bar-links">
+		{{#each navigationBar.links}}
+		<li class="{{#if this.alignRight}}align-right{{/if}}"><a class="navigation-bar-link" {{#if this.id}}id="{{this.id}}"{{/if}} href="{{this.url}}">{{this.title}}</a></li>
+		{{/each}}
+	</ul>
+</div>

@@ -1,10 +1,10 @@
 
 interface HbsHeaderScripts {
     path: string
-};
+}
 interface HbsHeaderStylesheets {
     path: string
-};
+}
 
 export interface HbsHeaderWebApp {
     /** The name of the web app */
@@ -13,7 +13,7 @@ export interface HbsHeaderWebApp {
     themeColor: string
     /** Path to web app manifest */
     manifestPath: string
-};
+}
 
 interface HbsHeaderFaviconPng {
     /** Favicon `.png` path prefix */
@@ -22,7 +22,7 @@ interface HbsHeaderFaviconPng {
     postfix: string
     /** Favicon png sizes */
     sizes: number[]
-};
+}
 
 export interface HbsHeaderFavicon{
     /** Favicon `.ico` path */
@@ -31,7 +31,7 @@ export interface HbsHeaderFavicon{
     svg: string
     /** Path to web app manifest */
     png: HbsHeaderFaviconPng
-};
+}
 
 export interface HbsHeader {
     scripts: HbsHeaderScripts[]
@@ -41,4 +41,4 @@ export interface HbsHeader {
     title?: string
     description?: string
     author: string
-};
+}

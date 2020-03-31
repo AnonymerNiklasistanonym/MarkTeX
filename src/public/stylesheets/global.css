@@ -176,3 +176,36 @@ ul.messages > li {
 .can-be-toggled.hide-element {
     max-height: 0px;
 }
+
+div.container-navigation-bar {
+    margin: auto;
+    max-width: var(--global-responsive-maximum-width);
+}
+
+div.container-navigation-bar > ul.navigation-bar-links {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+div.container-navigation-bar > ul.navigation-bar-links > li:not(.align-right) {
+    float: left;
+}
+
+div.container-navigation-bar > ul.navigation-bar-links > li.align-right {
+    float: right;
+}
+
+div.container-navigation-bar > ul.navigation-bar-links > li > a.navigation-bar-link {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+div.container-navigation-bar > ul.navigation-bar-links > li > a.navigation-bar-link:hover {
+    background-color: #111;
+}

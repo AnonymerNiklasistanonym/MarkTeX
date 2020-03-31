@@ -10,7 +10,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
     // View group
     app.get("/group/:id", async (req, res) => {
         let accountId = 1;
-        if (expressSession.isAuthenticated(req)) {
+        const loggedIn = expressSession.isAuthenticated(req);
+        if (loggedIn) {
             accountId =  expressSession.getSessionInfo(req).accountId;
         }
         const groupId = Number(req.params.id);
@@ -23,11 +24,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 id: groupInfo.owner
             });
             const header = viewRendering.getHeaderDefaults(options, { sockets: true });
+            const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
             header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });
             res.render("group", {
                 group: { ... groupInfo, documents: groupDocuments, owner: accountInfo },
                 header,
-                layout: "default"
+                navigationBar
             });
         }
     });

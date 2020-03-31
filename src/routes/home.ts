@@ -15,14 +15,15 @@ export const register = (app: express.Application, options: StartExpressServerOp
     // Home page
     app.get("/", async (req, res, next) => {
         // TODO Add more functionality as soon as the user is logged in -> use different handlebars templates
+        const loggedIn = expressSession.isAuthenticated(req);
         const header = viewRendering.getHeaderDefaults(options, { sockets: true });
         header.title = "MarkTeX Home";
         header.description = "Home page of MarkTeX";
         header.stylesheets.push({ path: "/stylesheets/home.css" });
         header.scripts.push({ path: `/scripts/home_bundle.js${options.production ? ".gz" : ""}` });
-        const loggedIn = expressSession.isAuthenticated(req);
+        const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
         if (!loggedIn) {
-            return res.render("home", { header, loggedIn });
+            return res.render("home", { header, loggedIn, navigationBar });
         }
         const sessioninfo = expressSession.getSessionInfo(req);
         const accountInfo = await api.database.account.get(
@@ -52,7 +53,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     pattern: regexAccountPassword.toString().slice(1, -1)
                 }
             },
-            loggedIn
+            loggedIn,
+            navigationBar
         });
     });
 

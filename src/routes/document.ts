@@ -12,7 +12,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
     // eslint-disable-next-line complexity
     app.get("/document/:id", async (req, res) => {
         let accountId = 1;
-        if (expressSession.isAuthenticated(req)) {
+        const loggedIn = expressSession.isAuthenticated(req);
+        if (loggedIn) {
             accountId =  expressSession.getSessionInfo(req).accountId;
         }
         const documentId = Number(req.params.id);
@@ -125,9 +126,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
             header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
             header.title = `${documentInfo.title} by ${documentInfo.authors}`;
             header.description = `${documentInfo.title} by ${documentInfo.authors} from ${documentInfo.date}`;
+            const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
             res.render("document", {
                 document: { ... documentInfo, group: groupInfo, owner: accountInfo, pdfOptions },
-                header
+                header,
+                navigationBar
             });
         }
     });
