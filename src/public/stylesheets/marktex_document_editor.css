@@ -1,5 +1,5 @@
 :root {
-    --markdown-editor-textarea-padding: 1em;
+	--markdown-editor-textarea-padding: 1em;
 }
 
 div.container-marktex-editor {
@@ -8,24 +8,25 @@ div.container-marktex-editor {
 	grid-template-columns: 50% 50%;
 }
 
-div.container-marktex-editor.only-edit, div.container-marktex-editor.only-view {
+div.container-marktex-editor.only-edit,
+div.container-marktex-editor.only-view {
 	width: 100%;
 	display: grid;
 	grid-template-columns: 100%;
 	height: 100vh;
 }
 
-div.container-marktex-editor > div.container-marktex-editor-input {
+div.container-marktex-editor>div.container-marktex-editor-input {
 	width: 100%;
 	display: block;
 }
 
-div.container-marktex-editor.only-view > div.container-marktex-editor-input {
+div.container-marktex-editor.only-view>div.container-marktex-editor-input {
 	width: 100%;
 	display: none;
 }
 
-div.container-marktex-editor > div.container-marktex-editor-input > textarea {
+div.container-marktex-editor>div.container-marktex-editor-input>textarea {
 	width: calc(100% - 2 * var(--markdown-editor-textarea-padding));
 	padding: var(--markdown-editor-textarea-padding);
 	resize: none;
@@ -33,7 +34,7 @@ div.container-marktex-editor > div.container-marktex-editor-input > textarea {
 	height: calc(100% - 2 * var(--markdown-editor-textarea-padding));
 }
 
-div.container-marktex-editor > div.container-marktex-editor-output {
+div.container-marktex-editor>div.container-marktex-editor-output {
 	width: 100%;
 	display: block;
 	background-color: white;
@@ -42,20 +43,25 @@ div.container-marktex-editor > div.container-marktex-editor-output {
 	overflow-x: hidden;
 }
 
-div.container-marktex-editor > div.container-marktex-editor-output .markdown-latex-block p {
+div.container-marktex-editor:not(.only-view)>div.container-marktex-editor-output {
+	max-height: 100vh;
+}
+
+div.container-marktex-editor>div.container-marktex-editor-output .markdown-latex-block p {
 	display: none;
 }
 
-div.container-marktex-editor.only-edit > div.container-marktex-editor-output {
+div.container-marktex-editor.only-edit>div.container-marktex-editor-output {
 	width: 100%;
 	display: none;
 }
 
-div.container-marktex-editor > div.container-marktex-editor-output > div {
+div.container-marktex-editor>div.container-marktex-editor-output>div {
 	width: 100%;
 }
 
-.markdown-body, .markdown-body-page {
+.markdown-body,
+.markdown-body-page {
 	box-sizing: border-box;
 	min-width: 200px;
 	max-width: 980px;
@@ -64,15 +70,18 @@ div.container-marktex-editor > div.container-marktex-editor-output > div {
 }
 
 .markdown-body-page {
-	box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0, 0, 0, 0.23),0px 1px 3px 0px rgba(0, 0, 0, 0.35);
+	box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.23), 0px 1px 3px 0px rgba(0, 0, 0, 0.35);
 	border-radius: 4px;
 }
 
 
 @media (max-width: 767px) {
-	.markdown-body, .markdown-body-page {
+
+	.markdown-body,
+	.markdown-body-page {
 		padding: 15px;
 	}
+
 	.markdown-body-page {
 		box-shadow: none;
 		border-radius: none;
