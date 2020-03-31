@@ -12,6 +12,7 @@ div.container-marktex-editor.only-edit, div.container-marktex-editor.only-view {
 	width: 100%;
 	display: grid;
 	grid-template-columns: 100%;
+	height: 100vh;
 }
 
 div.container-marktex-editor > div.container-marktex-editor-input {
@@ -27,16 +28,20 @@ div.container-marktex-editor.only-view > div.container-marktex-editor-input {
 div.container-marktex-editor > div.container-marktex-editor-input > textarea {
 	width: calc(100% - 2 * var(--markdown-editor-textarea-padding));
 	padding: var(--markdown-editor-textarea-padding);
-	resize: vertical;
+	resize: none;
 	/** Initial height as high as screen */
-	height: 100vh;
+	height: calc(100% - 2 * var(--markdown-editor-textarea-padding));
 }
 
 div.container-marktex-editor > div.container-marktex-editor-output {
 	width: 100%;
 	display: block;
 	background-color: white;
+	height: 100%;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
+
 div.container-marktex-editor > div.container-marktex-editor-output .markdown-latex-block p {
 	display: none;
 }
@@ -65,7 +70,7 @@ div.container-marktex-editor > div.container-marktex-editor-output > div {
 
 
 @media (max-width: 767px) {
-	.markdown-body {
+	.markdown-body, .markdown-body-page {
 		padding: 15px;
 	}
 	.markdown-body-page {
