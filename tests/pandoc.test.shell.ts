@@ -62,7 +62,21 @@ describe("pandoc api [shell]", () => {
         }
 
         try {
-            const outputWithZip = await pandoc.md2Pdf({ files, options: { createSourceZipFile: true }, pandocOptions });
+            const output = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.PDF_ONLY, pandocOptions });
+            chai.expect(output.stdout).to.be.a("string");
+            chai.expect(output.stderr).to.be.a("string");
+            chai.expect(output.pdfFile).to.be.a("Uint8Array");
+            chai.expect(output.pdfFile).to.not.equal(undefined);
+            chai.expect(output.zipFile).to.equal(undefined);
+
+            await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), output.pdfFile);
+            await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
+        } catch (e) {
+            chai.assert(false, e);
+        }
+
+        try {
+            const outputWithZip = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.BOTH, pandocOptions });
             chai.expect(outputWithZip.stdout).to.be.a("string");
             chai.expect(outputWithZip.stderr).to.be.a("string");
             chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");

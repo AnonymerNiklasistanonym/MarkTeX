@@ -32,26 +32,29 @@ describe("inkscape <-> pandoc [shell]", () => {
                 }]
             }
         };
-        const outputPdf = await pandoc.md2Pdf({ files, pandocOptions });
-        const outputSvg = await inkscape.pdf2Svg({ pdfData: outputPdf.pdfFile });
-        const outputSvgPoppler = await inkscape.pdf2Svg({
-            inkscapeOptions: { usePoppler: true },
-            pdfData: outputPdf.pdfFile
-        });
+        const outputPdf = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.PDF_ONLY, pandocOptions });
+        chai.expect(outputPdf.pdfFile).to.not.equal(undefined);
+        if (outputPdf.pdfFile) {
+            const outputSvg = await inkscape.pdf2Svg({ pdfData: outputPdf.pdfFile });
+            const outputSvgPoppler = await inkscape.pdf2Svg({
+                inkscapeOptions: { usePoppler: true },
+                pdfData: outputPdf.pdfFile
+            });
 
-        chai.expect(outputSvg.stdout).to.be.a("string");
-        chai.expect(outputSvg.svgData).to.be.a("string");
-        chai.assert(outputSvg.svgData.length > 0);
-        chai.expect(outputSvgPoppler.stdout).to.be.a("string");
-        chai.expect(outputSvgPoppler.svgData).to.be.a("string");
-        chai.assert(outputSvgPoppler.svgData.length > 0);
+            chai.expect(outputSvg.stdout).to.be.a("string");
+            chai.expect(outputSvg.svgData).to.be.a("string");
+            chai.expect(outputSvg.svgData.length).to.be.above(0);
+            chai.expect(outputSvgPoppler.stdout).to.be.a("string");
+            chai.expect(outputSvgPoppler.svgData).to.be.a("string");
+            chai.expect(outputSvgPoppler.svgData.length).to.be.above(0);
 
-        await fs.writeFile("out_inkscape_pandoc.svg", outputSvg.svgData);
-        await fs.writeFile("out_inkscape_pandoc_poppler.svg", outputSvgPoppler.svgData);
-        await fs.writeFile("out_inkscape_pandoc.pdf", outputPdf.pdfFile);
-        await fs.unlink("out_inkscape_pandoc.svg");
-        await fs.unlink("out_inkscape_pandoc_poppler.svg");
-        await fs.unlink("out_inkscape_pandoc.pdf");
+            await fs.writeFile("out_inkscape_pandoc.svg", outputSvg.svgData);
+            await fs.writeFile("out_inkscape_pandoc_poppler.svg", outputSvgPoppler.svgData);
+            await fs.writeFile("out_inkscape_pandoc.pdf", outputPdf.pdfFile);
+            await fs.unlink("out_inkscape_pandoc.svg");
+            await fs.unlink("out_inkscape_pandoc_poppler.svg");
+            await fs.unlink("out_inkscape_pandoc.pdf");
+        }
 
     }).timeout(40000);
 });

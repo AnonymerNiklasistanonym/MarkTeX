@@ -1,13 +1,28 @@
 export interface MakeInput {
+    /** @example ARGS_DEFINITION="some value" */
     definitions: MakeInputDefinition[]
+    /**
+     * @example
+     * jobname: dependency
+     *      ./commands.sh
+     */
     jobs: MakeInputJob[]
 };
 
+/** @example name=value */
 export interface MakeInputDefinition {
     name: string
     value: string
 };
 
+/**
+ * @example
+ * all: nameIfOptional
+ *
+ * name: optionalDependency1 optionalDependency2
+ *      command1
+ *      command2
+ */
 export interface MakeInputJob {
     name: string
     default?: boolean
@@ -17,6 +32,12 @@ export interface MakeInputJob {
 
 export const createMakefileVersion = "1.0.0";
 
+/**
+ * Create Makefile content.
+ *
+ * @param input Makefile options
+ * @returns Makefile content string
+ */
 export const createMakefile = (input: MakeInput): string => {
     // Add definitions
     return input.definitions

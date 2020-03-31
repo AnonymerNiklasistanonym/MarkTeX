@@ -219,7 +219,7 @@ describe("database: requests", () => {
             );
             chai.assert(false, "No error was thrown even though sql unique option was violated");
         } catch (error) {
-            chai.expect(database.requests.isDatabaseError(error)).to.equal(true);
+            chai.expect(database.requests.isDatabaseError(error)).to.equal(true, JSON.stringify(error));
             chai.expect(error.code).to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
         }
 
@@ -229,7 +229,7 @@ describe("database: requests", () => {
             );
             chai.assert(false, "No error was thrown even though sql not null option was violated");
         } catch (error) {
-            chai.expect(database.requests.isDatabaseError(error)).to.equal(true);
+            chai.expect(database.requests.isDatabaseError(error)).to.equal(true, JSON.stringify(error));
             chai.expect(error.code).to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
         }
     });

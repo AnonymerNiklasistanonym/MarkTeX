@@ -1,9 +1,13 @@
 import { spawn } from "child_process";
 
-export interface XelatexVersion {
+export interface XeLaTexVersion {
+    /** @example "XeTeX 3.14159265-2.6-0.999991 (TeX Live 2019/Arch Linux)..." */
     fullText: string
+    /** @example "XeTeX" */
     engine: string
+    /** @example 0 */
     major: number
+    /** @example 999991 */
     minor: number
 }
 
@@ -17,7 +21,7 @@ export interface XelatexVersion {
  * "(C) 1994-2008 by SIL International..."
  * [1] = "engine" = "MiKTeX-XeTeX"
  */
-const regexXelatexVersionEnginge = /^(.+?) ./g;
+const regexXeLaTexVersionEngine = /^(.+?) ./g;
 
 /**
  * Regex to get the LaTeX version via command line arguments.
@@ -28,7 +32,7 @@ const regexXelatexVersionEnginge = /^(.+?) ./g;
  * [2] = "major" = 0
  * [3] = "minor" = 999991
  */
-const regexXelatexVersion = /^(.+?) .*?-([0-9]+?)\.([0-9]+?) \(/g;
+const regexXeLaTexVersion = /^(.+?) .*?-([0-9]+?)\.([0-9]+?) \(/g;
 
 /**
  * Regex to get the LaTeX version via command line arguments.
@@ -39,22 +43,23 @@ const regexXelatexVersion = /^(.+?) .*?-([0-9]+?)\.([0-9]+?) \(/g;
  * [2] = "major" = 0
  * [3] = "minor" = 999992
  */
-const regexXelatexVersionMikTex = /^(.+?) .*?\(([0-9]+?)\.([0-9]+?)\)/g;
+const regexXeLaTexVersionMikTeX = /^(.+?) .*?\(([0-9]+?)\.([0-9]+?)\)/g;
 
 /**
  * Get LaTeX version from command line string output.
  *
  * @param versionString Command line output of `xelatex --version`
+ * @returns Either the XeLaTeX version or undefined if version could not be parsed
  */
-const getVersionFromString = (versionString: string): XelatexVersion | undefined => {
+const getVersionFromString = (versionString: string): XeLaTexVersion | undefined => {
     let engine;
-    for (const match of versionString.matchAll(regexXelatexVersionEnginge)) {
+    for (const match of versionString.matchAll(regexXeLaTexVersionEngine)) {
         engine = match[1];
         break;
     }
-    let versionRegex = regexXelatexVersion;
+    let versionRegex = regexXeLaTexVersion;
     if (engine === "MiKTeX-XeTeX") {
-        versionRegex = regexXelatexVersionMikTex;
+        versionRegex = regexXeLaTexVersionMikTeX;
     }
     for (const match of versionString.matchAll(versionRegex)) {
         return {
@@ -64,10 +69,14 @@ const getVersionFromString = (versionString: string): XelatexVersion | undefined
             minor: Number(match[3])
         };
     }
-    return undefined;
 };
 
-export const getVersion = async (): Promise<XelatexVersion> => {
+/**
+ * Get LaTeX version from command line.
+ *
+ * @returns The XeLaTeX version if it could be parsed
+ */
+export const getVersion = async (): Promise<XeLaTexVersion> => {
     const child = spawn("xelatex", ["--version"]);
     const bufferStdout: Buffer[] = [];
     const bufferStderr: Buffer[] = [];

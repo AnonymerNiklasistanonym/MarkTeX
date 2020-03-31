@@ -35,20 +35,22 @@ export interface PandocMd2PdfInputPandocOptions {
     pandocArgs?: PandocConfigYmlInput
 }
 
-export interface PandocMd2PdfInputOptions {
-    createSourceZipFile?: boolean
+export enum PandocMd2PdfMode {
+    PDF_ONLY,
+    SOURCE_ONLY,
+    BOTH
 }
 
 export interface PandocMd2PdfInput {
+    mode?: PandocMd2PdfMode
     files: PandocMd2PdfInputFile[]
     pandocOptions?: PandocMd2PdfInputPandocOptions
-    options?: PandocMd2PdfInputOptions
 }
 
 export interface PandocMd2Pdf {
-    stdout: string
-    stderr: string
-    pdfFile: Buffer
+    stdout?: string
+    stderr?: string
+    pdfFile?: Buffer
     zipFile?: Buffer
 }
 
@@ -57,22 +59,18 @@ export interface PandocMd2Pdf {
 // eslint-disable-next-line complexity
 export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> => {
     debug(`md2Pdf: ${JSON.stringify(input)}`);
-    // TODO beamer example
-    // TODO add options for author, date, title
-    // TODO test images in all formats
-    const createSourceZipFile = (input.options !== undefined && input.options.createSourceZipFile);
     // Create working directory
-    const workingDirTimeStamp = String(
+    const workDirName = String(
         Date.now() + crypto.createHash("md5").update(JSON.stringify(input)).digest("hex")
     );
-    const workingDirName = path.join(os.tmpdir(), workingDirTimeStamp);
-    await fs.mkdir(workingDirName);
+    const workDir = path.join(os.tmpdir(), workDirName);
+    await fs.mkdir(workDir);
     // Copy all files to working directory
     const pandocSourceFiles: string[] = [];
     const allSourceFiles: helper.fileSystem.ZipFileFilesFile[] = [];
     for (const file of input.files) {
         const directories = file.directories;
-        let fileDirPath = workingDirName;
+        let fileDirPath = workDir;
         let fileDirPathRelative = ".";
         // Create directory hierarchy in which the file is located
         if (directories) {
@@ -91,23 +89,23 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         if (file.sourceFile) {
             pandocSourceFiles.push(path.join(fileDirPathRelative, file.filename));
         }
-        if (createSourceZipFile) {
-            allSourceFiles.push({
-                filePath: path.join(fileDirPath, file.filename),
-                zipFileName: path.join(fileDirPathRelative, file.filename)
-            });
-        }
+        allSourceFiles.push({
+            filePath: path.join(fileDirPath, file.filename),
+            zipFileName: path.join(fileDirPathRelative, file.filename)
+        });
     }
+    // Create pandoc configuration file
     const pandocArgs = (input.pandocOptions !== undefined && input.pandocOptions.pandocArgs !== undefined)
         ? input.pandocOptions.pandocArgs : {};
     pandocArgs.inputFiles = pandocSourceFiles;
     const pandocConfigContent = createPandocConfigFile(pandocArgs);
-    debug(`pandoc.yml: input="${JSON.stringify(pandocArgs)}",output="${pandocConfigContent}"`);
     const pandocConfigName = "pandoc.yml";
-    const pandocConfigPath = path.join(workingDirName, pandocConfigName);
+    const pandocConfigPath = path.join(workDir, pandocConfigName);
     await fs.writeFile(pandocConfigPath, pandocConfigContent);
     allSourceFiles.push({ filePath: pandocConfigPath, zipFileName: pandocConfigName });
-    if (createSourceZipFile) {
+
+    let zipFileData: undefined | Buffer;
+    if (input.mode === PandocMd2PdfMode.BOTH || input.mode === PandocMd2PdfMode.SOURCE_ONLY) {
         // Create Makefile (only for reproduction)
         const makefileContent = make.createMakefile({
             definitions: [
@@ -155,7 +153,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             } ]
         });
         const makefileName = "Makefile";
-        const makefilePath = path.join(workingDirName, makefileName);
+        const makefilePath = path.join(workDir, makefileName);
         await fs.writeFile(makefilePath, makefileContent);
         allSourceFiles.push({ filePath: makefilePath, zipFileName: makefileName });
         // Create Dockerfile (only for reproduction)
@@ -170,12 +168,23 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
             workdir: "/usr/src"
         });
         const dockerfileName = "Dockerfile";
-        const dockerfilePath = path.join(workingDirName, dockerfileName);
+        const dockerfilePath = path.join(workDir, dockerfileName);
         await fs.writeFile(dockerfilePath, dockerfileContent);
         allSourceFiles.push({ filePath: dockerfilePath, zipFileName: dockerfileName });
+        // Create source file archive
+        const zipOutFilePath = path.join(workDir, `${workDirName}.zip`);
+        await helper.fileSystem.createZipFile({
+            files: allSourceFiles
+        }, zipOutFilePath);
+        zipFileData = await fs.readFile(zipOutFilePath);
     }
-    // Run command
-    const pdfOutFilePath = path.join(workingDirName, "out.pdf");
+    // Exit if no PDF is wanted
+    if (input.mode === PandocMd2PdfMode.SOURCE_ONLY) {
+        await helper.fileSystem.rmDirRecursive(workDir);
+        return { zipFile: zipFileData };
+    }
+    // Create PDF
+    const pdfOutFilePath = path.join(workDir, "out.pdf");
     const pandocCommand = "pandoc";
     const pandocCommandOptions = [
         "--defaults",
@@ -184,7 +193,7 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         pdfOutFilePath
     ];
     debug(`Run command: ${pandocCommand} ${pandocCommandOptions.join(" ")}`);
-    const child = spawn(pandocCommand, pandocCommandOptions, { cwd: workingDirName });
+    const child = spawn(pandocCommand, pandocCommandOptions, { cwd: workDir });
     const bufferStdout: Buffer[] = [];
     const bufferStderr: Buffer[] = [];
     // use child.stdout.setEncoding('utf8'); if you want text chunks
@@ -199,40 +208,22 @@ export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> =>
         // data from the standard output is here as buffers
     });
     return new Promise((resolve, reject) => {
-        child.on("close", (code) => {
+        child.on("close", async (code) => {
             debug(`Child process exited with ${code}`);
             const stderr = bufferStderr.toString();
             if (code !== 0) {
-                helper.fileSystem.rmDirRecursive(workingDirName);
+                await helper.fileSystem.rmDirRecursive(workDir);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
             }
             const stdout = bufferStdout.toString();
-            if (createSourceZipFile) {
-                const zipOutFilePath = path.join(workingDirName, `${workingDirTimeStamp}.zip`);
-                helper.fileSystem.createZipFile({
-                    files: allSourceFiles
-                }, zipOutFilePath).then(() => Promise.all([
-                    fs.readFile(pdfOutFilePath),
-                    fs.readFile(zipOutFilePath)
-                ])).then(data => {
-                    resolve({
-                        pdfFile: data[0],
-                        stderr,
-                        stdout,
-                        zipFile: data[1]
-                    });
-                }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
-            } else {
-                Promise.all([
-                    fs.readFile(pdfOutFilePath)
-                ]).then(data => {
-                    resolve({
-                        pdfFile: data[0],
-                        stderr,
-                        stdout
-                    });
-                }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
-            }
+            const pdfFileData = await fs.readFile(pdfOutFilePath);
+            await helper.fileSystem.rmDirRecursive(workDir);
+            resolve({
+                pdfFile: pdfFileData,
+                stderr,
+                stdout,
+                zipFile: zipFileData
+            });
         });
     });
 };

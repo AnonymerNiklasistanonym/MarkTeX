@@ -12,7 +12,6 @@ const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pan
     const pandocArgs: pandoc.PandocConfigYmlInput = {};
     const pandocArgsMetadata: pandoc.PandocConfigYmlInputMetadata = {};
     const pandocArgsVariables: pandoc.PandocConfigYmlInputVariable[] = [];
-    const pandocArgsClassoption: string[] = [];
     if (input.pdfOptions) {
         if (input.pdfOptions.useAuthors) {
             pandocArgsMetadata.authors = input.authors ? [input.authors] : [];
@@ -116,6 +115,7 @@ export const document2Pdf = async (input: Document2PdfInput): Promise<Document2P
             filename: "document.md",
             sourceFile: true
         }],
+        mode: pandoc.PandocMd2PdfMode.PDF_ONLY,
         pandocOptions: {
             pandocArgs: {
                 pdfEngine: "xelatex",
@@ -123,9 +123,10 @@ export const document2Pdf = async (input: Document2PdfInput): Promise<Document2P
             }
         }
     });
-    return {
-        pdfData: pandocOut.pdfFile
-    };
+    if (pandocOut.pdfFile) {
+        return { pdfData: pandocOut.pdfFile };
+    }
+    throw Error("Pdf output was undefined");
 };
 
 export interface Document2ZipInput {
@@ -148,7 +149,7 @@ export const document2Zip = async (input: Document2ZipInput): Promise<Document2Z
             filename: "document.md",
             sourceFile: true
         }],
-        options: { createSourceZipFile: true },
+        mode: pandoc.PandocMd2PdfMode.SOURCE_ONLY,
         pandocOptions: {
             pandocArgs: {
                 pdfEngine: "xelatex",
@@ -157,10 +158,7 @@ export const document2Zip = async (input: Document2ZipInput): Promise<Document2Z
         }
     });
     if (pandocOut.zipFile) {
-        return {
-            zipData: pandocOut.zipFile
-        };
-    } else {
-        throw Error("No zip file buffer was found!");
+        return { zipData: pandocOut.zipFile };
     }
+    throw Error("Source file output was undefined");
 };
