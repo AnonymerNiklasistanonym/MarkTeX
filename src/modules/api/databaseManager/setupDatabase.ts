@@ -32,6 +32,10 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             name: "admin",
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            name: "public",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
         } ], true));
     // Group table
     await database.requests.post(
@@ -50,6 +54,36 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 tableName: "account"
             },
             name: "owner",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            name: "public",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        } ], true));
+    // Group access table
+    await database.requests.post(
+        databasePath,
+        database.queries.createTable("document_group_access", [ {
+            name: "id",
+            options: { notNull: true, primaryKey: true, unique: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                options: ["ON DELETE CASCADE ON UPDATE NO ACTION"],
+                tableName: "account"
+            },
+            name: "account_id",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                options: ["ON DELETE CASCADE ON UPDATE NO ACTION"],
+                tableName: "document_group"
+            },
+            name: "document_group_id",
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
         } ], true));
@@ -92,6 +126,36 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 tableName: "document_group"
             },
             name: "document_group",
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            name: "public",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        } ], true));
+    // Document access table
+    await database.requests.post(
+        databasePath,
+        database.queries.createTable("document_access", [ {
+            name: "id",
+            options: { notNull: true, primaryKey: true, unique: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                options: ["ON DELETE CASCADE ON UPDATE NO ACTION"],
+                tableName: "account"
+            },
+            name: "account_id",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                options: ["ON DELETE CASCADE ON UPDATE NO ACTION"],
+                tableName: "document"
+            },
+            name: "document_id",
+            options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
         } ], true));
 };

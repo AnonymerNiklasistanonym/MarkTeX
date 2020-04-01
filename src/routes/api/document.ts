@@ -283,6 +283,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                             content: documentInfo.content,
                             date: documentInfo.date,
                             pdfOptions: documentInfo.pdfOptions,
+                            public: documentInfo.public,
                             title: documentInfo.title
                         }
                     };

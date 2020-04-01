@@ -5,6 +5,7 @@ export interface CreateInput {
     name: string
     password: string
     admin?: boolean
+    public?: boolean
 }
 
 /**
@@ -15,9 +16,13 @@ export interface CreateInput {
  * @returns Unique id of account.
  */
 export const create = async (databasePath: string, input: CreateInput): Promise<number> => {
-    const columns = [ "name", "password_hash", "password_salt", "admin" ];
+    const columns = [ "name", "password_hash", "password_salt" ];
     const hashAndSalt = crypto.generateHashAndSalt(input.password);
-    const values: (string|number)[] = [ input.name, hashAndSalt.hash, hashAndSalt.salt, input.admin ? 1 : 0 ];
+    const values: (string|number)[] = [ input.name, hashAndSalt.hash, hashAndSalt.salt ];
+    columns.push("admin");
+    values.push(input.admin === true ? 1 : 0);
+    columns.push("public");
+    values.push(input.public === true ? 1 : 0);
     const postResult = await database.requests.post(
         databasePath,
         database.queries.insert("account", columns),
@@ -141,10 +146,12 @@ export interface GetOutput {
     id: number
     name: string
     admin: boolean
+    public: boolean
 }
 export interface GetDbOut {
     name: string
     admin: number
+    public: number
 }
 
 /**
@@ -157,7 +164,7 @@ export interface GetDbOut {
 export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
     const runResult = await database.requests.getEach(
         databasePath,
-        database.queries.select("account", [ "name", "admin" ], {
+        database.queries.select("account", [ "name", "admin", "public" ], {
             whereColumn: "id"
         }),
         [input.id]
@@ -166,7 +173,8 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
         return {
             admin: runResult.admin === 1,
             id: input.id,
-            name: runResult.name
+            name: runResult.name,
+            public: runResult.public === 1
         };
     }
 };
@@ -176,6 +184,7 @@ export interface UpdateInput {
     name?: string
     password?: string
     admin?: boolean
+    public?: boolean
 }
 
 /**
@@ -188,9 +197,13 @@ export interface UpdateInput {
 export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(boolean|void)> => {
     const columns = [];
     const values = [];
-    if (input.admin) {
+    if (input.admin !== undefined) {
         columns.push("admin");
         values.push(input.admin ? 1 : 0);
+    }
+    if (input.public !== undefined) {
+        columns.push("public");
+        values.push(input.public ? 1 : 0);
     }
     if (input.password) {
         const hashAndSalt = crypto.generateHashAndSalt(input.password);

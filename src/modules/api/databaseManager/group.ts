@@ -2,6 +2,7 @@ import * as database from "../../database";
 
 export interface CreateInput {
     name: string
+    public?: boolean
 }
 
 /**
@@ -15,6 +16,8 @@ export interface CreateInput {
 export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
     const columns = [ "name", "owner" ];
     const values = [ input.name, accountId ];
+    columns.push("public");
+    values.push(input.public === true ? 1 : 0);
     const postResult = await database.requests.post(
         databasePath,
         database.queries.insert("document_group", columns),
@@ -48,14 +51,17 @@ export interface GetOutput {
     id: number
     name: string
     owner: number
+    public: boolean
 }
 export interface GetDbOut {
     name: string
     owner: number
+    public: number
 }
 export interface GetAllFromOwnerDbOut {
     id: number
     name: string
+    public: number
 }
 
 /**
@@ -68,7 +74,7 @@ export interface GetAllFromOwnerDbOut {
 export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
     const runResult = await database.requests.getEach(
         databasePath,
-        database.queries.select("document_group", [ "name", "owner" ], {
+        database.queries.select("document_group", [ "name", "owner", "public" ], {
             whereColumn: "id"
         }),
         [input.id]
@@ -77,7 +83,8 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
         return {
             id: input.id,
             name: runResult.name,
-            owner: runResult.owner
+            owner: runResult.owner,
+            public: runResult.public === 1
         };
     }
 };
@@ -103,7 +110,8 @@ export const getAllFromOwner = async (
         return runResults.map(runResult => ({
             id: runResult.id,
             name: runResult.name,
-            owner: input.id
+            owner: input.id,
+            public: runResult.public === 1
         }));
     }
 };

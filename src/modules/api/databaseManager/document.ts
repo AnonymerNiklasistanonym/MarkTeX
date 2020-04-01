@@ -13,6 +13,7 @@ export interface CreateInput {
     date?: string
     pdfOptions?: pdfOptions.PdfOptions
     resources?: CreateInputResource[]
+    public?: boolean
 }
 
 /**
@@ -42,6 +43,8 @@ export const create = async (databasePath: string, accountId: number, input: Cre
         columns.push("pdf_options");
         values.push(JSON.stringify(input.pdfOptions));
     }
+    columns.push("public");
+    values.push(input.public === true ? 1 : 0);
     const postResult = await database.requests.post(
         databasePath,
         database.queries.insert("document", columns),
@@ -58,6 +61,7 @@ export interface UpdateInput {
     date?: string
     pdfOptions?: pdfOptions.PdfOptions
     resources?: CreateInputResource[]
+    public?: boolean
 }
 
 /**
@@ -95,6 +99,10 @@ export const update = async (databasePath: string, accountId: number, input: Upd
         // TODO Do better (SQL style with custom columns/tables, sanitize input)
         columns.push("pdf_options");
         values.push(JSON.stringify(input.pdfOptions));
+    }
+    if (input.public !== undefined) {
+        columns.push("public");
+        values.push(input.public === true ? 1 : 0);
     }
     values.push(input.id);
     const postResult = await database.requests.post(
@@ -161,6 +169,7 @@ export interface GetInput {
 export interface GetOutput {
     id: number
     title: string
+    public: boolean
     authors?: string
     date?: string
     owner: number
@@ -171,6 +180,7 @@ export interface GetOutput {
 export interface GetDbOut {
     title: string
     authors: string
+    public: number
     date: string
     owner: number
     // eslint-disable-next-line camelcase
@@ -188,7 +198,7 @@ export interface GetDbOut {
  * @param input Document get info.
  */
 export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
-    const columns = [ "title", "authors", "date", "owner" ];
+    const columns = [ "title", "authors", "date", "owner", "public" ];
     if (input.getContent) {
         columns.push("content");
     }
@@ -215,6 +225,7 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
             id: input.id,
             owner: runResult.owner,
             pdfOptions: pdfOptionsObj,
+            public: runResult.public === 1,
             title: runResult.title
         };
     }
@@ -227,6 +238,7 @@ export interface GetAllInput {
 export interface GetAllOutput {
     id: number
     title: string
+    public: boolean
     authors?: string
     date?: string
     owner: number
@@ -236,6 +248,7 @@ export interface GetAllOutput {
 export interface GetAllFromOwnerDbOut {
     id: number
     title: string
+    public: number
     authors?: string
     date?: string
     // eslint-disable-next-line camelcase
@@ -245,6 +258,7 @@ export interface GetAllFromOwnerDbOut {
 
 export interface GetAllFromGroupDbOut {
     id: number
+    public: number
     title: string
     authors?: string
     date?: string
@@ -262,7 +276,7 @@ export interface GetAllFromGroupDbOut {
 export const getAllFromOwner = async (
     databasePath: string, accountId: number, input: GetAllInput
 ): Promise<(GetAllOutput[]|void)> => {
-    const columns = [ "id", "title", "authors", "date", "document_group" ];
+    const columns = [ "id", "title", "authors", "date", "document_group", "public" ];
     if (input.getContents) {
         columns.push("content");
     }
@@ -281,6 +295,7 @@ export const getAllFromOwner = async (
             group: runResult.document_group !== null ? runResult.document_group : undefined,
             id: runResult.id,
             owner: input.id,
+            public: runResult.public === 1,
             title: runResult.title
         }));
     }
@@ -296,7 +311,7 @@ export const getAllFromOwner = async (
 export const getAllFromGroup = async (
     databasePath: string, accountId: number, input: GetAllInput
 ): Promise<(GetAllOutput[]|void)> => {
-    const columns = [ "id", "title", "authors", "date", "owner" ];
+    const columns = [ "id", "title", "authors", "date", "owner", "public" ];
     if (input.getContents) {
         columns.push("content");
     }
@@ -315,6 +330,7 @@ export const getAllFromGroup = async (
             group: input.id,
             id: runResult.id,
             owner: runResult.owner,
+            public: runResult.public === 1,
             title: runResult.title
         }));
     }

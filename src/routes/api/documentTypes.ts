@@ -79,8 +79,9 @@ export interface ExportJsonResponseJsonData {
     title: string
     authors?: string
     date?: string
-    content?: string
+    content: string
     pdfOptions?: PdfOptions
+    public: boolean
 }
 
 export interface ExportJsonResponse {
