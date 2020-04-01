@@ -2,6 +2,8 @@ import * as pandoc from "../pandoc";
 import { PdfOptions, PdfOptionsPaperSize } from "./databaseManager/documentPdfOptions";
 import { debuglog } from "util";
 
+export { PdfOptions, PdfOptionsPaperSize };
+
 
 const debug = debuglog("app-api-pandoc-manager");
 

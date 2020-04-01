@@ -5,7 +5,7 @@ import { describe } from "mocha";
 import { promises as fs } from "fs";
 
 
-describe("inkscape <-> pandoc [shell]", () => {
+describe("inkscape + pandoc [shell]", () => {
     it("convert pdf to svg", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [
             {
