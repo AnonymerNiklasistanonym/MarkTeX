@@ -24,7 +24,7 @@ export interface CreateInput {
  * @param input Document info.
  * @returns Unique id of document.
  */
-export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<(number|void)> => {
+export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
     const columns = [ "title", "content", "owner" ];
     const values = [ input.title, input.content, accountId ];
     if (input.authors) {

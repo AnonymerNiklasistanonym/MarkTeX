@@ -35,13 +35,25 @@ export const update = (databasePath: string): void => {
     // TODO
 };
 
+export interface RemoveInput {
+    id: number
+}
+
 /**
  * Remove group.
  *
  * @param databasePath Path to database.
+ * @param accountId Unique id of account that wants to remove the group.
+ * @param input Group info.
+ * @returns True if at least one element was removed otherwise False.
  */
-export const remove = (databasePath: string): void => {
-    // TODO
+export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.remove("document_group", "id"),
+        [input.id]
+    );
+    return postResult.changes > 0;
 };
 
 export interface GetInput {
@@ -68,7 +80,7 @@ export interface GetAllFromOwnerDbOut {
  * Get group.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account that created the group.
+ * @param accountId Unique id of account that wants to get the group.
  * @param input Group get info.
  */
 export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
@@ -93,7 +105,7 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
  * Get all documents from one author.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account that created the group.
+ * @param accountId Unique id of account that wants to get all groups.
  * @param input Document get info.
  */
 export const getAllFromOwner = async (
@@ -128,7 +140,7 @@ export interface ExistsDbOut {
  * Check if group exists.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of group.
+ * @param accountId Unique id of account that wants to know if it exists.
  * @param input Account exists info.
  * @returns True if group exists.
  */
