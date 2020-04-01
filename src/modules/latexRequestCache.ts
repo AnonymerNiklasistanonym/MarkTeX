@@ -9,6 +9,7 @@ const debug = debuglog("app-latex-request-cache");
  */
 interface LatexRequestCacheInput {
     svgData: string
+    pdfData: Buffer
 }
 
 /**
@@ -67,8 +68,8 @@ export const get = (latexStringKey: string): LatexRequestCacheInput | undefined 
     if (possibleEntry) {
         debug(`Found compiled version in the cache (id=${latexStringKey})`);
         // Overwrite entry with same data but new date
-        add(latexStringKey, { svgData: possibleEntry.svgData });
+        add(latexStringKey, { pdfData: possibleEntry.pdfData, svgData: possibleEntry.svgData });
         // Return data
-        return { svgData: possibleEntry.svgData };
+        return { pdfData: possibleEntry.pdfData, svgData: possibleEntry.svgData };
     }
 };

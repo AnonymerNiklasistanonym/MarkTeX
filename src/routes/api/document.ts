@@ -18,14 +18,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     app.post("/api/document/create",
         // Validate api input
-        expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             apiVersion: schemaValidations.getApiVersionSupported(),
             authors: { isString: true, optional: true },
             content: { isString: true },
             date: { isString: true, optional: true },
             pdfOptions: schemaValidations.getDocumentPdfOptions(),
             title: { isString: true }
-        })),
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to create a new document
@@ -54,7 +54,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // Validate api input
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 getContent: { isBoolean: true, optional: true },
                 getPdfOptions: { isBoolean: true, optional: true },
@@ -62,7 +62,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
-            }))(req, res, next);
+            }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -94,7 +94,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // Validate api input
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 authors: { isString: true, optional: true },
                 content: { isString: true, optional: true },
@@ -105,7 +105,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 }),
                 pdfOptions: schemaValidations.getDocumentPdfOptions(),
                 title: { isString: true, optional: true }
-            }))(req, res, next);
+            }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -138,13 +138,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // Validate api input
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
-            }))(req, res, next);
+            }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -171,13 +171,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // Validate api input
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
-            }))(req, res, next);
+            }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -213,13 +213,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // Validate api input
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
-            }))(req, res, next);
+            }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -255,13 +255,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         // Validate api input
         async (req, res, next) => {
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithTerminationOnError(expressValidator.checkSchema({
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported(),
                 id: schemaValidations.getDocumentIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 })
-            }))(req, res, next);
+            }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,

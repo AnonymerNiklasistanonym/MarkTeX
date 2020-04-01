@@ -67,7 +67,7 @@ export interface ExistsDbOut {
  * Check if account exists.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account that created the document.
+ * @param accountId Unique id of account.
  * @param input Account exists info.
  * @returns True if account exists.
  */
@@ -86,7 +86,7 @@ export const existsName = async (
  * Check if account exists.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account that created the document.
+ * @param accountId Unique id of account.
  * @param input Account exists info.
  * @returns True if account exists.
  */

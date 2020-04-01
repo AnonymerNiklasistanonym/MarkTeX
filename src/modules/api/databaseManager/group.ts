@@ -115,3 +115,30 @@ export const getAllFromOwner = async (
         }));
     }
 };
+
+export interface ExistsInput {
+    id: number
+}
+export interface ExistsDbOut {
+    // eslint-disable-next-line camelcase
+    exists_value: number
+}
+
+/**
+ * Check if group exists.
+ *
+ * @param databasePath Path to database.
+ * @param accountId Unique id of group.
+ * @param input Account exists info.
+ * @returns True if group exists.
+ */
+export const exists = async (
+    databasePath: string, accountId: number, input: ExistsInput
+): Promise<boolean> => {
+    const runResult = await database.requests.getEach(
+        databasePath,
+        database.queries.exists("document_group", "id"),
+        [input.id]
+    ) as ExistsDbOut;
+    return runResult.exists_value === 1;
+};

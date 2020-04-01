@@ -25,7 +25,7 @@ export interface Tex2PdfInputOptions {
 
 export interface Tex2PdfInput {
     texData: string
-    xelatexOptions?: Tex2PdfInputOptions
+    latexOptions?: Tex2PdfInputOptions
 }
 
 export interface Tex2Pdf {
@@ -49,9 +49,9 @@ export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
     // TODO: Log command
     const child = spawn("xelatex", [
         `-jobname=${temporaryPdfName.slice(0, temporaryPdfName.length - 4)}`,
-        ... (input.xelatexOptions !== undefined && input.xelatexOptions.shellEscape
+        ... (input.latexOptions !== undefined && input.latexOptions.shellEscape
             ? ["-shell-escape"] : []),
-        ... (input.xelatexOptions !== undefined && input.xelatexOptions.interactionNonstop
+        ... (input.latexOptions !== undefined && input.latexOptions.interactionNonstop
             ? ["-interaction=nonstopmode"] : []),
         temporaryTexName
     ], { cwd: workingDirName });

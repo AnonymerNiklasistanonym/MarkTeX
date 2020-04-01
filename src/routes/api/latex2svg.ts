@@ -4,8 +4,9 @@ import type * as types from "./latex2svgTypes";
 import api from "../../modules/api";
 import { debuglog } from "util";
 import express from "express";
+import helper from "../../modules/helper";
 import { StartExpressServerOptions } from "../../config/express";
-import { validateWithTerminationOnError } from "../../middleware/expressValidator";
+import { validateWithError } from "../../middleware/expressValidator";
 
 export type { types };
 
@@ -15,13 +16,12 @@ const debug = debuglog("app-express-route-api");
 
 let latestRequestDate = "";
 
-const sleep = async (millisec: number): Promise<void> => new Promise(resolve => setTimeout(resolve, millisec));
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/latex2svg",
-        validateWithTerminationOnError(expressValidator.checkSchema({
+        validateWithError(expressValidator.checkSchema({
             apiVersion: {
                 custom: {
                     options: (apiVersion: number): boolean => {
@@ -60,7 +60,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 isString: true
             },
             usePoppler: { isBoolean: true, optional: true }
-        })),
+        }), { sendJsonError: true }),
         async (req, res) => {
             const input = req.body as types.Latex2SvgRequestApi;
             debug(`Got: latexStringHash=${input.latexStringHash}, apiVersion=${input.apiVersion}`);
@@ -73,7 +73,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             // If not cached wait some time to not kill the server with requests and check if there are
             // immediately new requests
             latestRequestDate = input.timeOfRequest;
-            await sleep(500);
+            await helper.time.sleep(500);
             // If there was no new document time continue, otherwise kill request
             if (latestRequestDate !== input.timeOfRequest) {
                 debug(`latex2svg: A later request (${latestRequestDate}) was found so the current request`
@@ -86,14 +86,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
             // If not try to convert it
             try {
                 debug("latex2svg: Start rendering of tex to svg");
-                const latex2SvgOut = await api.latex.latex2Svg({
+                const latex2SvgOut = await api.latex.createSvg({
                     headerIncludes: input.latexHeaderIncludes,
                     latexString: input.latexString,
                     usePoppler: input.usePoppler
                 });
                 debug("latex2svg: Render of tex to pdf complete");
                 // Add it to the cache
-                latexRequestCache.add(id, { svgData: latex2SvgOut.svgData });
+                latexRequestCache.add(id, { pdfData: latex2SvgOut.pdfData, svgData: latex2SvgOut.svgData });
                 const response: types.Latex2SvgResponse = {
                     id: input.latexStringHash,
                     svgData: latex2SvgOut.svgData
