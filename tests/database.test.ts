@@ -7,7 +7,7 @@ import path from "path";
 
 const databaseName = path.join(os.tmpdir(), "test.db");
 
-describe("database", () => {
+describe("database api", () => {
     it("remove", async () => {
         await database.remove(databaseName);
         const exists = await database.exists(databaseName);
@@ -49,7 +49,7 @@ describe("database", () => {
     });
 });
 
-describe("database: queries", () => {
+describe("database api: queries", () => {
     it("create table", () => {
         const columns: database.queries.CreateTableColumn[] = [ {
             name: "blob",
@@ -169,7 +169,7 @@ describe("database: queries", () => {
     });
 });
 
-describe("database: requests", () => {
+describe("database api: requests", () => {
     const tableName = "test";
     const tableColumns: database.queries.CreateTableColumn[] = [ {
         name: "blob",

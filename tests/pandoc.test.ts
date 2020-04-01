@@ -4,19 +4,18 @@ import { describe } from "mocha";
 
 
 describe("pandoc api", () => {
-    it("pandoc config file creation simple", () => {
-        const pandocConfigYmlString = pandoc.createPandocConfigFile({
+    it("create config file", () => {
+        const pandocConfigYmlStringSimple = pandoc.createPandocConfigFile({
             from: "markdown",
             to: "pdf"
         });
-        chai.expect(pandocConfigYmlString).to.be.a("string");
-        chai.assert(pandocConfigYmlString.length > 0);
-        chai.expect(pandocConfigYmlString).deep.equal(
+        chai.expect(pandocConfigYmlStringSimple).to.be.a("string");
+        chai.assert(pandocConfigYmlStringSimple.length > 0);
+        chai.expect(pandocConfigYmlStringSimple).deep.equal(
             "from: markdown\n"
             + "to: pdf\n"
         );
-    });
-    it("pandoc config file creation", () => {
+
         const pandocConfigYmlString = pandoc.createPandocConfigFile({
             from: "markdown",
             inputFiles: [ "a.md", "b.md" ],

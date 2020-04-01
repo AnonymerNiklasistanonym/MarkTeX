@@ -4,20 +4,19 @@ import { describe } from "mocha";
 
 
 describe("make api", () => {
-    it("create empty make file", () => {
-        const makeFileString = make.createMakefile({
+    it("create Makefile", () => {
+        const makeFileStringEmpty = make.createMakefile({
             definitions: [],
             jobs: []
         });
-        chai.expect(makeFileString).to.be.a("string");
-        chai.assert(makeFileString.length > 0);
-        chai.expect(makeFileString).deep.equal(
+        chai.expect(makeFileStringEmpty).to.be.a("string");
+        chai.assert(makeFileStringEmpty.length > 0);
+        chai.expect(makeFileStringEmpty).deep.equal(
             `# Auto generated Makefile v${make.createMakefileVersion}\n`
             + "\n"
             + "all:\n"
         );
-    });
-    it("create make file", () => {
+
         const makeFileString = make.createMakefile({
             definitions: [ {
                 name: "SOURCE_FILES",

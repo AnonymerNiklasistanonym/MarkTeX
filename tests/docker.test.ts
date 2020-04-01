@@ -4,7 +4,7 @@ import { describe } from "mocha";
 
 
 describe("docker api", () => {
-    it("create docker file", () => {
+    it("create Dockerfile", () => {
         const dockerfileString = docker.createDockerfile({
             cmd: ["pdf"],
             commands: [
