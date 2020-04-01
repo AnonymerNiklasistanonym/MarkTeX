@@ -8,7 +8,7 @@ const debug = debuglog("app-api-pandoc-manager");
 // TODO Create seperated options for presentations and documents
 
 // eslint-disable-next-line complexity
-const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pandoc.PandocConfigYmlInput => {
+const pdfOptionsToPandocArgs = (input: Document2PdfInput|CreateSourceZipInput): pandoc.PandocConfigYmlInput => {
     const pandocArgs: pandoc.PandocConfigYmlInput = {};
     const pandocArgsMetadata: pandoc.PandocConfigYmlInputMetadata = {};
     const pandocArgsVariables: pandoc.PandocConfigYmlInputVariable[] = [];
@@ -75,6 +75,15 @@ const pdfOptionsToPandocArgs = (input: Document2PdfInput|Document2ZipInput): pan
     return pandocArgs;
 };
 
+/**
+ * Extract from a document all header includes described in the LaTeX sections and add them to the document as pandoc
+ * compatible header.
+ *
+ * This is done because there is no option to write header includes into the pandoc config file.
+ *
+ * @param content Markdown file content
+ * @returns Updated Markdown file content with added pandoc header
+ */
 const extractHeaderIncludesAndAddPandocHeader = (content: string): string => {
     const allHeaderIncludes: string[] = [];
     const lines = content.split("\n").map(a => a.trim());
@@ -107,7 +116,7 @@ export interface Document2PdfOutput {
     pdfData: Buffer
 };
 
-export const document2Pdf = async (input: Document2PdfInput): Promise<Document2PdfOutput> => {
+export const createPdf = async (input: Document2PdfInput): Promise<Document2PdfOutput> => {
     debug(`document2Pdf: ${JSON.stringify(input)}`);
     const pandocOut = await pandoc.md2Pdf({
         files: [{
@@ -129,7 +138,7 @@ export const document2Pdf = async (input: Document2PdfInput): Promise<Document2P
     throw Error("Pdf output was undefined");
 };
 
-export interface Document2ZipInput {
+export interface CreateSourceZipInput {
     authors?: string
     content: string
     date?: string
@@ -137,11 +146,11 @@ export interface Document2ZipInput {
     title: string
 };
 
-export interface Document2ZipOutput {
+export interface CreateSourceZipOutput {
     zipData: Buffer
 };
 
-export const document2Zip = async (input: Document2ZipInput): Promise<Document2ZipOutput> => {
+export const createSourceZip = async (input: CreateSourceZipInput): Promise<CreateSourceZipOutput> => {
     debug(`document2Zip: ${JSON.stringify(input)}`);
     const pandocOut = await pandoc.md2Pdf({
         files: [{

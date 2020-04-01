@@ -192,7 +192,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
-                    const pdfData = await api.pandoc.document2Pdf({
+                    const pdfData = await api.pandoc.createPdf({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
                         date: documentInfo.date,
@@ -234,7 +234,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     { ... request, getContent: true, getPdfOptions: true }
                 );
                 if (documentInfo) {
-                    const zipData = await api.pandoc.document2Zip({
+                    const zipData = await api.pandoc.createSourceZip({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
                         date: documentInfo.date,
