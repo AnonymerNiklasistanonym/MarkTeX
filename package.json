@@ -22,6 +22,10 @@
   "bugs": {
     "url": "https://github.com/AnonymerNiklasistanonym/MarkTeX/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnonymerNiklasistanonym/MarkTeX.git"
+  },
   "license": "MIT",
   "author": {
     "name": "AnonymerNiklasistanonym",
@@ -43,10 +47,10 @@
     "lint:docs": "eslint -c .eslintrc.js --ext .ts docs --fix",
     "lint:frontend": "eslint -c .eslintrc.js --ext .ts src/public tools webpack.config.js --fix",
     "lint:tests": "eslint -c .eslintrc.js --ext .ts tests --fix",
-    "tests:other": "mocha -r ts-node/register tests/**/*.test.ts",
-    "tests:shell": "mocha -r ts-node/register tests/**/*.test.shell.ts",
     "start": "node .",
     "test": "npm-run-all lint:tests tests:other tests:shell",
+    "tests:other": "mocha -r ts-node/register tests/**/*.test.ts",
+    "tests:shell": "mocha -r ts-node/register tests/**/*.test.shell.ts",
     "todo": "ts-node ./docs/createTodoPage",
     "tsc": "tsc",
     "typedoc": "ts-node ./docs/createDocs",
