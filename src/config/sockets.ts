@@ -1,8 +1,7 @@
-import socketIo, { Server as SocketServer } from "socket.io";
 import { debuglog } from "util";
 import { Http2Server } from "http2";
 import { Server } from "http";
-
+import socketIo from "socket.io";
 
 
 const debug = debuglog("app-socketio");
@@ -14,10 +13,10 @@ export interface BindSocketServerMiddlewareOptions {
 
 export const bindSocketServer = (
     httpServer: (Server|Http2Server), middlewareOptions: BindSocketServerMiddlewareOptions
-): SocketServer => {
+): socketIo.Server => {
 
     // Set up socket.io and bind it to http server
-    const io: SocketServer = socketIo(httpServer);
+    const io = socketIo(httpServer);
 
     // Add socket server middleware
     io.use(middlewareOptions.sessionMiddleware);
