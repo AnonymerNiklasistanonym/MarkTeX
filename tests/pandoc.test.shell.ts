@@ -47,50 +47,40 @@ describe("pandoc api [shell]", () => {
                 }]
             }
         };
-        try {
-            const output = await pandoc.md2Pdf({ files, pandocOptions });
-            chai.expect(output.stdout).to.be.a("string");
-            chai.expect(output.stderr).to.be.a("string");
-            chai.expect(output.pdfFile).to.be.a("Uint8Array");
-            chai.expect(output.pdfFile).to.not.equal(undefined);
-            chai.expect(output.zipFile).to.equal(undefined);
+        const outputDefault = await pandoc.md2Pdf({ files, pandocOptions });
+        chai.expect(outputDefault.stdout).to.be.a("string");
+        chai.expect(outputDefault.stderr).to.be.a("string");
+        chai.expect(outputDefault.pdfFile).to.be.a("Uint8Array");
+        chai.expect(outputDefault.pdfFile).to.not.equal(undefined);
+        chai.expect(outputDefault.zipFile).to.equal(undefined);
 
-            await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), output.pdfFile);
-            await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
-        } catch (e) {
-            chai.assert(false, e);
-        }
+        await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), outputDefault.pdfFile);
+        await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
 
-        try {
-            const output = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.PDF_ONLY, pandocOptions });
-            chai.expect(output.stdout).to.be.a("string");
-            chai.expect(output.stderr).to.be.a("string");
-            chai.expect(output.pdfFile).to.be.a("Uint8Array");
-            chai.expect(output.pdfFile).to.not.equal(undefined);
-            chai.expect(output.zipFile).to.equal(undefined);
 
-            await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), output.pdfFile);
-            await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
-        } catch (e) {
-            chai.assert(false, e);
-        }
+        const outputPdfOnly = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.PDF_ONLY, pandocOptions });
+        chai.expect(outputPdfOnly.stdout).to.be.a("string");
+        chai.expect(outputPdfOnly.stderr).to.be.a("string");
+        chai.expect(outputPdfOnly.pdfFile).to.be.a("Uint8Array");
+        chai.expect(outputPdfOnly.pdfFile).to.not.equal(undefined);
+        chai.expect(outputPdfOnly.zipFile).to.equal(undefined);
 
-        try {
-            const outputWithZip = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.BOTH, pandocOptions });
-            chai.expect(outputWithZip.stdout).to.be.a("string");
-            chai.expect(outputWithZip.stderr).to.be.a("string");
-            chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");
-            chai.expect(outputWithZip.pdfFile).to.not.equal(undefined);
-            chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
-            chai.expect(outputWithZip.zipFile).to.not.equal(undefined);
+        await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), outputPdfOnly.pdfFile);
+        await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
 
-            await fs.writeFile(path.join(os.tmpdir(), "out_zip.pdf"), outputWithZip.pdfFile);
-            await fs.unlink(path.join(os.tmpdir(), "out_zip.pdf"));
-            await fs.writeFile(path.join(os.tmpdir(), "out_zip.zip"), outputWithZip.zipFile);
-            await fs.unlink(path.join(os.tmpdir(), "out_zip.zip"));
-        } catch (e) {
-            chai.assert(false, e);
-        }
+
+        const outputWithZip = await pandoc.md2Pdf({ files, mode: pandoc.PandocMd2PdfMode.BOTH, pandocOptions });
+        chai.expect(outputWithZip.stdout).to.be.a("string");
+        chai.expect(outputWithZip.stderr).to.be.a("string");
+        chai.expect(outputWithZip.pdfFile).to.be.a("Uint8Array");
+        chai.expect(outputWithZip.pdfFile).to.not.equal(undefined);
+        chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
+        chai.expect(outputWithZip.zipFile).to.not.equal(undefined);
+
+        await fs.writeFile(path.join(os.tmpdir(), "out_zip.pdf"), outputWithZip.pdfFile);
+        await fs.unlink(path.join(os.tmpdir(), "out_zip.pdf"));
+        await fs.writeFile(path.join(os.tmpdir(), "out_zip.zip"), outputWithZip.zipFile);
+        await fs.unlink(path.join(os.tmpdir(), "out_zip.zip"));
 
     }).timeout(40000);
 });

@@ -32,20 +32,24 @@ describe("database api", () => {
         chai.expect(dbReadOnly).to.not.equal(undefined, "Database not undefined");
 
         await database.remove(databaseName);
+        let throwsException1 = false;
         try {
             await database.open(databaseName);
-            chai.assert(false, "Database could be opened");
         } catch (error) {
+            throwsException1 = true;
             chai.expect(error.code).to.deep.equal(database.ErrorCodeOpen.SQLITE_CANTOPEN);
         }
+        chai.expect(throwsException1).to.equal(true);
 
         await database.remove(databaseName);
+        let throwsException2 = false;
         try {
             await database.open(databaseName, { readOnly: true });
-            chai.assert(false, "Database could be opened");
         } catch (error) {
+            throwsException2 = true;
             chai.expect(error.code).to.deep.equal(database.ErrorCodeOpen.SQLITE_CANTOPEN);
         }
+        chai.expect(throwsException2).to.equal(true);
     });
 });
 
@@ -213,25 +217,29 @@ describe("database api: requests", () => {
         chai.expect(postResultInsert2.lastID).to.be.a("number");
         chai.expect(postResultInsert2.lastID).to.not.equal(postResultInsert1.lastID, "Inserted row ids are different");
 
+        let throwsException1 = false;
         try {
             await database.requests.post(
                 databaseName, queryInsert, [ "blobData", 1234, 12, 22.3456, "textData", "unique1" ]
             );
-            chai.assert(false, "No error was thrown even though sql unique option was violated");
         } catch (error) {
+            throwsException1 = true;
             chai.expect(database.requests.isDatabaseError(error)).to.equal(true, JSON.stringify(error));
             chai.expect(error.code).to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
         }
+        chai.expect(throwsException1).to.equal(true);
 
+        let throwsException2 = false;
         try {
             await database.requests.post(
                 databaseName, queryInsert, [ "blobData", 1234, 12, 22.3456, "textData" ]
             );
-            chai.assert(false, "No error was thrown even though sql not null option was violated");
         } catch (error) {
+            throwsException2 = true;
             chai.expect(database.requests.isDatabaseError(error)).to.equal(true, JSON.stringify(error));
             chai.expect(error.code).to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
         }
+        chai.expect(throwsException2).to.equal(true);
     });
     it("get each", async () => {
         await database.remove(databaseName);

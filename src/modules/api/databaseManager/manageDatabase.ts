@@ -66,21 +66,3 @@ export const importData = async (databasePath: string): Promise<void> => {
     // TODO
     throw Error("Not implemented");
 };
-
-export enum DatabaseError {
-    SQLITE_CONSTRAINT
-}
-
-/**
- * Get database error.
- *
- * @param error Thrown error object around a database request
- * @returns Datbase error or undefined if not a database error
- */
-export const getError = (error: any): (DatabaseError|void) => {
-    if (error.code) {
-        if (error.code === "SQLITE_CONSTRAINT") {
-            return DatabaseError.SQLITE_CONSTRAINT;
-        }
-    }
-};

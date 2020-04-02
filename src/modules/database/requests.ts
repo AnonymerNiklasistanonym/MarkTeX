@@ -7,7 +7,6 @@ const debug = debuglog("app-database-request");
 
 
 export enum ErrorCodePostRequest {
-    SQLITE_ERROR = 1,
     SQLITE_CONSTRAINT = "SQLITE_CONSTRAINT"
 }
 

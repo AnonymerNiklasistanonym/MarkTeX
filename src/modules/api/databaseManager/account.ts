@@ -8,6 +8,10 @@ export interface CreateInput {
     public?: boolean
 }
 
+export enum CreateError {
+    USER_NAME_ALREADY_EXISTS = "USER_NAME_ALREADY_EXISTS"
+}
+
 /**
  * Create account.
  *
@@ -23,12 +27,21 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
     values.push(input.admin === true ? 1 : 0);
     columns.push("public");
     values.push(input.public === true ? 1 : 0);
-    const postResult = await database.requests.post(
-        databasePath,
-        database.queries.insert("account", columns),
-        values
-    );
-    return postResult.lastID;
+    try {
+        const postResult = await database.requests.post(
+            databasePath,
+            database.queries.insert("account", columns),
+            values
+        );
+        return postResult.lastID;
+    } catch (error) {
+        if (database.requests.isDatabaseError(error)) {
+            if (error.code === database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT) {
+                throw CreateError.USER_NAME_ALREADY_EXISTS;
+            }
+        }
+        throw error;
+    }
 };
 
 

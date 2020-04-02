@@ -62,6 +62,7 @@ describe("api database: account", () => {
             });
         } catch (e) {
             throwException = true;
+            chai.expect(e).equal(api.database.account.CreateError.USER_NAME_ALREADY_EXISTS);
         }
         chai.expect(throwException).to.equal(true);
     });

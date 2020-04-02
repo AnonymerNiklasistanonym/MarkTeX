@@ -40,10 +40,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 expressMiddlewareSession.addMessages(req, "Registering was not successful");
                 return res.redirect("/login");
             } catch (error) {
-                // On any error redirect to login page
-                const databaseError = api.database.getError(error);
-                // Check if error is a database specific error
-                if (databaseError === api.database.DatabaseError.SQLITE_CONSTRAINT) {
+                // Check for specific create account errors
+                if (error === api.database.account.CreateError.USER_NAME_ALREADY_EXISTS) {
                     expressMiddlewareSession.addMessages(req, "The user name already exists");
                 } else {
                     expressMiddlewareSession.addMessages(req, JSON.stringify(error));
