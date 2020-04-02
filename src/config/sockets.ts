@@ -24,7 +24,9 @@ export const bindSocketServer = (
 
     // Register when new socket clients are connected
     io.on("connection", socket => {
-        debug("new connection [socket=%s,session=%s]", socket.client.id, socket.request.sessionID);
+        const currentAccountId: undefined|number = socket.request.session.accountId;
+        debug("new connection [socket=%s,session=%s,accountId=%s]",
+            socket.client.id, socket.request.sessionID, currentAccountId);
         socket.on("disconnect", () => {
             debug("disconnect [socket=%s,session=%s]", socket.client.id, socket.request.sessionID);
         });
