@@ -33,19 +33,15 @@
   },
   "main": "dist/index.js",
   "bin": "dist/index.js",
-  "pkg": {
-    "assets": [
-      "dist/**/*",
-      "keys/**/*",
-      ".env"
-    ]
-  },
   "scripts": {
     "build": "npm-run-all clean build:backend build:frontend copy:assets",
     "build:backend": "npm-run-all tsc",
     "build:frontend": "npm-run-all webpack",
     "clean": "ts-node tools/cleanFiles",
     "copy:assets": "ts-node tools/copyAssets",
+    "coverage": "nyc npm run test",
+    "coverage:html": "nyc --reporter html npm run test",
+    "coverage:html:view": "ts-node ./tests/openCoverage",
     "dev": "cross-env NODE_DEBUG=app* NODE_ENV=development npm-run-all build start",
     "dev:watch": "nodemon --watch src -e ts,hbs,css,json --exec npm run dev",
     "docs": "npm-run-all lint:docs todo typedoc",
@@ -56,7 +52,7 @@
     "lint:frontend": "eslint -c .eslintrc.js --ext .ts src/public tools webpack.config.js --fix",
     "lint:tests": "eslint -c .eslintrc.js --ext .ts tests --fix",
     "start": "node .",
-    "test": "npm-run-all lint:tests tests:other tests:shell",
+    "test": "mocha -r ts-node/register tests/**/*.test*.ts",
     "tests:other": "mocha -r ts-node/register tests/**/*.test.ts",
     "tests:shell": "mocha -r ts-node/register tests/**/*.test.shell.ts",
     "todo": "ts-node ./docs/createTodoPage",
@@ -121,6 +117,7 @@
     "mocha": "^7.1.1",
     "nodemon": "^2.0.2",
     "npm-run-all": "^4.1.5",
+    "nyc": "^15.0.0",
     "open": "^7.0.3",
     "shelljs": "^0.8.3",
     "ts-loader": "^6.2.2",
@@ -130,5 +127,12 @@
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
+  },
+  "pkg": {
+    "assets": [
+      "dist/**/*",
+      "keys/**/*",
+      ".env"
+    ]
   }
 }
