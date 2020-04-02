@@ -51,26 +51,41 @@ export interface ZipFileFiles {
     directories?: ZipFileFilesDirectory[]
 }
 
+// export const fileExists = async (filePath: string): Promise<boolean> => {
+//     try {
+//         await fs.access(filePath);
+//     } catch (err) {
+//         return false;
+//     }
+//     return true;
+// };
+
 export const createZipFile = async (source: ZipFileFiles, out: string): Promise<void> => {
     debug(`Create zip file ${JSON.stringify(source)}`);
     const archive = archiver.create("zip", { zlib: { level: 9 } });
     const stream = createWriteStream(out);
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         archive
             .on("error", err => reject(err))
             .pipe(stream);
         if (source.files) {
             for (const file of source.files) {
+                try {
+                    await fs.access(file.filePath);
+                } catch (err) { return reject(err); }
                 archive.file(file.filePath, { name: file.zipFileName ? file.zipFileName : file.filePath });
             }
         }
         if (source.directories) {
             for (const directory of source.directories) {
+                try {
+                    await fs.access(directory.dirPath);
+                } catch (err) { return reject(err); }
                 archive.directory(directory.dirPath, directory.zipDirName ? directory.zipDirName : false);
             }
         }
         stream.on("close", () => resolve());
-        archive.finalize();
+        await archive.finalize();
     });
 };
