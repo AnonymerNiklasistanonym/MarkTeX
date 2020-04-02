@@ -1,9 +1,11 @@
 .PHONY: clean docker_build docker_build_image docker_run docker_run_image docker_export_build docker_export_run remove_all_stopped_docker_containers
 
 DOCKER_FILE_BUILD=./docker/build/Dockerfile
+DOCKER_FILE_BUILD_EXECUTABLE=./docker/build_executable/Dockerfile
 DOCKER_FILE_RUN=./docker/run/Dockerfile
 
 DOCKER_IMAGE_NAME_BUILD=prototype/typescript-express-build
+DOCKER_IMAGE_NAME_BUILD_EXECUTABLE=prototype/typescript-express-build-executable
 DOCKER_IMAGE_NAME_RUN=prototype/typescript-express-run
 
 DOCKER_IMAGE_BUILD_FILE_NAME=docker-image-typescript-express-build.tar
@@ -47,6 +49,19 @@ docker_export_run: docker_build docker_run_image
 	mkdir -p docker/dist
 	docker save $(DOCKER_IMAGE_NAME_RUN) > docker/dist/$(DOCKER_IMAGE_RUN_FILE_NAME)
 	# Load with `docker load < xyz.tar`
+
+docker_build_executable_image:
+	docker build $(DOCKER_ARGS_BUILD) -t $(DOCKER_IMAGE_NAME_BUILD_EXECUTABLE) -f $(DOCKER_FILE_BUILD_EXECUTABLE) .
+
+docker_build_executable: docker_build_executable_image
+	docker rm -f temp || true
+	docker run -ti --name temp $(DOCKER_IMAGE_NAME_BUILD_EXECUTABLE)
+	rm -rf dist
+	docker cp temp:/usr/src/app/marktex-linux ./
+	docker cp temp:/usr/src/app/marktex-macos ./
+	docker cp temp:/usr/src/app/marktex-win.exe ./
+	docker cp temp:/usr/src/app/node_modules/sqlite3/lib/binding/node-v72-linux-x64/node_sqlite3.node ./
+	docker rm -f temp
 
 remove_all_stopped_docker_containers:
 	docker container prune -f
