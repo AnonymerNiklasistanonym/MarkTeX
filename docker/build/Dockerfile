@@ -1,7 +1,7 @@
 FROM pandoc/latex:2.9.2
 
 # Install npm/nodejs
-RUN apk add --update npm inkscape
+RUN apk add --update npm
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -18,6 +18,7 @@ COPY src ./src
 COPY tools ./tools
 COPY res ./res
 COPY tests ./tests
+COPY types ./types
 COPY .eslintrc.js ./.eslintrc.js
 COPY tsconfig.json ./tsconfig.json
 COPY tsconfig.internal.json ./tsconfig.internal.json
@@ -26,7 +27,7 @@ COPY webpack.config.js ./webpack.config.js
 # Run tests to be sure that everything will work
 # >> Update as soon as alpine has inkscape v1.x to also execute shell tests
 # RUN npm test
-RUN npm run mochaNoShell
+RUN npm run tests:other
 
 # Build files (but only when the container is run)
 ENTRYPOINT [ "npm" ]
