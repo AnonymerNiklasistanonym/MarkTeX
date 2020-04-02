@@ -32,6 +32,14 @@
     "url": "https://github.com/AnonymerNiklasistanonym"
   },
   "main": "dist/index.js",
+  "bin": "dist/index.js",
+  "pkg": {
+    "assets": [
+      "dist/**/*",
+      "keys/**/*",
+      ".env"
+    ]
+  },
   "scripts": {
     "build": "npm-run-all clean build:backend build:frontend copy:assets",
     "build:backend": "npm-run-all tsc",
