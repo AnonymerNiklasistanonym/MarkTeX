@@ -12,7 +12,6 @@ import compression from "compression";
 import { debuglog } from "util";
 import express from "express";
 import expressHandlebars from "express-handlebars";
-import expressSession from "express-session";
 import fs from "fs";
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
@@ -34,7 +33,13 @@ export interface StartExpressServerOptions {
     production: boolean
 }
 
-export const getExpressServer = (options: StartExpressServerOptions): express.Express => {
+export interface StartExpressServerMiddlewareOptions {
+    sessionMiddleware: express.RequestHandler
+}
+
+export const getExpressServer = (
+    options: StartExpressServerOptions, middlewareOptions: StartExpressServerMiddlewareOptions
+): express.Express => {
     // Express setup
     const app = express();
     // Express view engine setup
@@ -64,11 +69,7 @@ export const getExpressServer = (options: StartExpressServerOptions): express.Ex
     app.use(bodyParser.json());
 
     // Enable sessions for requests
-    app.use(expressSession({
-        resave: false,
-        saveUninitialized: true,
-        secret: "secret"
-    }));
+    app.use(middlewareOptions.sessionMiddleware);
 
     app.use(compression({
         filter: (req: express.Request, res: express.Response) => {
@@ -154,8 +155,10 @@ export const getExpressServer = (options: StartExpressServerOptions): express.Ex
 };
 
 
-export const startExpressServerHttp1 = (options: StartExpressServerOptions): http.Server => {
-    const app = getExpressServer(options);
+export const startExpressServerHttp1 = (
+    options: StartExpressServerOptions, middlewareOptions: StartExpressServerMiddlewareOptions
+): http.Server => {
+    const app = getExpressServer(options, middlewareOptions);
     // Use custom port if defined, otherwise use 8080
     const PORT: number = Number(process.env.SERVER_PORT) || 8080;
 
@@ -188,14 +191,16 @@ export const findHttp2Keys = (): boolean => {
         && fs.existsSync(http2KeyPaths.key);
 };
 
-export const startExpressServerHttp2 = (options: StartExpressServerOptions): http2.Http2Server => {
+export const startExpressServerHttp2 = (
+    options: StartExpressServerOptions, middlewareOptions: StartExpressServerMiddlewareOptions
+): http2.Http2Server => {
     const sslKeysDir = path.join(__dirname, "..", "..", "keys");
     const httpsOptions: spdy.ServerOptions = {
         ca: fs.readFileSync(path.join(sslKeysDir, "ssl.crt")),
         cert: fs.readFileSync(path.join(sslKeysDir, "ssl.crt")),
         key: fs.readFileSync(path.join(sslKeysDir, "ssl.key"))
     };
-    const app = getExpressServer(options);
+    const app = getExpressServer(options, middlewareOptions);
     // Use custom port if defined, otherwise use 8080
     const PORT: number = Number(process.env.SERVER_PORT) || 8080;
 

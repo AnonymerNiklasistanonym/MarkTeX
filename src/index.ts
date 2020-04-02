@@ -5,6 +5,7 @@ import { findHttp2Keys, startExpressServerHttp1, startExpressServerHttp2 } from 
 import api from "./modules/api";
 import { bindSocketServer } from "./config/sockets";
 import { debuglog } from "util";
+import expressSession from "express-session";
 import { loadEnvFile } from "./config/env";
 import os from "os";
 import path from "path";
@@ -28,16 +29,23 @@ api.database.exists(databasePath)
         }
     })
     .then(() => {
+        const sessionMiddleware = expressSession({
+            resave: false,
+            saveUninitialized: true,
+            secret: "secret"
+        });
         // Start sever (start http2 server if keys are found)
         const startServer = findHttp2Keys() ? startExpressServerHttp2 : startExpressServerHttp1;
         const server = startServer({
             databasePath,
             production: process.env.NODE_ENV !== "development"
-        });
+        }, { sessionMiddleware });
         debug("server was started");
 
         // Bind socket server
-        const socketServer = bindSocketServer(server);
+        const socketServer = bindSocketServer(server, {
+            sessionMiddleware: (socket, next) => { sessionMiddleware(socket.request, socket.request.res, next); }
+        });
         debug("socket server was bound to server");
 
         // Handling terminate gracefully
