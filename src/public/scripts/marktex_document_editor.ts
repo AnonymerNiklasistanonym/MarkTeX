@@ -19,7 +19,7 @@ export interface EnableEditorRenderingInput {
 }
 
 export const enableEditorRendering = (input: EnableEditorRenderingInput): void => {
-    input.marktexEditorInput.addEventListener("input", (event: Event): void => {
+    const onInputRender = (event: Event): void => {
         // Update document preview
         render(input);
         // Save for later
@@ -35,7 +35,10 @@ export const enableEditorRendering = (input: EnableEditorRenderingInput): void =
                 }
             });
         }
-    });
+    };
+    input.marktexEditorInput.addEventListener("input", onInputRender);
+    input.marktexEditorInput.addEventListener("change", onInputRender);
+    input.marktexEditorInput.addEventListener("click", onInputRender);
 };
 
 export interface EnableEditorModeSwitchingInput {

@@ -212,3 +212,7 @@ div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link {
 div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link:hover {
 	background-color: #111;
 }
+
+.invisible {
+	display: none;
+}

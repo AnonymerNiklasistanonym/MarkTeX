@@ -152,6 +152,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 res.render("document", {
                     document: { ... documentInfo, group: groupInfo, owner: accountInfo, pdfOptions },
                     header,
+                    loggedIn,
                     navigationBar
                 });
             }

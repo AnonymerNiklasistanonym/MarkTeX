@@ -1,5 +1,7 @@
 import "./webpackVars";
+import * as collaborationTextEditor from "./collaboration_text_editor";
 import * as marktexDocumentEditor from "./marktex_document_editor";
+import Mousetrap from "mousetrap";
 
 
 // eslint-disable-next-line no-console
@@ -7,6 +9,25 @@ console.log(`DEBUG_APP=${DEBUG_APP}`);
 
 // eslint-disable-next-line complexity
 window.addEventListener("load", (): void => {
+
+    // Fake document id for testing
+    const documentId = 42;
+
+    // Keyboard controls
+    Mousetrap.bind("4", () => { console.warn("4"); });
+    Mousetrap.bind("?", () => { console.warn("show shortcuts!"); });
+    Mousetrap.bind("esc", () => { console.warn("escape"); }, "keyup");
+    Mousetrap.bind("command+shift+k", () => { console.warn("command shift k"); });
+    Mousetrap.bind([ "command+k", "ctrl+k" ], () => {
+        console.warn("command k or control k");
+
+        // return false to prevent default browser behavior
+        // and stop event from bubbling
+        return false;
+    });
+    Mousetrap.bind("g i", () => { console.warn("go to inbox"); });
+    Mousetrap.bind("* a", () => { console.warn("select all"); });
+
 
     // Get live  input/output elements
     const marktexEditor = document.getElementById("marktex-editor") as HTMLTextAreaElement;
@@ -55,4 +76,26 @@ window.addEventListener("load", (): void => {
             marktexEditorOutput: liveOutput
         });
     }
+
+    const collaborationButton = document.getElementById("collaboration-button") as HTMLUListElement;
+    if (collaborationButton) {
+        let collaborationEnabled = false;
+        collaborationButton.addEventListener("click", () => {
+            if (collaborationEnabled) {
+                collaborationTextEditor.disable();
+                collaborationButton.innerText = "Enable collaboration [Beta]";
+                collaborationEnabled = false;
+            } else {
+                collaborationEnabled = true;
+                const socket = io();
+                collaborationTextEditor.enable(socket, documentId, {
+                    connectedUsersElement: document.getElementById("connected-users") as HTMLUListElement,
+                    connectedUsersList: document.getElementById("connected-users-list") as HTMLUListElement,
+                    textInput: liveInput
+                });
+                collaborationButton.innerText = "Disable collaboration [Beta]";
+            }
+        });
+    }
+
 });

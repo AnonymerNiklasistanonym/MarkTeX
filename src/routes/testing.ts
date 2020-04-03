@@ -15,6 +15,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
         res.render("testing", {
             header,
+            loggedIn,
             navigationBar
         });
     });

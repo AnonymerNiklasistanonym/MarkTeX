@@ -44,7 +44,15 @@ api.database.exists(databasePath)
 
         // Bind socket server
         const socketServer = bindSocketServer(server, {
-            sessionMiddleware: (socket, next) => { sessionMiddleware(socket.request, socket.request.res, next); }
+            sessionMiddleware: (socket, next) => { sessionMiddleware(socket.request, socket.request.res, next); },
+            socketOptions: {
+                getAccountName: async (accountId: number): Promise<string|undefined> => {
+                    const get = await api.database.account.get(databasePath, accountId, { id: accountId });
+                    if (get) {
+                        return get.name;
+                    }
+                }
+            }
         });
         debug("socket server was bound to server");
 

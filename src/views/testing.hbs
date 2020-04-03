@@ -1,15 +1,27 @@
 {{> navigation_bar}}
 
-<div id="testing-live-md-rendering-import-export">
-	<button id="testing-live-md-rendering-import-export-button-import-md">Import MD</button>
-	<button id="testing-live-md-rendering-import-export-button-export-pdf">Export to PDF</button>
-	<button id="testing-live-md-rendering-import-export-button-export-zip">Export to ZIP</button>
-</div>
+<div class="container-testing">
+	<div class="container-testing-content">
 
-<ul class="actions-vertical">
-	<li><a class="button selected" id="marktex-button-both">Both</a></li>
-	<li><a class="button" id="marktex-button-edit">Edit</a></li>
-	<li><a class="button" id="marktex-button-view">View</a></li>
-</ul>
+		<div id="testing-live-md-rendering-import-export">
+			<button id="testing-live-md-rendering-import-export-button-import-md">Import MD</button>
+			<button id="testing-live-md-rendering-import-export-button-export-pdf">Export to PDF</button>
+			<button id="testing-live-md-rendering-import-export-button-export-zip">Export to ZIP</button>
+		</div>
+
+		<ul class="actions-vertical">
+			<li><a class="button" id="collaboration-button">Enable collaboration</a></li>
+		</ul>
+
+{{> collaboration_test_editor_header idMain="connected-users" idList="connected-users-list"}}
+
+		<ul class="actions-vertical">
+			<li><a class="button selected" id="marktex-button-both">Both</a></li>
+			<li><a class="button" id="marktex-button-edit">Edit</a></li>
+			<li><a class="button" id="marktex-button-view">View</a></li>
+		</ul>
 
 {{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output"}}
+
+	</div>
+</div>

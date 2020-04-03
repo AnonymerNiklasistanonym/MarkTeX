@@ -1,6 +1,6 @@
 import "./webpackVars";
-import type * as api from "../../routes/api";
 import * as apiRequests from "./apiRequests";
+import * as collaborationTextEditor from "./collaboration_text_editor";
 import * as download from "./download";
 import * as marktexDocumentEditor from "./marktex_document_editor";
 import * as notifications from "./notifications";
@@ -97,37 +97,65 @@ window.onload = (): void => {
         download.saveAsPlainText(JSON.stringify(response.jsonData, null, 4), "application/json",
             `backup_document_${response.id}.json`);
     });
-    const buttonUpdate = document.getElementById("document-button-update") as HTMLButtonElement;
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    buttonUpdate.addEventListener("click", async () => {
-        const response = await apiRequests.document.update({
-            authors: documentInfoAuthors.value,
-            content: liveInput.value,
-            date: documentInfoDate.value,
-            id: documentId,
-            pdfOptions: getDocumentPdfOptions(),
-            title: documentInfoTitle.value
-        });
-        await notifications.show({
-            body: `Document was saved ${response.title} by ${response.authors} from ${response.date}`,
-            title: `Document was saved: ${response.title}`
-        });
-        documentTitleSpan.innerText = response.title;
-        documentAuthorsSpan.innerText = response.authors ? `by ${response.authors}` : "";
-    });
-    const buttonRemove = document.getElementById("document-button-remove") as HTMLButtonElement;
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    buttonRemove.addEventListener("click", async () => {
-        const response = await apiRequests.document.remove({ id: documentId });
-        if (response) {
-            await notifications.show({
-                body: `Document was deleted ${"TODO"} by ${"TODO"} from ${"TODO"}`,
-                title: `Document was deleted: ${"TODO"}`
+    const buttonUpdateCreate = document.getElementById("document-button-update-create") as HTMLButtonElement;
+    if (buttonUpdateCreate) {
+        buttonUpdateCreate.addEventListener("click", async () => {
+            const response = await apiRequests.document.create({
+                authors: documentInfoAuthors.value,
+                content: liveInput.value,
+                date: documentInfoDate.value,
+                pdfOptions: getDocumentPdfOptions(),
+                title: documentInfoTitle.value
             });
-            // Redirect user to home page since the document was removed
-            window.location.href = "/";
-        }
-    });
+            if (response) {
+                await notifications.show({
+                    body: `New document "${response.title}" by "${response.authors}" from "${response.date}"`,
+                    onClickUrl: `/document/${response.id}`,
+                    title: "New document was created"
+                });
+                // Redirect user to document page
+                window.location.href = `/document/${response.id}`;
+            } else {
+                await notifications.show({
+                    body: "The response was not OK",
+                    title: "Error: Something went wrong when creating a new document"
+                });
+            }
+        });
+    }
+    const buttonUpdate = document.getElementById("document-button-update") as HTMLButtonElement;
+    if (buttonUpdate) {
+        buttonUpdate.addEventListener("click", async () => {
+            const response = await apiRequests.document.update({
+                authors: documentInfoAuthors.value,
+                content: liveInput.value,
+                date: documentInfoDate.value,
+                id: documentId,
+                pdfOptions: getDocumentPdfOptions(),
+                title: documentInfoTitle.value
+            });
+            await notifications.show({
+                body: `Document was saved ${response.title} by ${response.authors} from ${response.date}`,
+                title: `Document was saved: ${response.title}`
+            });
+            documentTitleSpan.innerText = response.title;
+            documentAuthorsSpan.innerText = response.authors ? `by ${response.authors}` : "";
+        });
+    }
+    const buttonRemove = document.getElementById("document-button-remove") as HTMLButtonElement;
+    if (buttonRemove) {
+        buttonRemove.addEventListener("click", async () => {
+            const response = await apiRequests.document.remove({ id: documentId });
+            if (response) {
+                await notifications.show({
+                    body: `Document was deleted ${"TODO"} by ${"TODO"} from ${"TODO"}`,
+                    title: `Document was deleted: ${"TODO"}`
+                });
+                // Redirect user to home page since the document was removed
+                window.location.href = "/";
+            }
+        });
+    }
 
     const toggleMetadata = document.getElementById("document-button-edit-metadata") as HTMLElement;
     const togglePdfOptions = document.getElementById("document-button-edit-pdf-options") as HTMLElement;
@@ -135,5 +163,27 @@ window.onload = (): void => {
     const sectionPdfOptions = document.getElementById("section-document-pdf-options") as HTMLElement;
     toggleMetadata.addEventListener("click", () => { sectionMetadata.classList.toggle("hide-element"); });
     togglePdfOptions.addEventListener("click", () => { sectionPdfOptions.classList.toggle("hide-element"); });
+
+
+    const collaborationButton = document.getElementById("collaboration-button") as HTMLUListElement;
+    if (collaborationButton) {
+        let collaborationEnabled = false;
+        collaborationButton.addEventListener("click", () => {
+            if (collaborationEnabled) {
+                collaborationTextEditor.disable();
+                collaborationButton.innerText = "Enable collaboration [Beta]";
+                collaborationEnabled = false;
+            } else {
+                collaborationEnabled = true;
+                const socket = io();
+                collaborationTextEditor.enable(socket, documentId, {
+                    connectedUsersElement: document.getElementById("connected-users") as HTMLUListElement,
+                    connectedUsersList: document.getElementById("connected-users-list") as HTMLUListElement,
+                    textInput: liveInput
+                });
+                collaborationButton.innerText = "Disable collaboration [Beta]";
+            }
+        });
+    }
 
 };

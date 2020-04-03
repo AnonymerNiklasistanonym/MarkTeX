@@ -29,8 +29,11 @@
 				<li><a class="button" id="document-button-export-pdf">Export to PDF</a></li>
 				<li><a class="button" id="document-button-export-zip">Export to ZIP</a></li>
 				<li><a class="button" id="document-button-export-json">Export document (JSON)</a></li>
+				{{#if loggedIn}}
+				<li><a class="button" id="document-button-update-create">Save as new document</a></li>
 				<li><a class="button" id="document-button-update">Save document</a></li>
 				<li><a class="button" id="document-button-remove">Delete document</a></li>
+				{{/if}}
 			</ul>
 		</section>
 
@@ -74,6 +77,13 @@
 
 		<section class="section-document" id="section-document-editor">
 			<h2>Editor:</h2>
+
+			{{#if loggedIn}}
+			<ul class="actions-vertical">
+				<li><a class="button" id="collaboration-button">Enable collaboration</a></li>
+			</ul>
+{{> collaboration_test_editor_header idMain="connected-users" idList="connected-users-list"}}
+			{{/if}}
 
 			<ul class="actions-vertical">
 				<li><a class="button" id="marktex-button-both">Both</a></li>
