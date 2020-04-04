@@ -21,8 +21,8 @@ export const isDatabaseError = (error: any): boolean => {
 };
 
 
-export const getEach = async (dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<any> => {
+export const getEach = async <T extends object>(dbNamePath: string, query: string,
+    parameters: (string|number)[] = []): Promise<(T|undefined)> => {
 
     const db = await open(dbNamePath, { readOnly: true });
     db.on("trace", debug);
@@ -55,8 +55,8 @@ export const getEach = async (dbNamePath: string, query: string,
     );
 };
 
-export const getAll = async (dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<any[]> => {
+export const getAll = async <T extends object>(dbNamePath: string, query: string,
+    parameters: (string|number)[] = []): Promise<T[]> => {
 
     const db = await open(dbNamePath, { readOnly: true });
     db.on("trace", debug);

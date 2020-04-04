@@ -234,6 +234,7 @@ export const setupInitialData = async (databasePath: string): Promise<void> => {
         "(X3) edge     node{}            (Y3)\n" +
         ";\n" +
         "\\end{tikzpicture}\n",
+        owner: accountIdTestUser,
         title: "Example Document"
     });
     await databaseManagerDocument.create(databasePath, accountIdTestUser, {
@@ -257,6 +258,7 @@ export const setupInitialData = async (databasePath: string): Promise<void> => {
         "This is a \\LaTeX block where you can do complicated \\LaTeX commands.\n" +
         "\\end{center}\n",
         date: "16.02.2020",
+        owner: accountIdTestUser,
         title: "Example Document 2"
     });
     // Add groups to test account

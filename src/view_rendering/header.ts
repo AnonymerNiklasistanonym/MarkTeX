@@ -24,13 +24,18 @@ interface HbsHeaderFaviconPng {
     sizes: number[]
 }
 
-export interface HbsHeaderFavicon{
+export interface HbsHeaderFavicon {
     /** Favicon `.ico` path */
     ico: string
     /** Favicon `.svg` path */
     svg: string
     /** Path to web app manifest */
     png: HbsHeaderFaviconPng
+}
+
+export interface HbsHeaderMetaValue {
+    name: string
+    content: string
 }
 
 export interface HbsHeader {
@@ -41,4 +46,5 @@ export interface HbsHeader {
     title?: string
     description?: string
     author: string
+    metaValues?: HbsHeaderMetaValue[]
 }

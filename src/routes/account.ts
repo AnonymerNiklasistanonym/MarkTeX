@@ -23,53 +23,53 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     // View account
     app.get("/account/:id",
-        // Make sure that the account can be accessed
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                id: {
-                    custom: {
-                        options: async (id: number): Promise<boolean> => {
-                            const accountExists = await api.database.account.exists(
-                                options.databasePath, sessionInfo.accountId, { id }
-                            );
-                            if (accountExists) { return true; }
-                            throw Error(`The account with the id ${id} can not be accessed`);
-                        }
-                    },
-                    in: "params",
-                    isInt: true
-                }
-            }))(req, res, next);
-        },
-        async (req, res, next) => {
-            let accountId = 1;
-            const loggedIn = expressMiddlewareSession.isAuthenticated(req);
-            if (loggedIn) {
-                accountId =  expressMiddlewareSession.getSessionInfo(req).accountId;
+        // Make sure that the account exists
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            id: {
+                custom: {
+                    options: async (id: number): Promise<boolean> => {
+                        const accountExists = await api.database.account.exists(options.databasePath, { id });
+                        if (accountExists) { return true; }
+                        throw Error(`The account with the id ${id} can not be accessed`);
+                    }
+                },
+                in: "params",
+                isInt: true
             }
+        })),
+        async (req, res, next) => {
+            let accountId: number|undefined;
+            const loggedIn = expressMiddlewareSession.isAuthenticated(req);
+            if (loggedIn) { accountId =  expressMiddlewareSession.getSessionInfo(req).accountId; }
             const pageAccountId = Number(req.params.id);
-            const accountInfo = await api.database.account.get(options.databasePath, accountId, {
-                id: pageAccountId
-            });
-            const accountDocuments = await api.database.document.getAllFromOwner(options.databasePath, accountId, {
-                id: pageAccountId
-            });
-            const accountGroups = await api.database.group.getAllFromOwner(options.databasePath, accountId, {
-                id: pageAccountId
-            });
-            if (accountInfo) {
-                const header = viewRendering.getHeaderDefaults(options, { sockets: true });
-                header.title = `${accountInfo.name}`;
-                header.scripts.push({ path: `/scripts/account_bundle.js${options.production ? ".gz" : ""}` });
-                const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
-                return res.render("account", {
-                    account: { ... accountInfo, documents: accountDocuments, groups: accountGroups },
-                    header,
-                    navigationBar
+            try {
+                const accountInfo = await api.database.account.get(options.databasePath, accountId, {
+                    id: pageAccountId
                 });
-            } else {
-                next(createHttpError(404, `Account with the ID '${pageAccountId}' was not found`));
+                const accountDocuments = await api.database.document.getAllFromOwner(options.databasePath, accountId, {
+                    id: pageAccountId
+                });
+                const accountGroups = await api.database.group.getAllFromOwner(options.databasePath, accountId, {
+                    id: pageAccountId
+                });
+                if (accountInfo) {
+                    const header = viewRendering.getHeaderDefaults(options, { sockets: true });
+                    header.title = `${accountInfo.name}`;
+                    header.scripts.push({ path: `/scripts/account_bundle.js${options.production ? ".gz" : ""}` });
+                    header.stylesheets.push({ path: "/stylesheets/account.css" });
+                    header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
+                    const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
+                    return res.render("account", {
+                        account: { ... accountInfo, documents: accountDocuments, groups: accountGroups },
+                        header,
+                        navigationBar
+                    });
+                } else {
+                    throw Error(`Account with the ID '${pageAccountId}' was not found`);
+                }
+            } catch (error) {
+                next(createHttpError(error.httpErrorCode ? error.httpErrorCode : 404,
+                    (error as Error).message));
             }
         });
 

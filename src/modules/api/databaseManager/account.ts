@@ -44,6 +44,34 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
     }
 };
 
+export interface GetAdminDbOut {
+    admin: number
+}
+
+/**
+ * Get if a given account is an admin account.
+ *
+ * @param databasePath Path to database
+ * @param accountId Account that should be checked
+ * @returns Account is admin account
+ */
+export const isAdmin = async (databasePath: string, accountId: number|undefined): Promise<boolean> => {
+    if (accountId) {
+        try {
+            const runResult = await database.requests.getEach<GetAdminDbOut>(
+                databasePath,
+                database.queries.select("account", ["admin"], { whereColumn: "id" }),
+                [accountId]
+            );
+            if (runResult) {
+                return runResult.admin === 1;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+    return false;
+};
 
 export interface RemoveInput {
     id: number
@@ -57,6 +85,13 @@ export interface RemoveInput {
  * @param input Remove info.
  */
 export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
+    // If ids do not match check if account that wants to remove it is admin
+    if (input.id !== accountId && !await isAdmin(databasePath, accountId)) {
+        const error: any = Error("No account access");
+        error.httpErrorCode = 403;
+        throw error;
+    }
+
     const postResult = await database.requests.post(
         databasePath,
         database.queries.remove("account", "id"),
@@ -80,36 +115,40 @@ export interface ExistsDbOut {
  * Check if account exists.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account.
  * @param input Account exists info.
  * @returns True if account exists.
  */
 export const existsName = async (
-    databasePath: string, accountId: number, input: ExistsNameInput
+    databasePath: string, input: ExistsNameInput
 ): Promise<boolean> => {
-    const runResult = await database.requests.getEach(
+    const runResult = await database.requests.getEach<ExistsDbOut>(
         databasePath,
         database.queries.exists("account", "name"),
         [input.name]
-    ) as ExistsDbOut;
-    return runResult.exists_value === 1;
+    );
+    if (runResult) {
+        return runResult.exists_value === 1;
+    }
+    return false;
 };
 
 /**
  * Check if account exists.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account.
  * @param input Account exists info.
  * @returns True if account exists.
  */
-export const exists = async (databasePath: string, accountId: number, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach(
+export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
+    const runResult = await database.requests.getEach<ExistsDbOut>(
         databasePath,
         database.queries.exists("account", "id"),
         [input.id]
-    ) as ExistsDbOut;
-    return runResult.exists_value === 1;
+    );
+    if (runResult) {
+        return runResult.exists_value === 1;
+    }
+    return false;
 };
 
 export interface CheckLoginInput {
@@ -134,13 +173,13 @@ export interface CheckLoginDbOut {
 export const checkLogin = async (
     databasePath: string, input: CheckLoginInput
 ): Promise<(number|void)> => {
-    const runResult = await database.requests.getEach(
+    const runResult = await database.requests.getEach<CheckLoginDbOut>(
         databasePath,
         database.queries.select("account", [ "id", "password_hash", "password_salt" ], {
             whereColumn: "name"
         }),
         [input.name]
-    ) as CheckLoginDbOut;
+    );
     if (runResult) {
         const passwordCorrect = crypto.checkPassword(input.password, {
             hash: runResult.password_hash,
@@ -174,20 +213,31 @@ export interface GetDbOut {
  * @param accountId Unique id of account that created the document.
  * @param input Account get info.
  */
-export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
-    const runResult = await database.requests.getEach(
+export const get = async (
+    databasePath: string, accountId: number|undefined, input: GetInput
+): Promise<(GetOutput|void)> => {
+    const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
         database.queries.select("account", [ "name", "admin", "public" ], {
             whereColumn: "id"
         }),
         [input.id]
-    ) as GetDbOut;
+    );
     if (runResult) {
+        const isPublic = runResult.public === 1;
+
+        // If ids do not match check if profile is public or account that wants to access it admin
+        if (input.id !== accountId && !(isPublic || await isAdmin(databasePath, accountId))) {
+            const error: any = Error("No access to non public profile");
+            error.httpErrorCode = 403;
+            throw error;
+        }
+
         return {
             admin: runResult.admin === 1,
             id: input.id,
             name: runResult.name,
-            public: runResult.public === 1
+            public: isPublic
         };
     }
 };
@@ -207,7 +257,15 @@ export interface UpdateInput {
  * @param accountId Unique id of account that created the document.
  * @param input Account get info.
  */
+// eslint-disable-next-line complexity
 export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(boolean|void)> => {
+    // If ids do not match check if account that wants to access it is admin
+    if (input.id !== accountId && !await isAdmin(databasePath, accountId)) {
+        const error: any = Error("No account access");
+        error.httpErrorCode = 403;
+        throw error;
+    }
+
     const columns = [];
     const values = [];
     if (input.admin !== undefined) {

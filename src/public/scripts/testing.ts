@@ -1,5 +1,6 @@
 import "./webpackVars";
 import * as collaborationTextEditor from "./collaboration_text_editor";
+import * as helper from "./helper";
 import * as marktexDocumentEditor from "./marktex_document_editor";
 import Mousetrap from "mousetrap";
 
@@ -8,10 +9,14 @@ import Mousetrap from "mousetrap";
 console.log(`DEBUG_APP=${DEBUG_APP}`);
 
 // eslint-disable-next-line complexity
-window.addEventListener("load", (): void => {
+window.addEventListener("load", () => {
+
+    const accountId = helper.stringToNumberSafe(helper.getMetaInformation("accountId"));
+    console.warn("accountId", accountId);
 
     // Fake document id for testing
     const documentId = 42;
+    console.warn("documentId", documentId);
 
     // Keyboard controls
     Mousetrap.bind("4", () => { console.warn("4"); });

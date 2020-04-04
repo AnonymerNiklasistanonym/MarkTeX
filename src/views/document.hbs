@@ -21,10 +21,12 @@
 
 		<section class="section-document" id="section-document-actions">
 			<h2>Actions:</h2>
+			{{#if loggedIn}}
 			<ul class="actions-vertical">
 				<li><a class="button" id="document-button-edit-metadata">Toggle edit metadata</a></li>
 				<li><a class="button" id="document-button-edit-pdf-options">Toggle edit PDF options</a></li>
 			</ul>
+			{{/if}}
 			<ul class="actions-vertical">
 				<li><a class="button" id="document-button-export-pdf">Export to PDF</a></li>
 				<li><a class="button" id="document-button-export-zip">Export to ZIP</a></li>
@@ -85,10 +87,12 @@
 {{> collaboration_test_editor_header idMain="connected-users" idList="connected-users-list"}}
 			{{/if}}
 
+			{{#if loggedIn}}
 			<ul class="actions-vertical">
 				<li><a class="button" id="marktex-button-both">Both</a></li>
 				<li><a class="button" id="marktex-button-edit">Edit</a></li>
 				<li><a class="button selected" id="marktex-button-view">View</a></li>
 			</ul>
+			{{/if}}
 {{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output" modusViewOnly=true input=document.content}}
 		</section>

@@ -195,6 +195,19 @@ describe("database api: requests", () => {
         options: { notNull: true, unique: true },
         type: database.queries.CreateTableColumnType.TEXT
     } ];
+    interface DbAllColumnsOutput {
+        blob: string
+        integer: number
+        numeric: number
+        real: number
+        text: string
+        // eslint-disable-next-line camelcase
+        unique_text_and_not_null: string
+    }
+    interface DbLastColumnOutput {
+        // eslint-disable-next-line camelcase
+        unique_text_and_not_null: string
+    }
     it("post", async () => {
         await database.remove(databaseName);
         await database.create(databaseName);
@@ -269,15 +282,29 @@ describe("database api: requests", () => {
         const getResultSelectLastColumn2 = await database.requests.getEach(databaseName, querySelectLastColumn, [42]);
         chai.expect(getResultSelectLastColumn2).to.equal(undefined, "No matching table entry to select");
 
-        const getResultSelectAllColumns3 = await database.requests.getEach(databaseName, querySelectAllColumns, [1234]);
-        chai.expect(getResultSelectAllColumns3.blob).to.equal("blobData");
-        chai.expect(getResultSelectAllColumns3.integer).to.equal(1234);
-        chai.expect(getResultSelectAllColumns3.numeric).to.equal(12);
-        chai.expect(getResultSelectAllColumns3.real).to.equal(22.3456);
-        chai.expect(getResultSelectAllColumns3.text).to.equal("textData");
-        chai.expect(getResultSelectAllColumns3.unique_text_and_not_null).to.equal("unique1");
-        const getResultSelectLastColumn3 = await database.requests.getEach(databaseName, querySelectLastColumn, [1234]);
-        chai.expect(getResultSelectLastColumn3.unique_text_and_not_null).to.equal("unique1");
+        const getResultSelectAllColumns3 = await database.requests.getEach<DbAllColumnsOutput>(
+            databaseName, querySelectAllColumns, [1234]
+        );
+        if (getResultSelectAllColumns3) {
+            chai.expect(getResultSelectAllColumns3).to.not.equal(undefined);
+            chai.expect(getResultSelectAllColumns3.blob).to.equal("blobData");
+            chai.expect(getResultSelectAllColumns3.integer).to.equal(1234);
+            chai.expect(getResultSelectAllColumns3.numeric).to.equal(12);
+            chai.expect(getResultSelectAllColumns3.real).to.equal(22.3456);
+            chai.expect(getResultSelectAllColumns3.text).to.equal("textData");
+            chai.expect(getResultSelectAllColumns3.unique_text_and_not_null).to.equal("unique1");
+        } else {
+            chai.assert(false);
+        }
+        const getResultSelectLastColumn3 = await database.requests.getEach<DbLastColumnOutput>(
+            databaseName, querySelectLastColumn, [1234]
+        );
+        if (getResultSelectLastColumn3) {
+            chai.expect(getResultSelectLastColumn3).to.not.equal(undefined);
+            chai.expect(getResultSelectLastColumn3.unique_text_and_not_null).to.equal("unique1");
+        } else {
+            chai.assert(false);
+        }
     });
     it("get all", async () => {
         await database.remove(databaseName);
@@ -307,7 +334,9 @@ describe("database api: requests", () => {
         const getResultSelectLastColumn2 = await database.requests.getAll(databaseName, querySelectLastColumn, [42]);
         chai.expect(getResultSelectLastColumn2).to.deep.equal([], "No matching table entries to select");
 
-        const getResultSelectAllColumns3 = await database.requests.getAll(databaseName, querySelectAllColumns, [1234]);
+        const getResultSelectAllColumns3 = await database.requests.getAll<DbAllColumnsOutput>(
+            databaseName, querySelectAllColumns, [1234]
+        );
         chai.expect(getResultSelectAllColumns3.length).to.equal(1);
         chai.expect(getResultSelectAllColumns3[0].blob).to.equal("blobData");
         chai.expect(getResultSelectAllColumns3[0].integer).to.equal(1234);
@@ -315,7 +344,9 @@ describe("database api: requests", () => {
         chai.expect(getResultSelectAllColumns3[0].real).to.equal(22.3456);
         chai.expect(getResultSelectAllColumns3[0].text).to.equal("textData");
         chai.expect(getResultSelectAllColumns3[0].unique_text_and_not_null).to.equal("unique1");
-        const getResultSelectLastColumn3 = await database.requests.getAll(databaseName, querySelectLastColumn, [1234]);
+        const getResultSelectLastColumn3 = await database.requests.getAll<DbLastColumnOutput>(
+            databaseName, querySelectLastColumn, [1234]
+        );
         chai.expect(getResultSelectLastColumn3.length).to.equal(1);
         chai.expect(getResultSelectLastColumn3[0].unique_text_and_not_null).to.equal("unique1");
     });

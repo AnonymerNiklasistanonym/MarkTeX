@@ -12,28 +12,25 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     // View document
     app.get("/document/:id",
-        // Make sure that the document can be accessed
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                id: {
-                    custom: {
-                        options: async (id: number): Promise<boolean> => {
-                            const documentExists = await api.database.document.exists(
-                                options.databasePath, sessionInfo.accountId, { id }
-                            );
-                            if (documentExists) { return true; }
-                            throw Error(`The document with the id ${id} can not be accessed`);
-                        }
-                    },
-                    in: "params",
-                    isInt: true
-                }
-            }))(req, res, next);
-        },
+        // Make sure that the document exists
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            id: {
+                custom: {
+                    options: async (id: number): Promise<boolean> => {
+                        const documentExists = await api.database.document.exists(
+                            options.databasePath, { id }
+                        );
+                        if (documentExists) { return true; }
+                        throw Error(`The document with the id ${id} does not exist`);
+                    }
+                },
+                in: "params",
+                isInt: true
+            }
+        })),
         // eslint-disable-next-line complexity
         async (req, res) => {
-            let accountId = 1;
+            let accountId: number|undefined;
             const loggedIn = expressMiddlewareSession.isAuthenticated(req);
             if (loggedIn) {
                 accountId =  expressMiddlewareSession.getSessionInfo(req).accountId;
@@ -148,6 +145,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
                 header.title = `${documentInfo.title} by ${documentInfo.authors}`;
                 header.description = `${documentInfo.title} by ${documentInfo.authors} from ${documentInfo.date}`;
+                header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
                 const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                 res.render("document", {
                     document: { ... documentInfo, group: groupInfo, owner: accountInfo, pdfOptions },

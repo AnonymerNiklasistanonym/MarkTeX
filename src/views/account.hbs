@@ -1,23 +1,36 @@
 {{> navigation_bar}}
 
+<div class="container-account">
+	<div class="container-account-content">
 
-<p>Account:</p>
-<ul>
-    <li>id: "{{account.id}}"</li>
-    <li>name: "{{account.name}}"</li>
-    <li>admin: "{{account.isAdmin}}"</li>
-</ul>
+		<h1>Account:</h1>
 
-<p>Documents from this account:</p>
-<ul>
-{{#each account.documents}}
-    <li><a href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
-{{/each}}
-</ul>
+		<section class="section-account" id="section-account-info">
+			<h2>Account info:</h2>
+			<ul>
+				<li>id: "{{account.id}}"</li>
+				<li>name: "{{account.name}}"</li>
+				<li>admin: "{{account.isAdmin}}"</li>
+			</ul>
+		</section>
 
-<p>Groups from this account:</p>
-<ul>
-{{#each account.groups}}
-    <li><a href="/group/{{this.id}}">{{this.name}}</a></li>
-{{/each}}
-</ul>
+		<section class="section-account" id="section-account-documents">
+			<h2>Account documents:</h2>
+			<ul class="actions">
+				{{#each account.documents}}
+				<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+				{{/each}}
+			</ul>
+		</section>
+
+		<section class="section-account" id="section-account-groups">
+			<h2>Account groups:</h2>
+			<ul class="actions">
+				{{#each account.groups}}
+				<li><a class="button" href="/group/{{this.id}}">{{this.name}}</a></li>
+				{{/each}}
+			</ul>
+		</section>
+
+	</div>
+</div>

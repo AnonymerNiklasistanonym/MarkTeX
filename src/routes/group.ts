@@ -11,31 +11,26 @@ export const register = (app: express.Application, options: StartExpressServerOp
 
     // View group
     app.get("/group/:id",
-        // Make sure that the group can be accessed
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                id: {
-                    custom: {
-                        options: async (id: number): Promise<boolean> => {
-                            const documentExists = await api.database.group.exists(
-                                options.databasePath, sessionInfo.accountId, { id }
-                            );
-                            if (documentExists) { return true; }
-                            throw Error(`The group with the id ${id} can not be accessed`);
-                        }
-                    },
-                    in: "params",
-                    isInt: true
-                }
-            }))(req, res, next);
-        },
-        async (req, res) => {
-            let accountId = 1;
-            const loggedIn = expressMiddlewareSession.isAuthenticated(req);
-            if (loggedIn) {
-                accountId =  expressMiddlewareSession.getSessionInfo(req).accountId;
+        // Make sure that the group exists
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            id: {
+                custom: {
+                    options: async (id: number): Promise<boolean> => {
+                        const documentExists = await api.database.group.exists(
+                            options.databasePath, { id }
+                        );
+                        if (documentExists) { return true; }
+                        throw Error(`The group with the id ${id} can not be accessed`);
+                    }
+                },
+                in: "params",
+                isInt: true
             }
+        })),
+        async (req, res) => {
+            let accountId: number|undefined;
+            const loggedIn = expressMiddlewareSession.isAuthenticated(req);
+            if (loggedIn) { accountId =  expressMiddlewareSession.getSessionInfo(req).accountId; }
             const groupId = Number(req.params.id);
             const groupInfo = await api.database.group.get(options.databasePath, accountId, { id: groupId });
             const groupDocuments = await api.database.document.getAllFromGroup(options.databasePath, accountId, {
@@ -48,6 +43,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 const header = viewRendering.getHeaderDefaults(options, { sockets: true });
                 const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                 header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });
+                header.scripts.push({ path: "/stylesheets/group.css" });
+                header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
                 res.render("group", {
                     group: { ... groupInfo, documents: groupDocuments, owner: accountInfo },
                     header,

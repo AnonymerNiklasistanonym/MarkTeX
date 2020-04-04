@@ -20,3 +20,8 @@ Requires:
 {{> header_scripts}}
 
 {{> header_web_app_information}}
+
+{{!-- Meta values --}}
+{{#each header.metaValues}}
+<meta name="{{this.name}}" content="{{this.content}}">
+{{/each}}

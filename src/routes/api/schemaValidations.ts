@@ -17,7 +17,7 @@ export const getDocumentIdExists = (
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
-                const documentExists = await api.database.document.exists(input.databasePath, input.accountId, { id });
+                const documentExists = await api.database.document.exists(input.databasePath, { id });
                 return documentExists !== undefined ? documentExists : false;
             }
         },
@@ -37,7 +37,7 @@ export const getAccountIdExists = (
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
-                const accountExists = await api.database.account.exists(input.databasePath, input.accountId, { id });
+                const accountExists = await api.database.account.exists(input.databasePath, { id });
                 return accountExists !== undefined ? accountExists : false;
             }
         },

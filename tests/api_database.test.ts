@@ -73,11 +73,11 @@ describe("api database: account", () => {
             name: accountName,
             password: "password"
         });
-        const accountExists = await api.database.account.exists(databasePath, accountId, {
+        const accountExists = await api.database.account.exists(databasePath, {
             id: accountId
         });
         chai.expect(accountExists).to.equal(true);
-        const accountExistsBad = await api.database.account.exists(databasePath, accountId, {
+        const accountExistsBad = await api.database.account.exists(databasePath, {
             id: 99999
         });
         chai.expect(accountExistsBad).to.equal(false);
@@ -89,11 +89,11 @@ describe("api database: account", () => {
             name: accountName,
             password: "password"
         });
-        const accountExists = await api.database.account.existsName(databasePath, accountId, {
+        const accountExists = await api.database.account.existsName(databasePath, {
             name: accountName
         });
         chai.expect(accountExists).to.equal(true);
-        const accountExistsBad = await api.database.account.existsName(databasePath, accountId, {
+        const accountExistsBad = await api.database.account.existsName(databasePath, {
             name: "does not exist"
         });
         chai.expect(accountExistsBad).to.equal(false);
@@ -134,7 +134,7 @@ describe("api database: account", () => {
             id: accountId
         });
         chai.expect(accountRemoved).to.equal(true);
-        const accountExists = await api.database.account.exists(databasePath, accountId, {
+        const accountExists = await api.database.account.exists(databasePath, {
             id: accountId
         });
         chai.expect(accountExists).to.equal(false);
@@ -152,11 +152,11 @@ describe("api database: document", () => {
             admin: true, name: "TestUserAdmin", password: "passwordAdmin"
         });
         const documentId = await api.database.document.create(databasePath, accountId, {
-            content: "content", title: "title"
+            content: "content", owner: accountId, title: "title"
         });
         chai.expect(documentId).to.be.an("number");
         const documentId2 = await api.database.document.create(databasePath, accountId, {
-            authors: "authors", content: "content", date: "date", public: true, title: "title"
+            authors: "authors", content: "content", date: "date", owner: accountId, public: true, title: "title"
         });
         chai.expect(documentId2).to.be.an("number");
     });
@@ -166,13 +166,13 @@ describe("api database: document", () => {
             admin: true, name: "TestUserAdmin", password: "passwordAdmin"
         });
         const documentId = await api.database.document.create(databasePath, accountId, {
-            content: "content", title: "title"
+            content: "content", owner: accountId, title: "title"
         });
-        const documentExists = await api.database.document.exists(databasePath, accountId, {
+        const documentExists = await api.database.document.exists(databasePath, {
             id: documentId
         });
         chai.expect(documentExists).to.equal(true);
-        const documentExistsBad = await api.database.document.exists(databasePath, accountId, {
+        const documentExistsBad = await api.database.document.exists(databasePath, {
             id: 983474358
         });
         chai.expect(documentExistsBad).to.equal(false);
@@ -183,13 +183,13 @@ describe("api database: document", () => {
             admin: true, name: "TestUserAdmin", password: "passwordAdmin"
         });
         const documentId = await api.database.document.create(databasePath, accountId, {
-            content: "content", title: "title"
+            content: "content", owner: accountId, title: "title"
         });
         const documentRemoved = await api.database.document.remove(databasePath, accountId, {
             id: documentId
         });
         chai.expect(documentRemoved).to.equal(true);
-        const documentExists = await api.database.document.exists(databasePath, accountId, {
+        const documentExists = await api.database.document.exists(databasePath, {
             id: documentId
         });
         chai.expect(documentExists).to.equal(false);
@@ -223,11 +223,11 @@ describe("api database: group", () => {
         const groupId = await api.database.group.create(databasePath, accountId, {
             name: "name"
         });
-        const groupExists = await api.database.group.exists(databasePath, accountId, {
+        const groupExists = await api.database.group.exists(databasePath, {
             id: groupId
         });
         chai.expect(groupExists).to.equal(true);
-        const groupExistsBad = await api.database.group.exists(databasePath, accountId, {
+        const groupExistsBad = await api.database.group.exists(databasePath, {
             id: 983474358
         });
         chai.expect(groupExistsBad).to.equal(false);
@@ -244,7 +244,7 @@ describe("api database: group", () => {
             id: groupId
         });
         chai.expect(groupRemoved).to.equal(true);
-        const groupExists = await api.database.group.exists(databasePath, accountId, {
+        const groupExists = await api.database.group.exists(databasePath, {
             id: groupId
         });
         chai.expect(groupExists).to.equal(false);

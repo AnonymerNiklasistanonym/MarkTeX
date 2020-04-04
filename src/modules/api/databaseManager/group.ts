@@ -83,14 +83,16 @@ export interface GetAllFromOwnerDbOut {
  * @param accountId Unique id of account that wants to get the group.
  * @param input Group get info.
  */
-export const get = async (databasePath: string, accountId: number, input: GetInput): Promise<(GetOutput|void)> => {
-    const runResult = await database.requests.getEach(
+export const get = async (
+    databasePath: string, accountId: number|undefined, input: GetInput
+): Promise<(GetOutput|void)> => {
+    const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
         database.queries.select("document_group", [ "name", "owner", "public" ], {
             whereColumn: "id"
         }),
         [input.id]
-    ) as GetDbOut;
+    );
     if (runResult) {
         return {
             id: input.id,
@@ -109,15 +111,15 @@ export const get = async (databasePath: string, accountId: number, input: GetInp
  * @param input Document get info.
  */
 export const getAllFromOwner = async (
-    databasePath: string, accountId: number, input: GetInput
+    databasePath: string, accountId: number|undefined, input: GetInput
 ): Promise<(GetOutput[]|void)> => {
-    const runResults = await database.requests.getAll(
+    const runResults = await database.requests.getAll<GetAllFromOwnerDbOut>(
         databasePath,
         database.queries.select("document_group", [ "id", "name" ], {
             whereColumn: "owner"
         }),
         [input.id]
-    ) as GetAllFromOwnerDbOut[];
+    );
     if (runResults) {
         return runResults.map(runResult => ({
             id: runResult.id,
@@ -140,17 +142,19 @@ export interface ExistsDbOut {
  * Check if group exists.
  *
  * @param databasePath Path to database.
- * @param accountId Unique id of account that wants to know if it exists.
  * @param input Account exists info.
  * @returns True if group exists.
  */
 export const exists = async (
-    databasePath: string, accountId: number, input: ExistsInput
+    databasePath: string, input: ExistsInput
 ): Promise<boolean> => {
-    const runResult = await database.requests.getEach(
+    const runResult = await database.requests.getEach<ExistsDbOut>(
         databasePath,
         database.queries.exists("document_group", "id"),
         [input.id]
-    ) as ExistsDbOut;
-    return runResult.exists_value === 1;
+    );
+    if (runResult) {
+        return runResult.exists_value === 1;
+    }
+    return false;
 };

@@ -68,8 +68,9 @@
 @media (min-width: 768px) and (max-width: 1024px) {
 	:root {
 		--global-responsive-state-string: '@media (min-width: 768px) and (max-width: 1024px) [Tablet (portrait)]';
-		--global-responsive-maximum-width: 800px;
-	}
+		--global-responsive-maximum-width: 100%;
+		--global-responsive-border-radius-card: 0px;
+		--global-responsive-padding-card: 0em;	}
 }
 
 /*
@@ -79,8 +80,9 @@
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
 	:root {
 		--global-responsive-state-string: '@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) [Tablet (landscape)]';
-		--global-responsive-maximum-width: 800px;
-	}
+		--global-responsive-maximum-width: 100%;
+		--global-responsive-border-radius-card: 0px;
+		--global-responsive-padding-card: 0em;	}
 }
 
 /*

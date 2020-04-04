@@ -1,17 +1,33 @@
 {{> navigation_bar}}
 
 
-<p>Group:</p>
-<ul>
-{{!-- Replace later with tex fields that make the meta data editable --}}
-    <li>id: "{{group.id}}"</li>
-    <li>name: "{{group.name}}"</li>
-    <li>owner: <a href="/account/{{group.owner.id}}">{{group.owner.name}}</a></li>
-</ul>
+<div class="container-group">
+	<div class="container-group-content">
 
-<p>Documents in group:</p>
-<ul>
-{{#each group.documents}}
-<li><a href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
-{{/each}}
-</ul>
+		<h1>Group:</h1>
+
+		<br>
+
+		<section class="section-group" id="section-group-info">
+			<h2>Group info:</h2>
+			<ul>
+			{{!-- Replace later with tex fields that make the meta data editable --}}
+				<li>id: "{{group.id}}"</li>
+				<li>name: "{{group.name}}"</li>
+				<li>owner: <a href="/account/{{group.owner.id}}">{{group.owner.name}}</a></li>
+			</ul>
+		</section>
+
+		<br>
+
+		<section class="section-group" id="section-group-documents">
+			<h2>Group documents:</h2>
+			<ul>
+				{{#each group.documents}}
+				<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+				{{/each}}
+			</ul>
+		</section>
+
+	</div>
+</div>

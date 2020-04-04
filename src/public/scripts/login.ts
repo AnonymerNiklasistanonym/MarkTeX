@@ -29,7 +29,7 @@ const overrideSubmitForm = (option: LoginRegisterFormOptions, submit = false): v
 };
 
 
-window.addEventListener("load", (): void => {
+window.addEventListener("load", () => {
 
     const loginButton = document.getElementById("login-button-login");
     const registerButton = document.getElementById("login-button-register");

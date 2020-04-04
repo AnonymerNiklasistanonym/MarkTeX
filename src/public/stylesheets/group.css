@@ -1,0 +1,23 @@
+body {
+	background-color: var(--global-color-background);
+	font-family: var(--global-font-family);
+	font-size: var(--global-font-size-body);
+	color: var(--global-color-text);
+	margin: 0;
+}
+
+div.container-group {
+	/* Center container in the middle of the site with a maximum width */
+	margin: auto;
+	max-width: var(--global-responsive-maximum-width);
+	/* This hides long stack traces on smaller screens */
+	overflow-y: hidden;
+	/* Card properties */
+	border-radius: 0 0 var(--global-responsive-border-radius-card) var(--global-responsive-border-radius-button);
+	box-shadow: var(--global-box-shadow-card);
+}
+
+div.container-group>div.container-group-content {
+	padding: var(--global-responsive-padding-card);
+	margin: 1em;
+}

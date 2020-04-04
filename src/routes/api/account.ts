@@ -94,7 +94,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
-        // Try to login user
+        // Try to get account info
         async (req, res) => {
             debug(`Get: ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);

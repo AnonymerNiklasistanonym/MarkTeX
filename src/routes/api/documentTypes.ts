@@ -2,6 +2,7 @@ import * as types from "./apiTypes";
 import { PdfOptions } from "../../modules/api/databaseManager/documentPdfOptions";
 
 export interface CreateRequest {
+    owner: number
     title: string
     authors?: string
     date?: string

@@ -2,6 +2,7 @@ import "./webpackVars";
 import * as apiRequests from "./apiRequests";
 import * as collaborationTextEditor from "./collaboration_text_editor";
 import * as download from "./download";
+import * as helper from "./helper";
 import * as marktexDocumentEditor from "./marktex_document_editor";
 import * as notifications from "./notifications";
 import { PdfOptions, PdfOptionsPaperSize } from "../../modules/api/databaseManager/documentPdfOptions";
@@ -39,7 +40,11 @@ const getDocumentPdfOptions = (): PdfOptions => {
     };
 };
 
-window.onload = (): void => {
+
+window.addEventListener("load", () => {
+
+    const accountId = helper.stringToNumberSafe(helper.getMetaInformation("accountId"));
+    console.warn("accountId", accountId);
 
     // Get live input/output elements
     const marktexEditor = document.getElementById("marktex-editor") as HTMLTextAreaElement;
@@ -100,24 +105,33 @@ window.onload = (): void => {
     const buttonUpdateCreate = document.getElementById("document-button-update-create") as HTMLButtonElement;
     if (buttonUpdateCreate) {
         buttonUpdateCreate.addEventListener("click", async () => {
-            const response = await apiRequests.document.create({
-                authors: documentInfoAuthors.value,
-                content: liveInput.value,
-                date: documentInfoDate.value,
-                pdfOptions: getDocumentPdfOptions(),
-                title: documentInfoTitle.value
-            });
-            if (response) {
-                await notifications.show({
-                    body: `New document "${response.title}" by "${response.authors}" from "${response.date}"`,
-                    onClickUrl: `/document/${response.id}`,
-                    title: "New document was created"
+            if (accountId) {
+                const response = await apiRequests.document.create({
+                    authors: documentInfoAuthors.value,
+                    content: liveInput.value,
+                    date: documentInfoDate.value,
+                    owner: accountId,
+                    pdfOptions: getDocumentPdfOptions(),
+                    title: documentInfoTitle.value
                 });
-                // Redirect user to document page
-                window.location.href = `/document/${response.id}`;
+                if (response) {
+                    await notifications.show({
+                        body: `New document "${response.title}" by "${response.authors}" from "${response.date}"`,
+                        onClickUrl: `/document/${response.id}`,
+                        title: "New document was created"
+                    });
+                    // Redirect user to document page
+                    window.location.href = `/document/${response.id}`;
+                } else {
+                    await notifications.show({
+                        body: "The response was not OK",
+                        title: "Error: Something went wrong when creating a new document"
+                    });
+                }
             } else {
                 await notifications.show({
-                    body: "The response was not OK",
+                    body: "You are not logged in",
+                    onClickUrl: "/login",
                     title: "Error: Something went wrong when creating a new document"
                 });
             }
@@ -186,4 +200,4 @@ window.onload = (): void => {
         });
     }
 
-};
+});
