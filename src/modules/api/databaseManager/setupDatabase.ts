@@ -110,7 +110,11 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             name: "document_group_id",
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
-        } ], true));
+        }, {
+            name: "write_access",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }  ], true));
     // Document table
     await database.requests.post(
         databasePath,
@@ -181,7 +185,11 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             name: "document_id",
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
-        } ], true));
+        }, {
+            name: "write_access",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }   ], true));
 };
 
 /**

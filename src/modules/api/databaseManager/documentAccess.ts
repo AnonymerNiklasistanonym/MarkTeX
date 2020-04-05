@@ -37,6 +37,7 @@ export interface ExistsInput {
 export interface ExistsAccountAndDocumentInput {
     accountId: number
     documentId: number
+    writeAccess?: boolean
 }
 export interface ExistsDbOut {
     // eslint-disable-next-line camelcase
@@ -47,6 +48,8 @@ export interface ExistsAccountAndDocumentDbOutput {
     account_id: number
     // eslint-disable-next-line camelcase
     document_id: number
+    // eslint-disable-next-line camelcase
+    write_access: number
 }
 
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
@@ -67,7 +70,7 @@ export const existsAccountAndDocument = async (
     try {
         const runResults = await database.requests.getAll<ExistsAccountAndDocumentDbOutput>(
             databasePath,
-            database.queries.select("document_access", [ "id", "account_id", "document_id" ], {
+            database.queries.select("document_access", [ "id", "account_id", "document_id", "write_access" ], {
                 whereColumn: "account_id"
             }),
             [input.accountId]
@@ -76,6 +79,7 @@ export const existsAccountAndDocument = async (
             if (
                 documentAccessEntry.account_id === input.accountId
                 && documentAccessEntry.document_id === input.documentId
+                && (input.writeAccess === undefined || (documentAccessEntry.write_access === 1) === input.writeAccess)
             ) {
                 return true;
             }
@@ -106,6 +110,7 @@ export interface GetInput {
 export interface GetOutput {
     accountId: number
     documentId: number
+    writeAccess: boolean
     id: number
 }
 export interface GetDbOut {
@@ -114,6 +119,8 @@ export interface GetDbOut {
     // eslint-disable-next-line camelcase
     document_Id: number
     id: number
+    // eslint-disable-next-line camelcase
+    write_access: number
 }
 
 export const get = async (
@@ -123,12 +130,13 @@ export const get = async (
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select("document_access", [ "account_id", "document_id" ], {
+        database.queries.select("document_access", [ "account_id", "document_id", "write_access" ], {
             whereColumn: "id"
         }),
         [input.id]
     );
     if (runResult) {
+
         await account.checkIfAccountHasAccessToAccountOrIsFriend(
             databasePath, accountId, runResult.account_Id
         );
@@ -136,7 +144,8 @@ export const get = async (
         return {
             accountId: runResult.account_Id,
             documentId: runResult.document_Id,
-            id: runResult.id
+            id: runResult.id,
+            writeAccess: runResult.write_access === 1
         };
     }
 };

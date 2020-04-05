@@ -225,7 +225,9 @@ export const update = async (databasePath: string, accountId: number, input: Upd
     if (documentInfo) {
         await account.checkIfAccountHasAccessToAccountOrOther(
             databasePath, accountId, documentInfo.owner,
-            () => documentAccess.existsAccountAndDocument(databasePath, { accountId, documentId: documentInfo.id })
+            () => documentAccess.existsAccountAndDocument(databasePath, {
+                accountId, documentId: documentInfo.id, writeAccess: true
+            })
         );
     } else {
         throw Error(GeneralError.NO_ACCESS);
