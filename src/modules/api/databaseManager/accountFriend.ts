@@ -63,8 +63,8 @@ export const existsAccountAndFriendAccount = async (
     try {
         const runResults = await database.requests.getAll<ExistsAccountAndFriendAccountAllDbOut>(
             databasePath,
-            database.queries.select("account_friend", [ "id", "account", "friend" ], {
-                whereColumn: "account"
+            database.queries.select("account_friend", [ "id", "account_id", "friend_account_id" ], {
+                whereColumn: "account_id"
             }),
             [input.account]
         );
@@ -123,7 +123,7 @@ export const create = async (databasePath: string, accountId: number, input: Cre
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert("account_friend", [ "account", "friend" ]),
+        database.queries.insert("account_friend", [ "account_id", "friend_account_id" ]),
         [ input.accountId, input.friendId ]
     );
     return postResult.changes > 0;
@@ -170,8 +170,8 @@ export const get = async (
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select("account_friend", [ "id", "account", "friend" ], {
-            whereColumn: "account"
+        database.queries.select("account_friend", [ "id", "account_id", "friend_account_id" ], {
+            whereColumn: "account_id"
         }),
         [input.id]
     );
@@ -221,8 +221,8 @@ export const getAllFromAccount = async (
 
     return await database.requests.getAll<GetAllFromAccountDbOut>(
         databasePath,
-        database.queries.select("account_friend", [ "id", "account", "friend" ], {
-            whereColumn: "account"
+        database.queries.select("account_friend", [ "id", "account_id", "friend_account_id" ], {
+            whereColumn: "account_id"
         }),
         [input.id]
     );

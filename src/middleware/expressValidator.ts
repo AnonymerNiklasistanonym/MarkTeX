@@ -30,7 +30,7 @@ export const validateWithError = (
     options: ValidateWithTerminationOnErrorOptions = {}
 ) =>
     async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
-        debug(`Validate: ${JSON.stringify(req.body)}`);
+        debug(`Validate: ${JSON.stringify(req.body)}/${JSON.stringify(req.params)}`);
         // Run all validations
         await Promise.all(validations.map(validation => validation.run(req)));
         const errors = expressValidator.validationResult(req);

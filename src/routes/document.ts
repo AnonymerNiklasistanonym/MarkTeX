@@ -44,12 +44,32 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     id: documentId
                 });
                 if (documentInfo) {
-                    const accountInfo = await api.database.account.get(options.databasePath, accountId, {
-                        id: documentInfo.owner
-                    });
-                    const groupInfo = documentInfo.group ? await api.database.group.get(
-                        options.databasePath, accountId, { id: documentInfo.group }
-                    ) : undefined;
+                    let accountInfo = {
+                        id: documentInfo.owner,
+                        name: "Private",
+                        public: false
+                    };
+                    try {
+                        const temp = await api.database.account.get(options.databasePath, accountId, {
+                            id: documentInfo.owner
+                        });
+                        if (temp) {
+                            accountInfo = temp;
+                        }
+                    } catch (error) {
+                        // Nothing?
+                    }
+                    let groupInfo = {};
+                    try {
+                        const temp = documentInfo.group ? await api.database.group.get(
+                            options.databasePath, accountId, { id: documentInfo.group }
+                        ) : undefined;
+                        if (temp) {
+                            groupInfo = temp;
+                        }
+                    } catch (error) {
+                        // Nothing?
+                    }
                     if (!documentInfo.pdfOptions) { documentInfo.pdfOptions = {}; }
                     if (!documentInfo.pdfOptions.tableOfContents) { documentInfo.pdfOptions.tableOfContents = {}; }
                     if (!documentInfo.pdfOptions.header) { documentInfo.pdfOptions.header = {}; }

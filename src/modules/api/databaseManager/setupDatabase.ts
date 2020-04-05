@@ -49,7 +49,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 column: "id",
                 tableName: "account"
             },
-            name: "account",
+            name: "account_id",
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
         }, {
@@ -57,7 +57,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 column: "id",
                 tableName: "account"
             },
-            name: "friend",
+            name: "friend_account_id",
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
         } ], true));

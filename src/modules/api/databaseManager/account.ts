@@ -119,15 +119,30 @@ export const checkIfAccountExistsName = async (databasePath: string, accountName
 };
 
 export const checkIfAccountHasAccessToAccount = async (
-    databasePath: string, requesterAccountId: number, accessAccountId: number
+    databasePath: string, requesterAccountId: number, accessAccountId: number,
+    otherAccessOption = false
 ): Promise<void> => {
-    if (requesterAccountId !== accessAccountId && !await isAdmin(databasePath, requesterAccountId)) {
+    if (requesterAccountId !== accessAccountId && !(
+        await isAdmin(databasePath, requesterAccountId)
+        || otherAccessOption
+    )) {
         throw Error(GeneralError.NO_ACCESS);
     }
 };
 
+export const checkIfAccountHasAccessToAccountOrOther = async (
+    databasePath: string, requesterAccountId: number, accessAccountId: number,
+    otherAccessOption: () => boolean|Promise<boolean>
+): Promise<void> => {
+    await checkIfAccountHasAccessToAccount(
+        databasePath, requesterAccountId, accessAccountId,
+        await otherAccessOption()
+    );
+};
+
 export const checkIfAccountHasAccessToAccountOrIsFriend = async (
-    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number, accessAccountIsPublic = false
+    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
+    accessAccountIsPublic = false, accessOtherOptions = false
 ): Promise<void> => {
     if (requesterAccountId !== accessAccountId && !(
         accessAccountIsPublic
@@ -135,6 +150,7 @@ export const checkIfAccountHasAccessToAccountOrIsFriend = async (
             account: accessAccountId, friend: requesterAccountId
         }))
         || await isAdmin(databasePath, requesterAccountId)
+        || accessOtherOptions
     )) {
         throw Error(GeneralError.NO_ACCESS);
     }
@@ -144,8 +160,18 @@ export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic = async 
     databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
     accessIsPublic: () => (Promise<boolean>|boolean)
 ): Promise<void> => {
+    console.error("I was here");
     await checkIfAccountHasAccessToAccountOrIsFriend(databasePath, requesterAccountId, accessAccountId,
         await accessIsPublic());
+};
+
+export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublicOrOther = async (
+    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
+    accessIsPublic: () => (Promise<boolean>|boolean), accessOtherOption: () => (Promise<boolean>|boolean)
+): Promise<void> => {
+    console.error("I was here");
+    await checkIfAccountHasAccessToAccountOrIsFriend(databasePath, requesterAccountId, accessAccountId,
+        await accessIsPublic(), await accessOtherOption());
 };
 
 

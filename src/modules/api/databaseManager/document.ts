@@ -1,5 +1,6 @@
 import * as account from "./account";
 import * as database from "../../database";
+import * as documentAccess from "./documentAccess";
 import * as pdfOptions from "./documentPdfOptions";
 
 
@@ -13,7 +14,6 @@ export interface CreateInputResource {
     relativePath: string
     content: string | Buffer
 }
-
 export interface CreateInput {
     owner: number
     title: string
@@ -72,7 +72,6 @@ export const create = async (databasePath: string, accountId: number, input: Cre
 export interface ExistsInput {
     id: number
 }
-
 export interface ExistsDbOut {
     // eslint-disable-next-line camelcase
     exists_value: number
@@ -170,14 +169,17 @@ export const get = async (
     if (runResult) {
         const isPublic = runResult.public === 1;
 
-        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
-            databasePath, accountId, runResult.owner, () => isPublic
+        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublicOrOther(
+            databasePath, accountId, runResult.owner, () => isPublic,
+            async () => {
+                if (accountId) {
+                    return await documentAccess.existsAccountAndDocument(databasePath, {
+                        accountId, documentId: input.id
+                    });
+                }
+                return false;
+            }
         );
-
-        // If ids do not match check if profile is public or account that wants to access it admin
-        if (runResult.owner !== accountId && !(isPublic || await account.isAdmin(databasePath, accountId))) {
-            throw GeneralError.NO_ACCESS;
-        }
 
         let pdfOptionsObj;
         if (runResult.pdf_options && runResult.pdf_options !== null) {
@@ -221,7 +223,10 @@ export const update = async (databasePath: string, accountId: number, input: Upd
     await checkIfDocumentExists(databasePath, input.id);
     const documentInfo = await get(databasePath, accountId, { id: input.id });
     if (documentInfo) {
-        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, documentInfo.owner);
+        await account.checkIfAccountHasAccessToAccountOrOther(
+            databasePath, accountId, documentInfo.owner,
+            () => documentAccess.existsAccountAndDocument(databasePath, { accountId, documentId: documentInfo.id })
+        );
     } else {
         throw Error(GeneralError.NO_ACCESS);
     }
@@ -320,7 +325,6 @@ export interface GetAllFromOwnerDbOut {
     document_group: number
     content?: string
 }
-
 export interface GetAllFromGroupDbOut {
     id: number
     public: number
@@ -372,11 +376,13 @@ export const getAllFromOwner = async (
             continue;
         }
 
-        // If ids do not match check if account that wants to access it is admin or has document access
-        // TODO Add method to check for users with access permission that have another account
-        const accountHasAccess = false;
-        if (accountHasAccess || accountIsAdmin) {
-            finalDocuments.push(document);
+        if (accountId) {
+            const accountHasAccess = await documentAccess.existsAccountAndDocument(databasePath, {
+                accountId, documentId: document.id
+            });
+            if (accountHasAccess || accountIsAdmin) {
+                finalDocuments.push(document);
+            }
         }
     }
     return finalDocuments;
@@ -421,11 +427,13 @@ export const getAllFromGroup = async (
             continue;
         }
 
-        // If ids do not match check if account that wants to access it is admin or has document access
-        // TODO Add method to check for users with access permission that have another account
-        const accountHasAccess = false;
-        if (accountHasAccess || accountIsAdmin) {
-            finalDocuments.push(document);
+        if (accountId) {
+            const accountHasAccess = await documentAccess.existsAccountAndDocument(databasePath, {
+                accountId, documentId: document.id
+            });
+            if (accountHasAccess || accountIsAdmin) {
+                finalDocuments.push(document);
+            }
         }
     }
     return finalDocuments;

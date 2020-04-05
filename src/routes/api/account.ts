@@ -74,8 +74,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 expressMiddlewareSession.addMessages(req, "Login was not successful");
                 return res.redirect("/login");
             } catch (error) {
+                if ((error as Error).message === api.database.account.GeneralError.NOT_EXISTING) {
+                    expressMiddlewareSession.addMessages(req, `Account ${request.name} does not exist`);
+                } else {
+                    console.error(error);
+                    expressMiddlewareSession.addMessages(req, JSON.stringify(error));
+                }
                 // On any error redirect to login page
-                expressMiddlewareSession.addMessages(req, JSON.stringify(error));
                 return res.redirect("/login");
             }
         });
