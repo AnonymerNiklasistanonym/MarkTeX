@@ -48,7 +48,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 res.render("group", {
                     group: { ... groupInfo, documents: groupDocuments, owner: accountInfo },
                     header,
-                    navigationBar
+                    navigationBar,
+                    production: options.production
                 });
             }
         });

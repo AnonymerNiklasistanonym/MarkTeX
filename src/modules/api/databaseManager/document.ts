@@ -2,6 +2,13 @@ import * as account from "./account";
 import * as database from "../../database";
 import * as pdfOptions from "./documentPdfOptions";
 
+
+export enum GeneralError {
+    NO_ACCESS = "DOCUMENT_NO_ACCESS",
+    NOT_EXISTING = "DOCUMENT_NOT_EXISTING"
+}
+
+
 export interface CreateInputResource {
     relativePath: string
     content: string | Buffer
@@ -27,16 +34,8 @@ export interface CreateInput {
  * @returns Unique id of document.
  */
 export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
-    // Check if account exists
-    if (!await account.exists(databasePath, { id: input.owner })) {
-        throw Error("Account does not exist");
-    }
-    // If ids do not match check if account that wants to access it is admin
-    if (input.owner !== accountId && !await account.isAdmin(databasePath, accountId)) {
-        const error: any = Error("No account access");
-        error.httpErrorCode = 403;
-        throw error;
-    }
+    await account.checkIfAccountExists(databasePath, input.owner);
+    await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.owner);
 
     const columns = [ "title", "content", "owner" ];
     const values = [ input.title, input.content, accountId ];
@@ -49,10 +48,10 @@ export const create = async (databasePath: string, accountId: number, input: Cre
         values.push(input.date);
     }
     if (input.resources) {
-        // TODO Implement
+        // TODO Implement input.resources
+        throw Error("input.resources is not yet implemented");
     }
     if (input.pdfOptions) {
-        // TODO Do better (SQL style with custom columns/tables, sanitize input)
         columns.push("pdf_options");
         values.push(JSON.stringify(input.pdfOptions));
     }
@@ -65,6 +64,10 @@ export const create = async (databasePath: string, accountId: number, input: Cre
     );
     return postResult.lastID;
 };
+
+
+// Exists
+// -----------------------------------------------------------------------------
 
 export interface ExistsInput {
     id: number
@@ -94,6 +97,19 @@ export const exists = async (databasePath: string, input: ExistsInput): Promise<
     return false;
 };
 
+
+// Checker (internal)
+// -----------------------------------------------------------------------------
+
+export const checkIfDocumentExists = async (databasePath: string, documentId: number): Promise<void> => {
+    if (!await exists(databasePath, { id: documentId })) {
+        throw Error(GeneralError.NOT_EXISTING);
+    }
+};
+
+
+// Get
+// -----------------------------------------------------------------------------
 
 export interface GetInput {
     id: number
@@ -131,9 +147,12 @@ export interface GetDbOut {
  * @param accountId Unique id of account that created the document.
  * @param input Document get info.
  */
+// eslint-disable-next-line complexity
 export const get = async (
     databasePath: string, accountId: number|undefined, input: GetInput
-): Promise<(GetOutput|void)> => {
+): Promise<void|GetOutput> => {
+    await checkIfDocumentExists(databasePath, input.id);
+
     const columns = [ "title", "authors", "date", "owner", "public" ];
     if (input.getContent) {
         columns.push("content");
@@ -149,6 +168,17 @@ export const get = async (
         [input.id]
     );
     if (runResult) {
+        const isPublic = runResult.public === 1;
+
+        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
+            databasePath, accountId, runResult.owner, () => isPublic
+        );
+
+        // If ids do not match check if profile is public or account that wants to access it admin
+        if (runResult.owner !== accountId && !(isPublic || await account.isAdmin(databasePath, accountId))) {
+            throw GeneralError.NO_ACCESS;
+        }
+
         let pdfOptionsObj;
         if (runResult.pdf_options && runResult.pdf_options !== null) {
             pdfOptionsObj = JSON.parse(runResult.pdf_options);
@@ -161,7 +191,7 @@ export const get = async (
             id: input.id,
             owner: runResult.owner,
             pdfOptions: pdfOptionsObj,
-            public: runResult.public === 1,
+            public: isPublic,
             title: runResult.title
         };
     }
@@ -187,15 +217,14 @@ export interface UpdateInput {
  * @returns True if at least one element was updated otherwise False.
  */
 // eslint-disable-next-line complexity
-export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<(boolean|void)> => {
-    // Check if document exists
-    if (!await exists(databasePath, { id: input.id })) {
-        throw Error("Account does not exist");
+export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<boolean> => {
+    await checkIfDocumentExists(databasePath, input.id);
+    const documentInfo = await get(databasePath, accountId, { id: input.id });
+    if (documentInfo) {
+        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, documentInfo.owner);
+    } else {
+        throw Error(GeneralError.NO_ACCESS);
     }
-    // If ids do not match check if account that wants to access it is admin
-    // TODO 1. Get document info and get owner id
-    // TODO 2. Compare if same account and if not check if is admin
-    // TODO 3. Add method to check for users with access permission
 
     const columns = [];
     const values = [];
@@ -216,10 +245,10 @@ export const update = async (databasePath: string, accountId: number, input: Upd
         values.push(input.date);
     }
     if (input.resources) {
-        // TODO
+        // TODO Implement input.resources
+        throw Error("input.resources is not yet implemented");
     }
     if (input.pdfOptions) {
-        // TODO Do better (SQL style with custom columns/tables, sanitize input)
         columns.push("pdf_options");
         values.push(JSON.stringify(input.pdfOptions));
     }
@@ -248,7 +277,17 @@ export interface RemoveInput {
  * @param input Document info.
  * @returns True if at least one element was removed otherwise False.
  */
-export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<(boolean|void)> => {
+export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
+    await checkIfDocumentExists(databasePath, input.id);
+    const documentInfo = await get(databasePath, accountId, { id: input.id });
+    if (documentInfo) {
+        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
+            databasePath, accountId, documentInfo.owner, () => documentInfo.public
+        );
+    } else {
+        throw Error(GeneralError.NO_ACCESS);
+    }
+
     const postResult = await database.requests.post(
         databasePath,
         database.queries.remove("document", "id"),
@@ -301,7 +340,9 @@ export interface GetAllFromGroupDbOut {
  */
 export const getAllFromOwner = async (
     databasePath: string, accountId: number|undefined, input: GetAllInput
-): Promise<(GetAllOutput[]|void)> => {
+): Promise<GetAllOutput[]> => {
+    await account.checkIfAccountExists(databasePath, input.id);
+
     const columns = [ "id", "title", "authors", "date", "document_group", "public" ];
     if (input.getContents) {
         columns.push("content");
@@ -313,18 +354,32 @@ export const getAllFromOwner = async (
         }),
         [input.id]
     );
-    if (runResults) {
-        return runResults.map(runResult => ({
-            authors: runResult.authors !== null ? runResult.authors : undefined,
-            content: runResult.content,
-            date: runResult.date !== null ? runResult.date : undefined,
-            group: runResult.document_group !== null ? runResult.document_group : undefined,
-            id: runResult.id,
-            owner: input.id,
-            public: runResult.public === 1,
-            title: runResult.title
-        }));
+    const allDocuments = runResults.map(runResult => ({
+        authors: runResult.authors !== null ? runResult.authors : undefined,
+        content: runResult.content,
+        date: runResult.date !== null ? runResult.date : undefined,
+        group: runResult.document_group !== null ? runResult.document_group : undefined,
+        id: runResult.id,
+        owner: input.id,
+        public: runResult.public === 1,
+        title: runResult.title
+    }));
+    const finalDocuments: GetAllOutput[] = [];
+    const accountIsAdmin = await account.isAdmin(databasePath, accountId);
+    for (const document of allDocuments) {
+        if (document.owner === accountId || document.public) {
+            finalDocuments.push(document);
+            continue;
+        }
+
+        // If ids do not match check if account that wants to access it is admin or has document access
+        // TODO Add method to check for users with access permission that have another account
+        const accountHasAccess = false;
+        if (accountHasAccess || accountIsAdmin) {
+            finalDocuments.push(document);
+        }
     }
+    return finalDocuments;
 };
 
 /**
@@ -336,7 +391,7 @@ export const getAllFromOwner = async (
  */
 export const getAllFromGroup = async (
     databasePath: string, accountId: number|undefined, input: GetAllInput
-): Promise<(GetAllOutput[]|void)> => {
+): Promise<GetAllOutput[]> => {
     const columns = [ "id", "title", "authors", "date", "owner", "public" ];
     if (input.getContents) {
         columns.push("content");
@@ -348,16 +403,30 @@ export const getAllFromGroup = async (
         }),
         [input.id]
     );
-    if (runResults) {
-        return runResults.map(runResult => ({
-            authors: runResult.authors,
-            content: runResult.content,
-            date: runResult.date,
-            group: input.id,
-            id: runResult.id,
-            owner: runResult.owner,
-            public: runResult.public === 1,
-            title: runResult.title
-        }));
+    const allDocuments = runResults.map(runResult => ({
+        authors: runResult.authors !== null ? runResult.authors : undefined,
+        content: runResult.content,
+        date: runResult.date !== null ? runResult.date : undefined,
+        group: input.id,
+        id: runResult.id,
+        owner: runResult.id,
+        public: runResult.public === 1,
+        title: runResult.title
+    }));
+    const finalDocuments: GetAllOutput[] = [];
+    const accountIsAdmin = await account.isAdmin(databasePath, accountId);
+    for (const document of allDocuments) {
+        if (document.owner === accountId || document.public) {
+            finalDocuments.push(document);
+            continue;
+        }
+
+        // If ids do not match check if account that wants to access it is admin or has document access
+        // TODO Add method to check for users with access permission that have another account
+        const accountHasAccess = false;
+        if (accountHasAccess || accountIsAdmin) {
+            finalDocuments.push(document);
+        }
     }
+    return finalDocuments;
 };

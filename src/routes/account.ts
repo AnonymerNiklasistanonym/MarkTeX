@@ -6,6 +6,7 @@ import api from "../modules/api";
 import createHttpError from "http-errors";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
+import { debug } from "webpack";
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
@@ -30,7 +31,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     options: async (id: number): Promise<boolean> => {
                         const accountExists = await api.database.account.exists(options.databasePath, { id });
                         if (accountExists) { return true; }
-                        throw Error(`The account with the id ${id} can not be accessed`);
+                        throw Error(`The account with the id ${id} does not exist`);
                     }
                 },
                 in: "params",
@@ -62,14 +63,21 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.render("account", {
                         account: { ... accountInfo, documents: accountDocuments, groups: accountGroups },
                         header,
-                        navigationBar
+                        navigationBar,
+                        production: options.production
                     });
                 } else {
-                    throw Error(`Account with the ID '${pageAccountId}' was not found`);
+                    return next(createHttpError(503, `Internal error when getting account info (id=${pageAccountId})`));
                 }
             } catch (error) {
-                next(createHttpError(error.httpErrorCode ? error.httpErrorCode : 404,
-                    (error as Error).message));
+                console.warn(error);
+                if ((error as Error).message === api.database.account.GeneralError.NO_ACCESS) {
+                    return next(createHttpError(403, "Access denied"));
+                }
+                if ((error as Error).message === api.database.account.GeneralError.NOT_EXISTING) {
+                    return next(createHttpError(404, "Account does not exist"));
+                }
+                next(createHttpError(404, (error as Error).message));
             }
         });
 

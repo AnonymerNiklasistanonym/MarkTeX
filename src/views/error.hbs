@@ -39,7 +39,7 @@ Parameters:
 		</div>
 		{{/if}}
 		{{!-- Error stack --}}
-		<div class="container-error-stack">
+		<div class="container-error-stack {{#if production}}invisible{{/if}}">
 			<pre id="error-stack">{{error.stack}}</pre>
 		</div>
 	</div>

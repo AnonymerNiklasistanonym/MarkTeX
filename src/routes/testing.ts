@@ -19,7 +19,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
         res.render("testing", {
             header,
             loggedIn,
-            navigationBar
+            navigationBar,
+            production: options.production
         });
     });
 };

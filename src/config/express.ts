@@ -132,7 +132,8 @@ export const getExpressServer = (
                 message: err.message,
                 stack: err.stack,
                 status: err.status || 500
-            }
+            },
+            production: options.production
         };
         debug("display error page '%s'", errorRenderContent.error);
         const header = viewRendering.getHeaderDefaults(options, { error: true });

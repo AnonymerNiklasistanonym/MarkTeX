@@ -37,6 +37,6 @@ createTypedocReadme().then(() => {
     if (project) {
         app.generateDocs(project, defaultDocsOutputDir);
     } else {
-        throw Error("TypeDoc documentation was not successful");
+        console.error("TypeDoc documentation was not successful");
     }
 });

@@ -37,6 +37,30 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
         } ], true));
+    // Account friend
+    await database.requests.post(
+        databasePath,
+        database.queries.createTable("account_friend", [ {
+            name: "id",
+            options: { notNull: true, primaryKey: true, unique: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                tableName: "account"
+            },
+            name: "account",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                tableName: "account"
+            },
+            name: "friend",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        } ], true));
     // Group table
     await database.requests.post(
         databasePath,

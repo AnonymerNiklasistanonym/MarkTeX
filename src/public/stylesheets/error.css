@@ -83,8 +83,6 @@ div.container-error>div.container-error-message>div.container-error-links>a.butt
 
 div.container-error>div.container-error-message>div.container-error-stack {
 	padding: 1rem;
-	/* Block when in development */
-	display: none;
 }
 
 div.container-error>div.container-error-message>div.container-error-stack>pre#error-stack {

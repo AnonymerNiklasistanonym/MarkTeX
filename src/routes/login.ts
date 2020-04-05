@@ -1,12 +1,9 @@
 import * as expressSession from "../middleware/expressSession";
 import * as viewRendering from "../view_rendering/view_rendering";
+import api from "../modules/api";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
-
-// TODO Externalize later to do the same checks on the server side
-const regexAccountName = /^\w{4,16}$/;
-const regexAccountPassword = /^.{6,}/;
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
@@ -27,14 +24,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
             header,
             input: {
                 accountName: {
-                    errorMessage: "The account name must be between 4 and 16 characters",
-                    maxLength: 16,
-                    pattern: regexAccountName.toString().slice(1, -1)
+                    errorMessage: api.database.account.createInfoUsername.info,
+                    maxLength: api.database.account.createInfoUsername.maxLength,
+                    pattern: api.database.account.createInfoUsername.regex.toString().slice(1, -1)
                 },
                 accountPassword: {
-                    errorMessage: "The password must be at least 6 characters long",
-                    minLength: 6,
-                    pattern: regexAccountPassword.toString().slice(1, -1)
+                    errorMessage: api.database.account.createInfoPassword.info,
+                    minLength: api.database.account.createInfoPassword.minLength,
+                    pattern: api.database.account.createInfoPassword.regex.toString().slice(1, -1)
                 }
             },
             layout: "default",
@@ -42,7 +39,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 exist: messages.length > 0,
                 texts: messages
             },
-            navigationBar
+            navigationBar,
+            production: options.production
         });
     });
 

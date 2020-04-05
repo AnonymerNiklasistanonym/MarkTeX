@@ -45,6 +45,7 @@
     "dev": "cross-env NODE_DEBUG=app* NODE_ENV=development npm-run-all build start",
     "dev:watch": "nodemon --watch src -e ts,hbs,css,json --exec npm run dev",
     "docs": "npm-run-all lint:docs todo typedoc",
+    "docs:watch": "nodemon --watch src -e ts --exec npm-run-all docs",
     "docs:view": "ts-node ./docs/openDocs",
     "lint": "npm-run-all lint:backend lint:docs lint:frontend lint:tests",
     "lint:backend": "eslint -c .eslintrc.js --ext .ts src tools webpack.config.js --fix",

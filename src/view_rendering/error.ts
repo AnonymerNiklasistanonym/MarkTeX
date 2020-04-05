@@ -5,6 +5,7 @@ interface HbsLayoutErrorLink {
 
 export interface HbsLayoutError {
     error: HbsLayoutErrorError
+    production?: boolean
 };
 
 interface HbsLayoutErrorError {
