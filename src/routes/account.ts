@@ -6,7 +6,6 @@ import api from "../modules/api";
 import createHttpError from "http-errors";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
-import { debug } from "webpack";
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
