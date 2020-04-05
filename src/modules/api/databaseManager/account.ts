@@ -14,6 +14,14 @@ export enum GeneralError {
     NOT_EXISTING = "ACCOUNT_NOT_EXISTING"
 }
 
+const accountTableName = "account";
+const accountColumnId = "id";
+const accountColumnName = "name";
+const accountColumnAdmin = "admin";
+const accountColumnPublic = "public";
+const accountColumnPasswordHash = "password_hash";
+const accountColumnPasswordSalt = "password_salt";
+
 
 // Exists
 // -----------------------------------------------------------------------------
@@ -40,13 +48,17 @@ export interface ExistsNameDbOut {
  * @param input Info necessary to check it
  */
 export const existsName = async (databasePath: string, input: ExistsNameInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach<ExistsDbOut>(
-        databasePath,
-        database.queries.exists("account", "name"),
-        [input.name]
-    );
-    if (runResult) {
-        return runResult.exists_value === 1;
+    try {
+        const runResult = await database.requests.getEach<ExistsDbOut>(
+            databasePath,
+            database.queries.exists(accountTableName, accountColumnName),
+            [input.name]
+        );
+        if (runResult) {
+            return runResult.exists_value === 1;
+        }
+    } catch (error) {
+        return false;
     }
     return false;
 };
@@ -58,13 +70,17 @@ export const existsName = async (databasePath: string, input: ExistsNameInput): 
  * @param input Info necessary to check it
  */
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach<ExistsNameDbOut>(
-        databasePath,
-        database.queries.exists("account", "id"),
-        [input.id]
-    );
-    if (runResult) {
-        return runResult.exists_value === 1;
+    try {
+        const runResult = await database.requests.getEach<ExistsNameDbOut>(
+            databasePath,
+            database.queries.exists(accountTableName, accountColumnId),
+            [input.id]
+        );
+        if (runResult) {
+            return runResult.exists_value === 1;
+        }
+    } catch (error) {
+        return false;
     }
     return false;
 };
@@ -79,7 +95,6 @@ export interface IsAdminGetDbOut {
 
 /**
  * Get if a given account is an admin account.
- * (Does not check if an account exists)
  *
  * @param databasePath Path to database
  * @param accountId Account id to be checked
@@ -89,7 +104,7 @@ export const isAdmin = async (databasePath: string, accountId: number|undefined)
         try {
             const runResult = await database.requests.getEach<IsAdminGetDbOut>(
                 databasePath,
-                database.queries.select("account", ["admin"], { whereColumn: "id" }),
+                database.queries.select(accountTableName, [accountColumnAdmin], { whereColumn: accountColumnId }),
                 [accountId]
             );
             if (runResult) {
@@ -106,18 +121,35 @@ export const isAdmin = async (databasePath: string, accountId: number|undefined)
 // Checker (internal)
 // -----------------------------------------------------------------------------
 
+/**
+ * @throws When account does not exist
+ * @param databasePath
+ * @param accountId
+ */
 export const checkIfAccountExists = async (databasePath: string, accountId: number): Promise<void> => {
     if (!await exists(databasePath, { id: accountId })) {
         throw Error(GeneralError.NOT_EXISTING);
     }
 };
 
+/**
+ * @throws When account does not exist
+ * @param databasePath
+ * @param accountName
+ */
 export const checkIfAccountExistsName = async (databasePath: string, accountName: string): Promise<void> => {
     if (!await existsName(databasePath, { name: accountName })) {
         throw Error(GeneralError.NOT_EXISTING);
     }
 };
 
+/**
+ * @throws When no access is deducted
+ * @param databasePath
+ * @param requesterAccountId
+ * @param accessAccountId
+ * @param otherAccessOption
+ */
 export const checkIfAccountHasAccessToAccount = async (
     databasePath: string, requesterAccountId: number, accessAccountId: number,
     otherAccessOption = false
@@ -130,6 +162,13 @@ export const checkIfAccountHasAccessToAccount = async (
     }
 };
 
+/**
+ * @throws When no access is deducted
+ * @param databasePath
+ * @param requesterAccountId
+ * @param accessAccountId
+ * @param otherAccessOption
+ */
 export const checkIfAccountHasAccessToAccountOrOther = async (
     databasePath: string, requesterAccountId: number, accessAccountId: number,
     otherAccessOption: () => boolean|Promise<boolean>
@@ -140,6 +179,14 @@ export const checkIfAccountHasAccessToAccountOrOther = async (
     );
 };
 
+/**
+ * @throws When no access is deducted
+ * @param databasePath
+ * @param requesterAccountId
+ * @param accessAccountId
+ * @param accessAccountIsPublic
+ * @param accessOtherOptions
+ */
 export const checkIfAccountHasAccessToAccountOrIsFriend = async (
     databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
     accessAccountIsPublic = false, accessOtherOptions = false
@@ -156,20 +203,33 @@ export const checkIfAccountHasAccessToAccountOrIsFriend = async (
     }
 };
 
+/**
+ * @throws When no access is deducted
+ * @param databasePath
+ * @param requesterAccountId
+ * @param accessAccountId
+ * @param accessIsPublic
+ */
 export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic = async (
     databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
     accessIsPublic: () => (Promise<boolean>|boolean)
 ): Promise<void> => {
-    console.error("I was here");
     await checkIfAccountHasAccessToAccountOrIsFriend(databasePath, requesterAccountId, accessAccountId,
         await accessIsPublic());
 };
 
+/**
+ * @throws When no access is deducted
+ * @param databasePath
+ * @param requesterAccountId
+ * @param accessAccountId
+ * @param accessIsPublic
+ * @param accessOtherOption
+ */
 export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublicOrOther = async (
     databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
     accessIsPublic: () => (Promise<boolean>|boolean), accessOtherOption: () => (Promise<boolean>|boolean)
 ): Promise<void> => {
-    console.error("I was here");
     await checkIfAccountHasAccessToAccountOrIsFriend(databasePath, requesterAccountId, accessAccountId,
         await accessIsPublic(), await accessOtherOption());
 };
@@ -223,16 +283,16 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
         throw Error(CreateError.PASSWORD_INVALID_FORMAT);
     }
 
-    const columns = [ "name", "password_hash", "password_salt" ];
+    const columns = [ accountColumnName, accountColumnPasswordHash, accountColumnPasswordSalt ];
     const hashAndSalt = crypto.generateHashAndSalt(input.password);
     const values: (string|number)[] = [ input.name, hashAndSalt.hash, hashAndSalt.salt ];
-    columns.push("admin");
+    columns.push(accountColumnAdmin);
     values.push(input.admin === true ? 1 : 0);
-    columns.push("public");
+    columns.push(accountColumnPublic);
     values.push(input.public === true ? 1 : 0);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert("account", columns),
+        database.queries.insert(accountTableName, columns),
         values
     );
     return postResult.lastID;
@@ -260,7 +320,7 @@ export const remove = async (databasePath: string, accountId: number, input: Rem
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove("account", "id"),
+        database.queries.remove(accountTableName, accountColumnId),
         [input.id]
     );
     return postResult.changes > 0;
@@ -295,9 +355,10 @@ export const checkLogin = async (databasePath: string, input: CheckLoginInput): 
 
     const runResult = await database.requests.getEach<CheckLoginDbOut>(
         databasePath,
-        database.queries.select("account", [ "id", "password_hash", "password_salt" ], {
-            whereColumn: "name"
-        }),
+        database.queries.select(accountTableName,
+            [ accountColumnId, accountColumnPasswordHash, accountColumnPasswordSalt ],
+            { whereColumn: accountColumnName }
+        ),
         [input.name]
     );
     if (runResult) {
@@ -345,8 +406,8 @@ export const get = async (
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select("account", [ "name", "admin", "public" ], {
-            whereColumn: "id"
+        database.queries.select(accountTableName, [ accountColumnName, accountColumnAdmin, accountColumnPublic ], {
+            whereColumn: accountColumnId
         }),
         [input.id]
     );
@@ -391,32 +452,28 @@ export const update = async (databasePath: string, accountId: number, input: Upd
 
     const columns = [];
     const values = [];
-    if (input.admin !== undefined) {
-        columns.push("admin");
-        values.push(input.admin ? 1 : 0);
-    }
     if (input.public !== undefined) {
-        columns.push("public");
+        columns.push(accountColumnPublic);
         values.push(input.public ? 1 : 0);
     }
     if (input.password) {
         const hashAndSalt = crypto.generateHashAndSalt(input.password);
-        columns.push("password_hash", "password_salt");
+        columns.push(accountColumnPasswordHash, accountColumnPasswordSalt);
         values.push(hashAndSalt.hash, hashAndSalt.salt);
     }
     if (input.name) {
-        columns.push("name");
+        columns.push(accountColumnName);
         values.push(input.name);
     }
     if (input.admin !== undefined) {
         console.warn("Account admin status was updated", input.admin);
-        columns.push("admin");
+        columns.push(accountColumnAdmin);
         values.push(input.admin ? 1 : 0);
     }
     values.push(input.id);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.update("account", columns, "id"),
+        database.queries.update(accountTableName, columns, accountColumnId),
         values
     );
     return postResult.changes > 0;

@@ -11,6 +11,11 @@ export enum GeneralError {
     NOT_EXISTING = "ACCOUNT_FRIEND_DOCUMENT_NOT_EXISTING"
 }
 
+const accountFriendTableName = "account_friend";
+const accountFriendColumnId = "id";
+const accountFriendColumnAccountId = "account_id";
+const accountFriendColumnFriendAccountId = "friend_account_id";
+
 
 // Exists
 // -----------------------------------------------------------------------------
@@ -42,7 +47,7 @@ export interface ExistsAccountAndFriendAccountAllDbOut {
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
     const runResult = await database.requests.getEach<ExistsDbOut>(
         databasePath,
-        database.queries.exists("account_friend", "id"),
+        database.queries.exists(accountFriendTableName, accountFriendColumnId),
         [input.id]
     );
     if (runResult) {
@@ -63,9 +68,10 @@ export const existsAccountAndFriendAccount = async (
     try {
         const runResults = await database.requests.getAll<ExistsAccountAndFriendAccountAllDbOut>(
             databasePath,
-            database.queries.select("account_friend", [ "id", "account_id", "friend_account_id" ], {
-                whereColumn: "account_id"
-            }),
+            database.queries.select(accountFriendTableName,
+                [ accountFriendColumnId, accountFriendColumnAccountId, accountFriendColumnFriendAccountId ],
+                { whereColumn: accountFriendColumnAccountId }
+            ),
             [input.account]
         );
         for (const friendEntry of runResults) {
@@ -123,7 +129,9 @@ export const create = async (databasePath: string, accountId: number, input: Cre
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert("account_friend", [ "account_id", "friend_account_id" ]),
+        database.queries.insert(accountFriendTableName,
+            [ accountFriendColumnAccountId, accountFriendColumnFriendAccountId ]
+        ),
         [ input.accountId, input.friendId ]
     );
     return postResult.changes > 0;
@@ -170,9 +178,10 @@ export const get = async (
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select("account_friend", [ "id", "account_id", "friend_account_id" ], {
-            whereColumn: "account_id"
-        }),
+        database.queries.select(accountFriendTableName,
+            [ accountFriendColumnId, accountFriendColumnAccountId, accountFriendColumnFriendAccountId ],
+            { whereColumn: accountFriendColumnAccountId }
+        ),
         [input.id]
     );
     if (runResult) {
@@ -221,9 +230,10 @@ export const getAllFromAccount = async (
 
     return await database.requests.getAll<GetAllFromAccountDbOut>(
         databasePath,
-        database.queries.select("account_friend", [ "id", "account_id", "friend_account_id" ], {
-            whereColumn: "account_id"
-        }),
+        database.queries.select(accountFriendTableName,
+            [ accountFriendColumnId, accountFriendColumnAccountId, accountFriendColumnFriendAccountId ],
+            { whereColumn: accountFriendColumnAccountId })
+        ,
         [input.id]
     );
 };
@@ -260,7 +270,7 @@ export const remove = async (databasePath: string, accountId: number, input: Rem
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove("account_friend", "id"),
+        database.queries.remove(accountFriendTableName, accountFriendColumnId),
         [input.id]
     );
     return postResult.changes > 0;

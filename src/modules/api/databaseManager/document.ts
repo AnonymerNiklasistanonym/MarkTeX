@@ -9,6 +9,17 @@ export enum GeneralError {
     NOT_EXISTING = "DOCUMENT_NOT_EXISTING"
 }
 
+const documentTableName = "document";
+const documentColumnAuthors = "authors";
+const documentColumnContent = "content";
+const documentColumnDate = "date";
+const documentColumnId = "id";
+const documentColumnGroup = "document_group_id";
+const documentColumnOwner = "owner";
+const documentColumnPdfOptions = "pdf_options";
+const documentColumnPublic = "public";
+const documentColumnTitle = "title";
+
 
 export interface CreateInputResource {
     relativePath: string
@@ -37,14 +48,14 @@ export const create = async (databasePath: string, accountId: number, input: Cre
     await account.checkIfAccountExists(databasePath, input.owner);
     await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.owner);
 
-    const columns = [ "title", "content", "owner" ];
+    const columns = [ documentColumnTitle, documentColumnContent, documentColumnOwner ];
     const values = [ input.title, input.content, accountId ];
     if (input.authors) {
-        columns.push("authors");
+        columns.push(documentColumnAuthors);
         values.push(input.authors);
     }
     if (input.date) {
-        columns.push("date");
+        columns.push(documentColumnDate);
         values.push(input.date);
     }
     if (input.resources) {
@@ -52,14 +63,14 @@ export const create = async (databasePath: string, accountId: number, input: Cre
         throw Error("input.resources is not yet implemented");
     }
     if (input.pdfOptions) {
-        columns.push("pdf_options");
+        columns.push(documentColumnPdfOptions);
         values.push(JSON.stringify(input.pdfOptions));
     }
-    columns.push("public");
+    columns.push(documentColumnPublic);
     values.push(input.public === true ? 1 : 0);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert("document", columns),
+        database.queries.insert(documentTableName, columns),
         values
     );
     return postResult.lastID;
@@ -87,7 +98,7 @@ export interface ExistsDbOut {
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
     const runResult = await database.requests.getEach<ExistsDbOut>(
         databasePath,
-        database.queries.exists("document", "id"),
+        database.queries.exists(documentTableName, documentColumnId),
         [input.id]
     );
     if (runResult) {
@@ -152,17 +163,19 @@ export const get = async (
 ): Promise<void|GetOutput> => {
     await checkIfDocumentExists(databasePath, input.id);
 
-    const columns = [ "title", "authors", "date", "owner", "public" ];
+    const columns = [
+        documentColumnTitle, documentColumnAuthors, documentColumnDate, documentColumnOwner, documentColumnPublic
+    ];
     if (input.getContent) {
-        columns.push("content");
+        columns.push(documentColumnContent);
     }
     if (input.getPdfOptions) {
-        columns.push("pdf_options");
+        columns.push(documentColumnPdfOptions);
     }
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select("document", columns, {
-            whereColumn: "id"
+        database.queries.select(documentTableName, columns, {
+            whereColumn: documentColumnId
         }),
         [input.id]
     );
@@ -236,19 +249,19 @@ export const update = async (databasePath: string, accountId: number, input: Upd
     const columns = [];
     const values = [];
     if (input.title) {
-        columns.push("title");
+        columns.push(documentColumnTitle);
         values.push(input.title);
     }
     if (input.content) {
-        columns.push("content");
+        columns.push(documentColumnContent);
         values.push(input.content);
     }
     if (input.authors) {
-        columns.push("authors");
+        columns.push(documentColumnAuthors);
         values.push(input.authors);
     }
     if (input.date) {
-        columns.push("date");
+        columns.push(documentColumnDate);
         values.push(input.date);
     }
     if (input.resources) {
@@ -256,17 +269,17 @@ export const update = async (databasePath: string, accountId: number, input: Upd
         throw Error("input.resources is not yet implemented");
     }
     if (input.pdfOptions) {
-        columns.push("pdf_options");
+        columns.push(documentColumnPdfOptions);
         values.push(JSON.stringify(input.pdfOptions));
     }
     if (input.public !== undefined) {
-        columns.push("public");
+        columns.push(documentColumnPublic);
         values.push(input.public === true ? 1 : 0);
     }
     values.push(input.id);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.update("document", columns, "id"),
+        database.queries.update(documentTableName, columns, documentColumnId),
         values
     );
     return postResult.changes > 0;
@@ -288,16 +301,14 @@ export const remove = async (databasePath: string, accountId: number, input: Rem
     await checkIfDocumentExists(databasePath, input.id);
     const documentInfo = await get(databasePath, accountId, { id: input.id });
     if (documentInfo) {
-        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
-            databasePath, accountId, documentInfo.owner, () => documentInfo.public
-        );
+        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, documentInfo.owner);
     } else {
         throw Error(GeneralError.NO_ACCESS);
     }
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove("document", "id"),
+        database.queries.remove(documentTableName, documentColumnId),
         [input.id]
     );
     return postResult.changes > 0;
@@ -349,14 +360,17 @@ export const getAllFromOwner = async (
 ): Promise<GetAllOutput[]> => {
     await account.checkIfAccountExists(databasePath, input.id);
 
-    const columns = [ "id", "title", "authors", "date", "document_group", "public" ];
+    const columns = [
+        documentColumnId, documentColumnTitle, documentColumnAuthors, documentColumnDate, documentColumnGroup,
+        documentColumnPublic
+    ];
     if (input.getContents) {
-        columns.push("content");
+        columns.push(documentColumnContent);
     }
     const runResults = await database.requests.getAll<GetAllFromOwnerDbOut>(
         databasePath,
-        database.queries.select("document", columns, {
-            whereColumn: "owner"
+        database.queries.select(documentTableName, columns, {
+            whereColumn: documentColumnOwner
         }),
         [input.id]
     );
@@ -400,14 +414,17 @@ export const getAllFromOwner = async (
 export const getAllFromGroup = async (
     databasePath: string, accountId: number|undefined, input: GetAllInput
 ): Promise<GetAllOutput[]> => {
-    const columns = [ "id", "title", "authors", "date", "owner", "public" ];
+    const columns = [
+        documentColumnId, documentColumnTitle, documentColumnAuthors, documentColumnDate, documentColumnOwner,
+        documentColumnPublic
+    ];
     if (input.getContents) {
-        columns.push("content");
+        columns.push(documentColumnContent);
     }
     const runResults = await database.requests.getAll<GetAllFromGroupDbOut>(
         databasePath,
-        database.queries.select("document", columns, {
-            whereColumn: "document_group"
+        database.queries.select(documentTableName, columns, {
+            whereColumn: documentColumnGroup
         }),
         [input.id]
     );

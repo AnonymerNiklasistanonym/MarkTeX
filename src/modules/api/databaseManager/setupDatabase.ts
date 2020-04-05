@@ -153,7 +153,7 @@ export const setupTables = async (databasePath: string): Promise<void> => {
                 column: "id",
                 tableName: "document_group"
             },
-            name: "document_group",
+            name: "document_group_id",
             type: database.queries.CreateTableColumnType.INTEGER
         }, {
             name: "public",
@@ -295,6 +295,7 @@ export const setupInitialData = async (databasePath: string): Promise<void> => {
     });
     // Add groups to test account
     await databaseManagerGroup.create(databasePath, accountIdTestUser, {
-        name: "Example Group"
+        name: "Example Group",
+        owner: accountIdTestUser
     });
 };

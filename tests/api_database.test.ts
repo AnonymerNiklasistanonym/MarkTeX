@@ -206,16 +206,16 @@ describe("api database: document", () => {
             id: documentId
         });
         chai.expect(documentExists).to.equal(false);
-        let throwException = false;
+        let throwsException = false;
         try {
             await api.database.document.remove(databasePath, accountId, {
                 id: documentId
             });
         } catch (error) {
-            throwException = true;
+            throwsException = true;
             chai.expect((error as Error).message).to.equal(api.database.document.GeneralError.NOT_EXISTING);
         }
-        chai.expect(throwException).to.equal(true);
+        chai.expect(throwsException).to.equal(true);
     });
 });
 
@@ -226,11 +226,12 @@ describe("api database: group", () => {
             admin: true, name: "TestUserAdmin", password: "passwordAdmin"
         });
         const groupId = await api.database.group.create(databasePath, accountId, {
-            name: "name"
+            name: "name",
+            owner: accountId
         });
         chai.expect(groupId).to.be.an("number");
         const groupId2 = await api.database.group.create(databasePath, accountId, {
-            name: "name", public: false
+            name: "name", owner: accountId, public: false
         });
         chai.expect(groupId2).to.be.an("number");
     });
@@ -240,7 +241,7 @@ describe("api database: group", () => {
             admin: true, name: "TestUserAdmin", password: "passwordAdmin"
         });
         const groupId = await api.database.group.create(databasePath, accountId, {
-            name: "name"
+            name: "name", owner: accountId
         });
         const groupExists = await api.database.group.exists(databasePath, {
             id: groupId
@@ -257,7 +258,7 @@ describe("api database: group", () => {
             admin: true, name: "TestUserAdmin", password: "passwordAdmin"
         });
         const groupId = await api.database.group.create(databasePath, accountId, {
-            name: "name"
+            name: "name", owner: accountId
         });
         const groupRemoved = await api.database.group.remove(databasePath, accountId, {
             id: groupId
@@ -267,9 +268,15 @@ describe("api database: group", () => {
             id: groupId
         });
         chai.expect(groupExists).to.equal(false);
-        const groupRemovedButNotExists = await api.database.group.remove(databasePath, accountId, {
-            id: groupId
-        });
-        chai.expect(groupRemovedButNotExists).to.equal(false);
+        let throwsException = false;
+        try {
+            await api.database.group.remove(databasePath, accountId, {
+                id: groupId
+            });
+        } catch (error) {
+            throwsException = true;
+            chai.expect((error as Error).message).to.equal(api.database.group.GeneralError.NOT_EXISTING);
+        }
+        chai.expect(throwsException).to.equal(true);
     });
 });
