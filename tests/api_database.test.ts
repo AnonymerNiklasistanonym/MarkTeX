@@ -62,7 +62,7 @@ describe("api database: account", () => {
             });
         } catch (e) {
             throwException = true;
-            chai.expect(e).equal(api.database.account.CreateError.USER_NAME_ALREADY_EXISTS);
+            chai.expect(e.message).equal(api.database.account.CreateError.USER_NAME_ALREADY_EXISTS);
         }
         chai.expect(throwException).to.equal(true);
     });
@@ -85,7 +85,7 @@ describe("api database: account", () => {
     it("exists (name)", async () => {
         await api.database.reset(databasePath);
         const accountName = "TestUser";
-        const accountId = await api.database.account.create(databasePath, {
+        await api.database.account.create(databasePath, {
             name: accountName,
             password: "password"
         });
@@ -112,11 +112,17 @@ describe("api database: account", () => {
             password: accountPassword
         });
         chai.expect(loginCheck).to.equal(accountId);
-        const loginCheckBadName = await api.database.account.checkLogin(databasePath, {
-            name: accountName + "bad",
-            password: accountPassword
-        });
-        chai.expect(loginCheckBadName).to.equal(undefined);
+        let throwException = false;
+        try {
+            await api.database.account.checkLogin(databasePath, {
+                name: accountName + "bad",
+                password: accountPassword
+            });
+        } catch (error) {
+            throwException = true;
+            chai.expect((error as Error).message).to.equal(api.database.account.GeneralError.NOT_EXISTING);
+        }
+        chai.expect(throwException).to.equal(true);
         const loginCheckBadPassword = await api.database.account.checkLogin(databasePath, {
             name: accountName,
             password: accountPassword + "bad"
@@ -130,6 +136,7 @@ describe("api database: account", () => {
             name: accountName,
             password: "password"
         });
+
         const accountRemoved = await api.database.account.remove(databasePath, accountId, {
             id: accountId
         });
@@ -138,10 +145,16 @@ describe("api database: account", () => {
             id: accountId
         });
         chai.expect(accountExists).to.equal(false);
-        const accountRemovedButDoesNotExist = await api.database.account.remove(databasePath, accountId, {
-            id: accountId
-        });
-        chai.expect(accountRemovedButDoesNotExist).to.equal(false);
+        let throwException = false;
+        try {
+            await api.database.account.remove(databasePath, accountId, {
+                id: accountId
+            });
+        } catch (error) {
+            throwException = true;
+            chai.expect((error as Error).message).to.equal(api.database.account.GeneralError.NOT_EXISTING);
+        }
+        chai.expect(throwException).to.equal(true);
     });
 });
 
@@ -193,10 +206,16 @@ describe("api database: document", () => {
             id: documentId
         });
         chai.expect(documentExists).to.equal(false);
-        const documentRemovedButNotExists = await api.database.document.remove(databasePath, accountId, {
-            id: documentId
-        });
-        chai.expect(documentRemovedButNotExists).to.equal(false);
+        let throwException = false;
+        try {
+            await api.database.document.remove(databasePath, accountId, {
+                id: documentId
+            });
+        } catch (error) {
+            throwException = true;
+            chai.expect((error as Error).message).to.equal(api.database.document.GeneralError.NOT_EXISTING);
+        }
+        chai.expect(throwException).to.equal(true);
     });
 });
 

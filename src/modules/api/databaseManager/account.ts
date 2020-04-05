@@ -264,7 +264,7 @@ export interface CheckLoginDbOut {
  * @throws When not able to check login of account or database fails
  * @returns If password is correct the account id is returned
  */
-export const checkLogin = async (databasePath: string, input: CheckLoginInput): Promise<void|number> => {
+export const checkLogin = async (databasePath: string, input: CheckLoginInput): Promise<number|void> => {
     await checkIfAccountExistsName(databasePath, input.name);
 
     const runResult = await database.requests.getEach<CheckLoginDbOut>(
