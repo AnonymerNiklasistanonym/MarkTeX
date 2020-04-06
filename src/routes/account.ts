@@ -4,8 +4,22 @@ import * as expressValidator from "express-validator";
 import * as viewRendering from "../view_rendering/view_rendering";
 import api from "../modules/api";
 import createHttpError from "http-errors";
+import { debuglog } from "util";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
+
+
+export interface LoginRequest {
+    name: string
+    password: string
+}
+export interface RegisterRequest {
+    name: string
+    password: string
+}
+
+
+const debug = debuglog("app-express-route-account");
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
@@ -88,4 +102,64 @@ export const register = (app: express.Application, options: StartExpressServerOp
             }
         });
 
+    app.post("/account_register",
+        // Validate api input
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            name: { isString: true },
+            password: { isString: true }
+        }), { sendJsonError: true }),
+        // Redirect to home page if already authenticated
+        expressMiddlewareSession.redirectIfAuthenticated(),
+        // Try to register user
+        async (req, res) => {
+            debug(`Register: ${JSON.stringify(req.body)}`);
+            const request = req.body as RegisterRequest;
+            try {
+                const accountId = await api.database.account.create(options.databasePath, request);
+                expressMiddlewareSession.authenticate(req, accountId);
+                return res.redirect("/");
+            } catch (error) {
+                // Check for specific create account errors
+                if ((error as Error).message === api.database.account.CreateError.USER_NAME_ALREADY_EXISTS) {
+                    expressMiddlewareSession.addMessages(req, "The user name already exists");
+                } else {
+                    if (!options.production) { console.error(error); }
+                    expressMiddlewareSession.addMessages(req, (error as Error).message);
+                }
+                res.redirect("/login");
+            }
+        });
+
+    app.post("/account_login",
+        // Validate api input
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            name: { isString: true },
+            password: { isString: true }
+        }), { sendJsonError: true }),
+        // Redirect to home page if already authenticated
+        expressMiddlewareSession.redirectIfAuthenticated(),
+        // Try to login user
+        async (req, res) => {
+            debug(`Login: ${JSON.stringify(req.body)}`);
+            const request = req.body as LoginRequest;
+            try {
+                const accountId = await api.database.account.checkLogin(options.databasePath, request);
+                // If login was successful authenticate user and redirect to home page
+                if (accountId) {
+                    expressMiddlewareSession.authenticate(req, accountId);
+                    return res.redirect("/");
+                }
+                // If login was not successful redirect back to login
+                throw Error("Login was not successful");
+            } catch (error) {
+                if ((error as Error).message === api.database.account.GeneralError.NOT_EXISTING) {
+                    expressMiddlewareSession.addMessages(req, `Account ${request.name} does not exist`);
+                } else {
+                    if (!options.production) { console.error(error); }
+                    expressMiddlewareSession.addMessages(req, (error as Error).message);
+                }
+                // On any error redirect to login page
+                res.redirect("/login");
+            }
+        });
 };

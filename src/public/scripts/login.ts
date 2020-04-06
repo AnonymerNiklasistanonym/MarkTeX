@@ -10,9 +10,9 @@ const overrideSubmitForm = (option: LoginRegisterFormOptions, submit = false): v
     const loginRegisterForm = document.getElementById("form-login-register") as (null|HTMLFormElement);
     if (loginRegisterForm) {
         if (option === LoginRegisterFormOptions.LOGIN) {
-            loginRegisterForm.action = "/api/account/login";
+            loginRegisterForm.action = "/account_login";
         } else if (option === LoginRegisterFormOptions.REGISTER) {
-            loginRegisterForm.action = "/api/account/register";
+            loginRegisterForm.action = "/account_register";
         }
         // If wanted try to submit the form
         if (submit) {

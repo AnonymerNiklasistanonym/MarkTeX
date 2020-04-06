@@ -35,7 +35,7 @@ Login page template
 
 		<section class="section-login" id="section-login-form">
 			{{!-- Login/Register form --}}
-			<form id="form-login-register" action="/api/account/login" method="post">
+			<form id="form-login-register" action="/account_login" method="post">
 				{{!-- Account name --}}
 				<input class="input-text " type="text" name="name" placeholder="Account name..."
 					pattern="{{input.accountName.pattern}}"
@@ -50,8 +50,6 @@ Login page template
 					title="{{input.accountPassword.errorMessage}}"
 					autocomplete="autocomplete-login-password"
 				required>
-				{{!-- Hidden value of api version --}}
-				<input type="number" name="apiVersion" value="1" hidden>
 				{{!-- Invisible submit input to allow submission on enter in any of the previous text input fields --}}
 				<input id="formSubmit" type="submit" hidden>
 			</form>

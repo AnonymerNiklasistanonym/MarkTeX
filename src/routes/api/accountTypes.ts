@@ -5,12 +5,18 @@ export interface LoginRequest {
     password: string
 }
 export interface LoginRequestApi extends LoginRequest, types.ApiRequest {}
+export interface LoginResponse {
+    id: number
+}
 
 export interface RegisterRequest {
     name: string
     password: string
 }
 export interface RegisterRequestApi extends RegisterRequest, types.ApiRequest {}
+export interface RegisterResponse {
+    id: number
+}
 
 export interface GetRequest {
     id: number

@@ -32,21 +32,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
             try {
                 const accountId = await api.database.account.create(options.databasePath, request);
                 // If register was successful authenticate user and redirect to home page
-                if (accountId) {
-                    expressMiddlewareSession.authenticate(req, accountId);
-                    return res.redirect("/");
-                }
-                // If register was not successful redirect to login page
-                expressMiddlewareSession.addMessages(req, "Registering was not successful");
-                return res.redirect("/login");
+                expressMiddlewareSession.authenticate(req, accountId);
+                const response: types.RegisterResponse = {
+                    id: accountId
+                };
+                res.status(200).json(response);
             } catch (error) {
-                // Check for specific create account errors
-                if (error === api.database.account.CreateError.USER_NAME_ALREADY_EXISTS) {
-                    expressMiddlewareSession.addMessages(req, "The user name already exists");
-                } else {
-                    expressMiddlewareSession.addMessages(req, JSON.stringify(error));
-                }
-                return res.redirect("/login");
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error });
             }
         });
 
@@ -68,20 +61,15 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 // If login was successful authenticate user and redirect to home page
                 if (accountId) {
                     expressMiddlewareSession.authenticate(req, accountId);
-                    return res.redirect("/");
+                    const response: types.LoginResponse = {
+                        id: accountId
+                    };
+                    return res.status(200).json(response);
                 }
-                // If login was not successful redirect back to login page
-                expressMiddlewareSession.addMessages(req, "Login was not successful");
-                return res.redirect("/login");
+                throw Error("Login was not successful");
             } catch (error) {
-                if ((error as Error).message === api.database.account.GeneralError.NOT_EXISTING) {
-                    expressMiddlewareSession.addMessages(req, `Account ${request.name} does not exist`);
-                } else {
-                    console.error(error);
-                    expressMiddlewareSession.addMessages(req, JSON.stringify(error));
-                }
-                // On any error redirect to login page
-                return res.redirect("/login");
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error });
             }
         });
 
@@ -105,8 +93,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.GetRequestApi;
             try {
-                const accountInfo = await api.database.account.get(options.databasePath, sessionInfo.accountId,
-                    request
+                const accountInfo = await api.database.account.get(
+                    options.databasePath, sessionInfo.accountId, request
                 );
                 if (accountInfo) {
                     const response: types.GetResponse = {
@@ -117,7 +105,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Account info was not returned");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error });
+            }
         });
 
     app.post("/api/account/remove",
@@ -134,14 +125,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
         },
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
-        // Try to login user
+        // Try to remove user
         async (req, res) => {
             debug(`Remove: ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.RemoveRequestApi;
             try {
-                const successful = await api.database.account.remove(options.databasePath, sessionInfo.accountId,
-                    request
+                const successful = await api.database.account.remove(
+                    options.databasePath, sessionInfo.accountId, request
                 );
                 if (successful) {
                     const response: types.RemoveResponse = {
@@ -154,7 +145,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Account removal was not successful");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error });
+            }
         });
 
     app.post("/api/account/update",
@@ -193,8 +187,11 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     };
                     return res.status(200).json(response);
                 }
-                throw Error("Internal error: Account update was not successful");
-            } catch (error) { return res.status(500).json({ error }); }
+                throw Error("Account update was not successful");
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error });
+            }
         });
 
 };
