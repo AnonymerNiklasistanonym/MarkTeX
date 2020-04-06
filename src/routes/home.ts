@@ -31,6 +31,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const accountFriends = await api.database.accountFriend.getAllFromAccount(
             options.databasePath, sessionInfo.accountId, { getNames: true, id: sessionInfo.accountId }
         );
+        const accountGroups = await api.database.group.getAllFromOwner(
+            options.databasePath, sessionInfo.accountId, { id: sessionInfo.accountId }
+        );
         if (!accountInfo || !accountDocuments) {
             return next(createHttpError(500, "Account info or account documents were undefined"));
         }
@@ -38,6 +41,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             account: accountInfo,
             documents: accountDocuments,
             friends: accountFriends,
+            groups: accountGroups,
             header,
             input: {
                 accountId: sessionInfo.accountId,

@@ -80,7 +80,7 @@ export const checkAuthenticationJson = (req: express.Request, res: express.Respo
 };
 
 export const addMessages = (req: express.Request, ... messages: string[]): void => {
-    debug(`Add: [${messages.join(", ")}]`);
+    debug(`Add messages: [${messages.join(", ")}]`);
     if (req.session) {
         if (req.session.messages) {
             req.session.messages.push(... messages);
@@ -91,7 +91,7 @@ export const addMessages = (req: express.Request, ... messages: string[]): void 
 };
 
 export const getMessages = (req: express.Request, clearMessages = true): string[] => {
-    debug(`Get: [${JSON.stringify(req.session ? req.session.messages : "Error")}]`);
+    debug(`Get messages: [${JSON.stringify(req.session ? req.session.messages : "Error")}]`);
     if (req.session && req.session.messages) {
         const messages = req.session.messages;
         if (clearMessages) {

@@ -73,6 +73,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                         res.should.have.status(422);
                         res.type.should.be.equal("text/html");
                     });
+                // Redirect to login page with message
                 await chai.request(APP)
                     .post("/account_login")
                     .send({
@@ -80,7 +81,8 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                         password: "12345678"
                     })
                     .then(res => {
-                        res.should.have.status(422);
+                        res.should.have.status(200);
+                        res.type.should.be.equal("text/html");
                     });
 
                 await chai.request(APP)
@@ -106,11 +108,22 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                 await chai.request(APP)
                     .post("/account_register")
                     .send({
-                        name: "ab",
                         password: "12345678"
                     })
                     .then(res => {
                         res.should.have.status(422);
+                        res.type.should.be.equal("text/html");
+                    });
+                // Redirect to login page with message
+                await chai.request(APP)
+                    .post("/account_register")
+                    .send({
+                        name: "ab",
+                        password: "12345678"
+                    })
+                    .then(res => {
+                        res.should.have.status(200);
+                        res.type.should.be.equal("text/html");
                     });
 
                 await chai.request(APP)

@@ -121,12 +121,20 @@ export const register = (app: express.Application, options: StartExpressServerOp
             } catch (error) {
                 // Check for specific create account errors
                 if ((error as Error).message === api.database.account.CreateError.USER_NAME_ALREADY_EXISTS) {
-                    expressMiddlewareSession.addMessages(req, "The user name already exists");
+                    expressMiddlewareSession.addMessages(req, `The user name '${request.name}' already exists`);
+                } else if ((error as Error).message === api.database.account.CreateError.PASSWORD_INVALID_FORMAT) {
+                    expressMiddlewareSession.addMessages(req,
+                        `The password format is invalid (${api.database.account.createInfoPassword.info})`
+                    );
+                }  else if ((error as Error).message === api.database.account.CreateError.USER_NAME_INVALID_FORMAT) {
+                    expressMiddlewareSession.addMessages(req,
+                        `The user name format is invalid (${api.database.account.createInfoUsername.info})`
+                    );
                 } else {
                     if (!options.production) { console.error(error); }
                     expressMiddlewareSession.addMessages(req, (error as Error).message);
                 }
-                res.redirect(422, "/login");
+                res.redirect("/login");
             }
         });
 
@@ -159,7 +167,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     expressMiddlewareSession.addMessages(req, (error as Error).message);
                 }
                 // On any error redirect to login page
-                res.redirect(422, "/login");
+                res.redirect("/login");
             }
         });
 };

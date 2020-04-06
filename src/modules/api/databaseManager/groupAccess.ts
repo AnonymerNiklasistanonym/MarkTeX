@@ -11,7 +11,7 @@ export enum GeneralError {
 const groupAccessTableName = "document_group_access";
 const groupAccessColumnId = "id";
 const groupAccessColumnAccountId = "account_id";
-const groupAccessColumnGroupId = "group_id";
+const groupAccessColumnGroupId = "document_group_id";
 const groupAccessColumnWriteAccess = "write_access";
 
 

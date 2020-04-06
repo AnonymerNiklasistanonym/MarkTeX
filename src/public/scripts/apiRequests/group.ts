@@ -14,6 +14,12 @@ export const create = async (input: api.group.types.CreateRequest): Promise<api.
     );
 };
 
+export const get = async (input: api.group.types.GetRequest): Promise<api.group.types.GetResponse> => {
+    return general.generalApiRequest<api.group.types.GetRequest, api.group.types.GetResponse>(
+        "/api/group/get", input
+    );
+};
+
 export const remove = async (input: api.group.types.RemoveRequest): Promise<api.group.types.RemoveResponse> => {
     return general.generalApiRequest<api.group.types.RemoveRequest, api.group.types.RemoveResponse>(
         "/api/group/remove", input
