@@ -26,6 +26,7 @@ export interface GetResponse {
     id: number
     name: string
     admin: boolean
+    public: boolean
 }
 
 export interface RemoveRequest {

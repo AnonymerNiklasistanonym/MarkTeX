@@ -100,7 +100,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     const response: types.GetResponse = {
                         admin: accountInfo.admin,
                         id: accountInfo.id,
-                        name: accountInfo.name
+                        name: accountInfo.name,
+                        public: accountInfo.public
                     };
                     return res.status(200).json(response);
                 }
