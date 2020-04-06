@@ -27,7 +27,7 @@ COPY webpack.config.js ./webpack.config.js
 # Run tests to be sure that everything will work
 # >> Update as soon as alpine has inkscape v1.x to also execute shell tests
 # RUN npm test
-RUN npm run tests:other
+RUN npm run tests:general
 
 # Build files (but only when the container is run)
 ENTRYPOINT [ "npm" ]

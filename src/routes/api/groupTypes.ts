@@ -13,6 +13,19 @@ export interface CreateResponse {
     owner: number
 }
 
+export interface GetRequest {
+    id: number
+}
+
+export interface GetRequestApi extends GetRequest, types.ApiRequest {}
+
+export interface GetResponse {
+    id: number
+    name: string
+    owner: number
+    public: boolean
+}
+
 export interface UpdateRequest {
     id: number
     name: string
@@ -23,6 +36,8 @@ export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
 export interface UpdateResponse {
     id: number
     name: string
+    owner: number
+    public: boolean
 }
 
 export interface RemoveRequest {

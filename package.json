@@ -54,7 +54,7 @@
     "lint:tests": "eslint -c .eslintrc.js --ext .ts tests --fix",
     "start": "node .",
     "test": "mocha --exit -r ts-node/register tests/**/*.test*.ts",
-    "tests:other": "mocha --exit -r ts-node/register tests/**/*.test.ts",
+    "tests:general": "mocha --exit -r ts-node/register tests/**/*.test.ts",
     "tests:shell": "mocha --exit -r ts-node/register tests/**/*.test.shell.ts",
     "todo": "ts-node ./docs/createTodoPage",
     "tsc": "tsc",

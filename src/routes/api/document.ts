@@ -30,23 +30,20 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to create a new document
         async (req, res) => {
-            debug("Create document");
+            debug(`Create document ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.CreateRequest;
             try {
                 const documentId = await api.database.document.create(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                if (documentId) {
-                    const response: types.CreateResponse = {
-                        authors: request.authors,
-                        date: request.date,
-                        id: documentId,
-                        title: request.title
-                    };
-                    return res.status(200).json(response);
-                }
-                throw Error("Internal error: No document id was returned");
+                const response: types.CreateResponse = {
+                    authors: request.authors,
+                    date: request.date,
+                    id: documentId,
+                    title: request.title
+                };
+                return res.status(200).json(response);
             } catch (error) { return res.status(500).json({ error }); }
         });
 
@@ -68,7 +65,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to get a document
         async (req, res) => {
-            debug("Get document");
+            debug(`Get document ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.GetRequest;
             try {
@@ -111,7 +108,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to update a document
         async (req, res) => {
-            debug("Update document");
+            debug(`Update document ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.UpdateRequestApi;
             try {
@@ -150,7 +147,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to remove a document
         async (req, res) => {
-            debug("Remove document");
+            debug(`Remove document ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.RemoveRequestApi;
             try {
@@ -183,7 +180,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to export a document to pdf
         async (req, res) => {
-            debug("Export document [pdf]");
+            debug(`Export document [pdf] ${JSON.stringify(req.body)}`);
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.ExportPdfRequestApi;
             try {

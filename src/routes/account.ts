@@ -107,7 +107,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             name: { isString: true },
             password: { isString: true }
-        }), { sendJsonError: true }),
+        })),
         // Redirect to home page if already authenticated
         expressMiddlewareSession.redirectIfAuthenticated(),
         // Try to register user
@@ -126,7 +126,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     if (!options.production) { console.error(error); }
                     expressMiddlewareSession.addMessages(req, (error as Error).message);
                 }
-                res.redirect("/login");
+                res.redirect(422, "/login");
             }
         });
 
@@ -135,7 +135,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             name: { isString: true },
             password: { isString: true }
-        }), { sendJsonError: true }),
+        })),
         // Redirect to home page if already authenticated
         expressMiddlewareSession.redirectIfAuthenticated(),
         // Try to login user
@@ -159,7 +159,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     expressMiddlewareSession.addMessages(req, (error as Error).message);
                 }
                 // On any error redirect to login page
-                res.redirect("/login");
+                res.redirect(422, "/login");
             }
         });
 };

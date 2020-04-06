@@ -17,11 +17,33 @@ export const getDocumentIdExists = (
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
-                const documentExists = await api.database.document.exists(input.databasePath, { id });
-                return documentExists !== undefined ? documentExists : false;
+                const exists = await api.database.document.exists(input.databasePath, { id });
+                debug(`Document id exists: ${exists}`);
+                return exists;
             }
         },
         errorMessage: "Must be an existing document id",
+        isInt: true
+    };
+};
+
+export interface InputSchemaValidationExistingGroupId {
+    databasePath: string
+    accountId: number
+}
+
+export const getGroupIdExists = (
+    input: InputSchemaValidationExistingGroupId
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (id: number): Promise<boolean> => {
+                const exists = await api.database.group.exists(input.databasePath, { id });
+                debug(`Group id exists: ${exists}`);
+                return exists;
+            }
+        },
+        errorMessage: "Must be an existing group id",
         isInt: true
     };
 };
@@ -37,8 +59,9 @@ export const getAccountIdExists = (
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
-                const accountExists = await api.database.account.exists(input.databasePath, { id });
-                return accountExists !== undefined ? accountExists : false;
+                const exists = await api.database.account.exists(input.databasePath, { id });
+                debug(`Group id exists: ${exists}`);
+                return exists;
             }
         },
         errorMessage: "Must be an existing account id",
