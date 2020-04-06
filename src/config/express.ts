@@ -1,4 +1,4 @@
-import * as expressSessionHelper from "../middleware/expressSession";
+import * as expressMiddlewareSession from "../middleware/expressSession";
 import * as routesAccount from "../routes/account";
 import * as routesApi from "../routes/api";
 import * as routesDocument from "../routes/document";
@@ -84,7 +84,7 @@ export const getExpressServer = (
 
     // Catch requests
     app.use((req, res, next) => {
-        debug("access resource '%s' [%s]", req.originalUrl, expressSessionHelper.getSessionDebugString(req));
+        debug("access resource '%s' [%s]", req.originalUrl, expressMiddlewareSession.getSessionDebugString(req));
         next();
     });
 
@@ -122,13 +122,15 @@ export const getExpressServer = (
     // Page for errors
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     app.use((err: httpErrors.HttpError, req: express.Request, res: express.Response, next: express.NextFunction) => {
-        // set locals, only providing error in development
+        const loggedIn = expressMiddlewareSession.isAuthenticated(req);
+        const links = [{ link: "/", text: "Home" }];
+        if (!loggedIn) {
+            links.push({ link: "/login", text: "Login/Register" });
+        }
         const errorRenderContent: HbsLayoutError = {
             error: {
                 explanation: res.locals.explanation,
-                links: [
-                    { link: "/", text: "Home" }
-                ],
+                links,
                 message: err.message,
                 stack: err.stack,
                 status: err.status || 500
@@ -143,6 +145,7 @@ export const getExpressServer = (
             .status(err.status || 500)
             .render("error", {
                 layout: "default",
+                loggedIn,
                 ... errorRenderContent,
                 header
             });

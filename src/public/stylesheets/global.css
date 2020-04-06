@@ -35,7 +35,9 @@
 	--global-responsive-padding-button-left-right: 1.3em;
 	--global-box-shadow-card: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 	--global-button-background: #5658e917;
+	--global-button-background-dangerous: #e9565617;
 	--global-button-background-hovered: var(--global-color-theme-primary);
+	--global-button-background-dangerous-hovered: #eb1d1d;
 	--global-input-text-padding-top-bottom: 1em;
 	--global-input-text-padding-right-left: 1.5em;
 	--global-input-margin: 0.5em;
@@ -114,7 +116,6 @@
 
 a.button {
 	border: none;
-	color: white;
 	padding: var(--global-responsive-padding-button-top-bottom) var(--global-responsive-padding-button-left-right);
 	text-align: center;
 	text-decoration: none;
@@ -128,10 +129,20 @@ a.button {
 	display: inline-flex;
 }
 
+a.button.button-remove {
+	color: var(--global-button-background-dangerous-hovered);
+	background: var(--global-button-background-dangerous);
+}
+
 a.button.selected,
 a.button:hover {
 	background-color: var(--global-button-background-hovered);
 	color: white;
+}
+
+a.button-remove.selected,
+a.button.button-remove:hover {
+	background: var(--global-button-background-dangerous-hovered);
 }
 
 a.button.selected {

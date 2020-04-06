@@ -191,7 +191,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
-                if (documentInfo) {
+                if (documentInfo && documentInfo.content) {
                     const pdfData = await api.pandoc.createPdf({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
@@ -233,7 +233,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
-                if (documentInfo) {
+                if (documentInfo && documentInfo.content) {
                     const zipData = await api.pandoc.createSourceZip({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
@@ -275,7 +275,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
-                if (documentInfo) {
+                if (documentInfo && documentInfo.content) {
                     const response: types.ExportJsonResponse = {
                         id: request.id,
                         jsonData: {

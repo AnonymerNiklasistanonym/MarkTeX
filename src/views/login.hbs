@@ -29,34 +29,26 @@ Login page template
 
 		<br>
 
-		{{!-- Display messages (example: login was unsuccessful) --}}
-		{{#if messages.exist}}
 		<section class="section-login" id="section-login-messages">
-			<ul class="messages">
-				{{#each messages.texts}}
-				<li><p class="message">{{this}}</p></li>
-				{{/each}}
-			</ul>
+			{{> messages}}
 		</section>
-		{{/if}}
 
-		{{!-- Login/Register form --}}
 		<section class="section-login" id="section-login-form">
-			{{!-- Login input form --}}
+			{{!-- Login/Register form --}}
 			<form id="form-login-register" action="/api/account/login" method="post">
 				{{!-- Account name --}}
 				<input class="input-text " type="text" name="name" placeholder="Account name..."
 					pattern="{{input.accountName.pattern}}"
 					maxlength="{{input.accountName.maxLength}}"
 					title="{{input.accountName.errorMessage}}"
-					autocomplete="autocomplete-login"
+					autocomplete="autocomplete-login-name"
 				required>
 				{{!-- Password --}}
 				<input class="input-text" type="password" name="password" placeholder="Account password..."
 					pattern="{{input.accountPassword.pattern}}"
 					minLength="{{input.accountPassword.minLength}}"
 					title="{{input.accountPassword.errorMessage}}"
-					autocomplete="current-password"
+					autocomplete="autocomplete-login-password"
 				required>
 				{{!-- Hidden value of api version --}}
 				<input type="number" name="apiVersion" value="1" hidden>

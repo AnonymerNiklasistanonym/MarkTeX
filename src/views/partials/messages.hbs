@@ -1,0 +1,10 @@
+{{!-- Display messages (example: login was unsuccessful) --}}
+{{#if messages.exist}}
+<ul class="messages">
+	{{#each messages.texts}}
+	<li>
+		<p class="message">{{this}}</p>
+	</li>
+	{{/each}}
+</ul>
+{{/if}}

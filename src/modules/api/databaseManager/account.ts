@@ -14,13 +14,13 @@ export enum GeneralError {
     NOT_EXISTING = "ACCOUNT_NOT_EXISTING"
 }
 
-const accountTableName = "account";
-const accountColumnId = "id";
-const accountColumnName = "name";
-const accountColumnAdmin = "admin";
-const accountColumnPublic = "public";
-const accountColumnPasswordHash = "password_hash";
-const accountColumnPasswordSalt = "password_salt";
+export const accountTableName = "account";
+export const accountColumnId = "id";
+export const accountColumnName = "name";
+export const accountColumnAdmin = "admin";
+export const accountColumnPublic = "public";
+export const accountColumnPasswordHash = "password_hash";
+export const accountColumnPasswordSalt = "password_salt";
 
 
 // Exists
@@ -32,14 +32,6 @@ export interface ExistsInput {
 export interface ExistsNameInput {
     name: string
 }
-export interface ExistsDbOut {
-    // eslint-disable-next-line camelcase
-    exists_value: number
-}
-export interface ExistsNameDbOut {
-    // eslint-disable-next-line camelcase
-    exists_value: number
-}
 
 /**
  * Check if account exists given an account name.
@@ -49,7 +41,7 @@ export interface ExistsNameDbOut {
  */
 export const existsName = async (databasePath: string, input: ExistsNameInput): Promise<boolean> => {
     try {
-        const runResult = await database.requests.getEach<ExistsDbOut>(
+        const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
             databasePath,
             database.queries.exists(accountTableName, accountColumnName),
             [input.name]
@@ -71,7 +63,7 @@ export const existsName = async (databasePath: string, input: ExistsNameInput): 
  */
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
     try {
-        const runResult = await database.requests.getEach<ExistsNameDbOut>(
+        const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
             databasePath,
             database.queries.exists(accountTableName, accountColumnId),
             [input.id]
@@ -336,10 +328,8 @@ export interface CheckLoginInput {
 }
 export interface CheckLoginDbOut {
     id: number
-    // eslint-disable-next-line camelcase
-    password_hash: string
-    // eslint-disable-next-line camelcase
-    password_salt: string
+    passwordHash: string
+    passwordSalt: string
 }
 
 /**
@@ -356,15 +346,19 @@ export const checkLogin = async (databasePath: string, input: CheckLoginInput): 
     const runResult = await database.requests.getEach<CheckLoginDbOut>(
         databasePath,
         database.queries.select(accountTableName,
-            [ accountColumnId, accountColumnPasswordHash, accountColumnPasswordSalt ],
+            [
+                accountColumnId,
+                { alias: "passwordHash", columnName: accountColumnPasswordHash },
+                { alias: "passwordSalt", columnName: accountColumnPasswordSalt }
+            ],
             { whereColumn: accountColumnName }
         ),
         [input.name]
     );
     if (runResult) {
         const passwordCorrect = crypto.checkPassword(input.password, {
-            hash: runResult.password_hash,
-            salt: runResult.password_salt
+            hash: runResult.passwordHash,
+            salt: runResult.passwordSalt
         });
         if (passwordCorrect) {
             return runResult.id;
@@ -386,9 +380,9 @@ export interface GetOutput {
     public: boolean
 }
 export interface GetDbOut {
-    admin: number
+    admin: 1|0
     name: string
-    public: number
+    public: 1|0
 }
 
 /**

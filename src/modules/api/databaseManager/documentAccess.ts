@@ -39,10 +39,6 @@ export interface ExistsAccountAndDocumentInput {
     documentId: number
     writeAccess?: boolean
 }
-export interface ExistsDbOut {
-    // eslint-disable-next-line camelcase
-    exists_value: number
-}
 export interface ExistsAccountAndDocumentDbOutput {
     // eslint-disable-next-line camelcase
     account_id: number
@@ -53,7 +49,7 @@ export interface ExistsAccountAndDocumentDbOutput {
 }
 
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach<ExistsDbOut>(
+    const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
         database.queries.exists("document_access", "id"),
         [input.id]

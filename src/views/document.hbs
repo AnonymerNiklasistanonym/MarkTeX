@@ -4,7 +4,10 @@
 <div class="container-document">
 	<div class="container-document-content">
 
-		<h1>Document: <span id="document-title">{{document.title}}</span> <span id="document-authors">{{#if document.authors}}by {{document.authors}}{{/if}}</span></h1>
+		<h1>
+			<span id="document-title">{{document.title}}</span>
+			<span id="document-authors">{{#if document.authors}} by {{document.authors}}{{/if}}</span>
+		</h1>
 
 		<br>
 
@@ -57,7 +60,7 @@
 			</form>
 			<ul>
 				<li>owner: <a href="/account/{{document.owner.id}}">{{document.owner.name}}</a></li>
-				<li>group: <a href="/account/{{document.group.id}}">{{document.group.name}}</a></li>
+				<li>group: <a href="/group/{{document.group.id}}">{{document.group.name}}</a></li>
 			</ul>
 		</section>
 

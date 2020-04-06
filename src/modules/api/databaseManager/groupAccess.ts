@@ -12,7 +12,7 @@ const groupAccessTableName = "document_group_access";
 const groupAccessColumnId = "id";
 const groupAccessColumnAccountId = "account_id";
 const groupAccessColumnGroupId = "group_id";
-const groupAccessWriteAccess = "write_access";
+const groupAccessColumnWriteAccess = "write_access";
 
 
 export interface CreateInput {
@@ -45,10 +45,6 @@ export interface ExistsAccountAndGroupInput {
     groupId: number
     writeAccess?: boolean
 }
-export interface ExistsDbOut {
-    // eslint-disable-next-line camelcase
-    exists_value: number
-}
 export interface ExistsAccountAndGroupDbOutput {
     // eslint-disable-next-line camelcase
     document_group_id: number
@@ -57,7 +53,7 @@ export interface ExistsAccountAndGroupDbOutput {
 }
 
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach<ExistsDbOut>(
+    const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
         database.queries.exists(groupAccessTableName, groupAccessColumnId),
         [input.id]
@@ -76,7 +72,7 @@ export const existsAccountAndGroup = async (
             databasePath,
             database.queries.select(
                 groupAccessTableName,
-                [ "id", groupAccessColumnGroupId, groupAccessWriteAccess ],
+                [ "id", groupAccessColumnGroupId, groupAccessColumnWriteAccess ],
                 { whereColumn: groupAccessColumnAccountId }
             ),
             [input.accountId]
@@ -125,7 +121,7 @@ export interface GetDbOut {
     document_group_Id: number
     id: number
     // eslint-disable-next-line camelcase
-    write_access: number
+    write_access: 1|0
 }
 
 export const get = async (
@@ -136,7 +132,7 @@ export const get = async (
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
         database.queries.select(groupAccessTableName,
-            [ groupAccessColumnAccountId, groupAccessColumnGroupId, groupAccessWriteAccess ],
+            [ groupAccessColumnAccountId, groupAccessColumnGroupId, groupAccessColumnWriteAccess ],
             { whereColumn: groupAccessColumnId }
         ),
         [input.id]
@@ -154,6 +150,75 @@ export const get = async (
             writeAccess: runResult.write_access === 1
         };
     }
+};
+
+export interface GetAllGroupMembersInput {
+    id: number
+    getNames?: boolean
+}
+export interface GetAllGroupMembersOutput {
+    accountId: number
+    accountName?: string
+    groupId: number
+    id: number
+    writeAccess: boolean
+}
+export interface GetAllGroupMembersDbOut {
+    accountId: number
+    accountName?: string
+    groupId: number
+    id: number
+    writeAccess: 1|0
+}
+
+export const getAllGroupMembers = async (
+    databasePath: string, accountId: number|undefined, input: GetAllGroupMembersInput
+): Promise<GetAllGroupMembersOutput[]> => {
+    await group.checkIfGroupExists(databasePath, input.id);
+
+    const columns: (database.queries.SelectColumn|string)[] = [
+        groupAccessColumnId,
+        { alias: "accountId", columnName: groupAccessColumnAccountId, tableName: groupAccessTableName },
+        { alias: "groupId", columnName: groupAccessColumnGroupId, tableName: groupAccessTableName },
+        { alias: "writeAccess", columnName: groupAccessColumnWriteAccess, tableName: groupAccessTableName }
+    ];
+    if (input.getNames) {
+        columns.push({
+            alias: "accountName",
+            columnName: account.accountColumnName,
+            tableName: account.accountTableName
+        });
+    }
+
+    const innerJoins: database.queries.SelectQueryInnerJoin[] = [];
+    if (input.getNames) {
+        innerJoins.push({
+            otherColumn: account.accountColumnId,
+            otherTableName: account.accountTableName,
+            thisColumn: groupAccessColumnAccountId
+        });
+    }
+
+    const groupMembers = await database.requests.getAll<GetAllGroupMembersDbOut>(
+        databasePath,
+        database.queries.select(groupAccessTableName,
+            columns,
+            { innerJoins, whereColumn: groupAccessColumnId }
+        ),
+        [input.id]
+    );
+    const finalMembers: GetAllGroupMembersOutput[] = [];
+    for (const groupMember of groupMembers) {
+        // TODO Check each member for access
+        finalMembers.push({
+            accountId: groupMember.accountId,
+            accountName: groupMember.accountName,
+            groupId: groupMember.groupId,
+            id: groupMember.id,
+            writeAccess: groupMember.writeAccess === 1
+        });
+    }
+    return finalMembers;
 };
 
 

@@ -1,14 +1,16 @@
 import * as types from "./apiTypes";
 
 export interface CreateRequest {
+    owner: number
     name: string
 }
 
 export interface CreateRequestApi extends CreateRequest, types.ApiRequest {}
 
-export interface CreateRequest {
+export interface CreateResponse {
     id: number
     name: string
+    owner: number
 }
 
 export interface UpdateRequest {

@@ -8,50 +8,72 @@
 
 		<br>
 
-		<section class="section-home" id="section-home-actions">
-			{{#if loggedIn}}
-			<h2>Actions:</h2>
-			{{/if}}
-			<ul class="actions-vertical">
-				{{#if loggedIn}}
-				<li><a class="button" href="/logout">Log out</a></li>
-				<li><a class="button" id="document-button-add">Create document</a></li>
-				<li><a class="button" id="account-button-remove">Delete account</a></li>
-				{{else}}
-				<li><a class="button" href="/login">Create account or log in</a></li>
-				{{/if}}
-			</ul>
-
-			{{#if loggedIn}}
-			<input class="button"id="document-input-import-json" type="file" accept="json">
-			<ul class="actions">
-				<li><a class="button" id="document-button-import-json">Import document (JSON)</a></li>
-			</ul>
-			{{/if}}
+		<section class="section-home" id="section-home-messages">
+			{{> messages}}
 		</section>
 
 		{{#if loggedIn}}
 
 		<section class="section-home" id="section-home-documents">
 			<h2>Documents:</h2>
+
+			<ul class="actions-vertical">
+				<li><a class="button" id="button-document-new">Create new document</a></li>
+				<li>
+					<a class="button" id="button-document-import-json">Import document (JSON)</a>
+					<input class="invisible" id="input-document-import-json" type="file" accept="json">
+				</li>
+			</ul>
+
 			<ul class="element-list">
 				{{#each documents}}
-				<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+				<li>
+					<a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a>
+					<a class="button button-remove button-remove-document" documentId="{{this.id}}" documentName="{{this.title}}">Remove</a>
+				</li>
 				{{/each}}
 			</ul>
 		</section>
 
 		<section class="section-home" id="section-home-groups">
 			<h2>Groups:</h2>
+
+			<ul class="actions-vertical">
+				<li><a class="button" id="button-group-new">Create new group</a></li>
+			</ul>
+
 			<ul class="element-list">
 				{{#each groups}}
-				<li><a class="button" href="/group/{{this.id}}">{{this.name}}</a></li>
+				<li>
+					<a class="button" href="/group/{{this.id}}">{{this.name}}</a>
+					<a class="button button-remove button-remove-group" groupId="{{this.id}}" groupName="{{this.name}}">Remove</a>
+				</li>
+				{{/each}}
+			</ul>
+		</section>
+
+		<section class="section-home" id="section-home-friends">
+			<h2>Friends:</h2>
+
+			<input class="input-text" type="text" name="friendName" placeholder="New friend name...">
+
+			<ul class="actions-vertical">
+				<li><a class="button" id="button-group-new">Add new friend</a></li>
+			</ul>
+
+
+			<ul class="element-list">
+				{{#each friends}}
+				<li>
+					<a class="button" href="/account/{{this.friendAccountId}}">{{this.friendAccountName}}</a>
+					<a class="button button-remove button-remove-friend" friendId="{{this.friendAccountId}}" friendName="{{this.friendAccountName}}">Remove</a>
+				</li>
 				{{/each}}
 			</ul>
 		</section>
 
 		<section class="section-home" id="section-home-account">
-			<h2>Account:</h2>
+			<h2>Update:</h2>
 			{{!-- Account update form --}}
 			<form id="form-account" action="/api/account/update" method="post">
 				{{!-- Account name --}}
@@ -78,6 +100,16 @@
 		</section>
 
 		{{/if}}
+
+		<section class="section-home" id="section-home-actions">
+			<ul class="actions-vertical">
+				{{#if loggedIn}}
+				<li><a class="button" id="account-button-remove">Delete account</a></li>
+				{{else}}
+				<li><a class="button" href="/login">Create account or log in</a></li>
+				{{/if}}
+			</ul>
+		</section>
 
 	</div>
 </div>

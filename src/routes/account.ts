@@ -52,6 +52,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 const accountGroups = await api.database.group.getAllFromOwner(options.databasePath, accountId, {
                     id: pageAccountId
                 });
+                const accountFriends = await api.database.accountFriend.getAllFromAccount(
+                    options.databasePath, accountId, { getNames: true, id: pageAccountId }
+                );
                 if (accountInfo) {
                     const header = viewRendering.getHeaderDefaults(options, { sockets: true });
                     header.title = `${accountInfo.name}`;
@@ -60,7 +63,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     return res.render("account", {
-                        account: { ... accountInfo, documents: accountDocuments, groups: accountGroups },
+                        account: {
+                            ... accountInfo,
+                            documents: accountDocuments,
+                            friends: accountFriends,
+                            groups: accountGroups
+                        },
                         header,
                         navigationBar,
                         production: options.production

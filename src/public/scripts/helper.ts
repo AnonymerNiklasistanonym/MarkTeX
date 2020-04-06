@@ -15,3 +15,14 @@ export const stringToNumberSafe = (numberString: string|undefined): number|undef
         return possibleNumber;
     }
 };
+
+export const promiseTimeout = <T = any>(promise: Promise<T>, milliseconds = 300): Promise<T> => {
+    const timeout = new Promise<T>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            clearTimeout(timeoutId);
+            reject(Error(`Timeout finished before promise was ready (${milliseconds}ms)`));
+        }, milliseconds);
+    });
+    // Returns a race between our timeout and the passed in promise
+    return Promise.race([ promise, timeout ]);
+};

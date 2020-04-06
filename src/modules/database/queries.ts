@@ -28,6 +28,11 @@ export const insert = (tableName: string, columnNames: string[]): string => {
         `VALUES(${columnNames.map(() => "?").join(",")});`;
 };
 
+export interface ExistsDbOut {
+    // eslint-disable-next-line camelcase
+    exists_value: number
+}
+
 /**
  * Create `EXISTS` query
  * ```sql
@@ -99,6 +104,12 @@ export interface SelectQueryOptions {
     orderBy?: SelectQueryOrderBy[]
 }
 
+export interface SelectColumn {
+    alias?: string
+    columnName: string
+    tableName?: string
+}
+
 /**
  * Create `SELECT` query
  * ```sql
@@ -115,32 +126,46 @@ export interface SelectQueryOptions {
  * @returns Query
  */
 // eslint-disable-next-line complexity
-export const select = (tableName: string, columns: string[], options?: SelectQueryOptions): string => {
+export const select = (tableName: string, columns: (string|SelectColumn)[], options?: SelectQueryOptions): string => {
     let innerJoinsStr = "";
     let whereStr = "";
     let orderStr = "";
     let uniqueStr = "";
-    if (options !== undefined) {
-        if (options.unique !== undefined && options.unique) {
+    if (options) {
+        if (options.unique) {
             uniqueStr = "DISTINCT ";
         }
-        if (options.innerJoins !== undefined) {
+        if (options.innerJoins) {
             innerJoinsStr = options.innerJoins
-                .map(a => `INNER JOIN ${a.otherTableName} ON ${a.otherColumn}=${a.thisColumn}`).join(" ");
+                .map(a => `INNER JOIN ${a.otherTableName} ON ${a.otherTableName}.${a.otherColumn}=${a.thisColumn}`).join(" ");
             if (innerJoinsStr.length > 0) {
                 innerJoinsStr = ` ${innerJoinsStr}`;
             }
         }
-        if (options.whereColumn !== undefined) {
+        if (options.whereColumn) {
             whereStr = ` WHERE ${options.whereColumn}=?`;
         }
-        if (options.orderBy !== undefined) {
+        if (options.orderBy) {
             orderStr = " ORDER BY " +
                 options.orderBy.map(order => order.column + " " +
                     (order.ascending ? "ASC" : "DESC")).join(",");
         }
     }
-    return `SELECT ${uniqueStr}${columns.join(",")} ` +
+    const columnStrings = columns.reduce((previousVal: string[], currentValue) => {
+        if (typeof currentValue === "string") {
+            return previousVal.concat(currentValue);
+        }
+        let columnEntry = "";
+        if (currentValue.tableName) {
+            columnEntry += `${currentValue.tableName}.`;
+        }
+        columnEntry += currentValue.columnName;
+        if (currentValue.alias) {
+            columnEntry += ` AS ${currentValue.alias}`;
+        }
+        return previousVal.concat(columnEntry);
+    }, []);
+    return `SELECT ${uniqueStr}${columnStrings.join(",")} ` +
         `FROM ${tableName}${innerJoinsStr}${whereStr}${orderStr};`;
 };
 

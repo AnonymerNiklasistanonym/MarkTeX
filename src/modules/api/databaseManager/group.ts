@@ -47,13 +47,9 @@ export const create = async (databasePath: string, accountId: number, input: Cre
 export interface ExistsInput {
     id: number
 }
-export interface ExistsDbOut {
-    // eslint-disable-next-line camelcase
-    exists_value: number
-}
 
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach<ExistsDbOut>(
+    const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
         database.queries.exists(groupTableName, groupColumnId),
         [input.id]

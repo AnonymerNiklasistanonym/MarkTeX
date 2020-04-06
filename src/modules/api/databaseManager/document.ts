@@ -83,10 +83,6 @@ export const create = async (databasePath: string, accountId: number, input: Cre
 export interface ExistsInput {
     id: number
 }
-export interface ExistsDbOut {
-    // eslint-disable-next-line camelcase
-    exists_value: number
-}
 
 /**
  * Does a document exist.
@@ -96,7 +92,7 @@ export interface ExistsDbOut {
  * @returns True if exists otherwise False.
  */
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
-    const runResult = await database.requests.getEach<ExistsDbOut>(
+    const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
         database.queries.exists(documentTableName, documentColumnId),
         [input.id]
@@ -134,20 +130,18 @@ export interface GetOutput {
     date?: string
     owner: number
     group?: number
-    content: string
+    content?: string
     pdfOptions?: pdfOptions.PdfOptions
 }
 export interface GetDbOut {
     title: string
-    authors: string
-    public: number
-    date: string
+    authors: string|null
+    public: 1|0
+    date: string|null
     owner: number
-    // eslint-disable-next-line camelcase
-    document_group: number
-    content: string
-    // eslint-disable-next-line camelcase
-    pdf_options: string
+    documentGroup: number|null
+    content?: string
+    pdfOptions?: string|null
 }
 
 /**
@@ -164,13 +158,14 @@ export const get = async (
     await checkIfDocumentExists(databasePath, input.id);
 
     const columns = [
-        documentColumnTitle, documentColumnAuthors, documentColumnDate, documentColumnOwner, documentColumnPublic
+        documentColumnTitle, documentColumnAuthors, documentColumnDate, documentColumnOwner, documentColumnPublic,
+        { alias: "documentGroup", columnName: documentColumnGroup }
     ];
     if (input.getContent) {
         columns.push(documentColumnContent);
     }
     if (input.getPdfOptions) {
-        columns.push(documentColumnPdfOptions);
+        columns.push({ alias: "pdfOptions", columnName: documentColumnPdfOptions });
     }
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
@@ -195,14 +190,14 @@ export const get = async (
         );
 
         let pdfOptionsObj;
-        if (runResult.pdf_options && runResult.pdf_options !== null) {
-            pdfOptionsObj = JSON.parse(runResult.pdf_options);
+        if (runResult.pdfOptions && runResult.pdfOptions !== null) {
+            pdfOptionsObj = JSON.parse(runResult.pdfOptions);
         }
         return {
             authors: runResult.authors !== null ? runResult.authors : undefined,
             content: runResult.content,
             date: runResult.date !== null ? runResult.date : undefined,
-            group: runResult.document_group !== null ? runResult.document_group : undefined,
+            group: runResult.documentGroup !== null ? runResult.documentGroup : undefined,
             id: input.id,
             owner: runResult.owner,
             pdfOptions: pdfOptionsObj,

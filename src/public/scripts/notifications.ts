@@ -2,7 +2,7 @@ export interface NotificationMessage {
     /** Notification title */
     title: string
     /** Notification text body */
-    body: string
+    body?: string
     /**
      * Notification image.
      *
@@ -17,7 +17,6 @@ export interface NotificationMessage {
     onClickUrl?: string
 }
 
-// eslint-disable-next-line complexity
 export const show = async (input: NotificationMessage): Promise<void> => {
     // Check if API is supported or not
     if (Notification.permission === "denied") {
@@ -50,4 +49,12 @@ export const show = async (input: NotificationMessage): Promise<void> => {
             if (documentWindow) { documentWindow.focus(); }
         });
     }
+};
+
+export const showError = async (actionThatFailed: string, error: Error): Promise<void> => {
+    if (DEBUG_APP) { console.error(error); }
+    await show({
+        body: error.message,
+        title: `Error: ${actionThatFailed}`
+    });
 };

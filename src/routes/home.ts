@@ -28,12 +28,16 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const accountDocuments = await api.database.document.getAllFromOwner(
             options.databasePath, sessionInfo.accountId, { id: sessionInfo.accountId }
         );
+        const accountFriends = await api.database.accountFriend.getAllFromAccount(
+            options.databasePath, sessionInfo.accountId, { getNames: true, id: sessionInfo.accountId }
+        );
         if (!accountInfo || !accountDocuments) {
             return next(createHttpError(500, "Account info or account documents were undefined"));
         }
         res.render("home", {
             account: accountInfo,
             documents: accountDocuments,
+            friends: accountFriends,
             header,
             input: {
                 accountId: sessionInfo.accountId,

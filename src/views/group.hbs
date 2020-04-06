@@ -4,24 +4,21 @@
 <div class="container-group">
 	<div class="container-group-content">
 
-		<h1>Group:</h1>
+		<h1>{{group.name}} from <a href="/account/{{group.owner.id}}">{{group.owner.name}}</a></h1>
 
 		<br>
 
-		<section class="section-group" id="section-group-info">
-			<h2>Group info:</h2>
+		<section class="section-group" id="section-group-members">
+			<h2>Members:</h2>
 			<ul>
-			{{!-- Replace later with tex fields that make the meta data editable --}}
-				<li>id: "{{group.id}}"</li>
-				<li>name: "{{group.name}}"</li>
-				<li>owner: <a href="/account/{{group.owner.id}}">{{group.owner.name}}</a></li>
+				{{#each group.members}}
+				<li><a class="button" href="/account/{{this.id}}">{{this.name}} ({{#if group.writeAccess}}[write]{{/if}}</a></li>
+				{{/each}}
 			</ul>
 		</section>
 
-		<br>
-
 		<section class="section-group" id="section-group-documents">
-			<h2>Group documents:</h2>
+			<h2>Documents:</h2>
 			<ul>
 				{{#each group.documents}}
 				<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>

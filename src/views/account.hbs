@@ -3,31 +3,37 @@
 <div class="container-account">
 	<div class="container-account-content">
 
-		<h1>Account:</h1>
-
-		<section class="section-account" id="section-account-info">
-			<h2>Account info:</h2>
-			<ul>
-				<li>id: "{{account.id}}"</li>
-				<li>name: "{{account.name}}"</li>
-				<li>admin: "{{account.isAdmin}}"</li>
-			</ul>
-		</section>
+		<h1>{{account.name}}</h1>
 
 		<section class="section-account" id="section-account-documents">
-			<h2>Account documents:</h2>
+			<h2>Documents:</h2>
 			<ul class="actions">
 				{{#each account.documents}}
-				<li><a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a></li>
+				<li>
+					<a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a>
+				</li>
 				{{/each}}
 			</ul>
 		</section>
 
 		<section class="section-account" id="section-account-groups">
-			<h2>Account groups:</h2>
+			<h2>Groups:</h2>
 			<ul class="actions">
 				{{#each account.groups}}
-				<li><a class="button" href="/group/{{this.id}}">{{this.name}}</a></li>
+				<li>
+					<a class="button" href="/group/{{this.id}}">{{this.name}}</a>
+				</li>
+				{{/each}}
+			</ul>
+		</section>
+
+		<section class="section-account" id="section-account-friends">
+			<h2>Friends:</h2>
+			<ul class="actions">
+				{{#each account.friends}}
+				<li>
+					<a class="button" href="/account/{{this.friendAccountId}}">{{this.friendAccountName}}</a>
+				</li>
 				{{/each}}
 			</ul>
 		</section>

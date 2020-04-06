@@ -37,16 +37,19 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 id: groupId
             });
             if (groupInfo) {
-                const accountInfo = await api.database.account.get(options.databasePath, accountId, {
-                    id: groupInfo.owner
-                });
+                const accountInfo = await api.database.account.get(
+                    options.databasePath, accountId, { id: groupInfo.owner }
+                );
+                const groupMembers = await api.database.groupAccess.getAllGroupMembers(
+                    options.databasePath, accountId, { id: groupId }
+                );
                 const header = viewRendering.getHeaderDefaults(options, { sockets: true });
                 const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                 header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });
                 header.scripts.push({ path: "/stylesheets/group.css" });
                 header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
                 res.render("group", {
-                    group: { ... groupInfo, documents: groupDocuments, owner: accountInfo },
+                    group: { ... groupInfo, documents: groupDocuments, members: groupMembers, owner: accountInfo },
                     header,
                     navigationBar,
                     production: options.production
