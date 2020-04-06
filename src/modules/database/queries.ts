@@ -137,7 +137,8 @@ export const select = (tableName: string, columns: (string|SelectColumn)[], opti
         }
         if (options.innerJoins) {
             innerJoinsStr = options.innerJoins
-                .map(a => `INNER JOIN ${a.otherTableName} ON ${a.otherTableName}.${a.otherColumn}=${a.thisColumn}`).join(" ");
+                .map(a => `INNER JOIN ${a.otherTableName} ON ${a.otherTableName}.${a.otherColumn}=${a.thisColumn}`)
+                .join(" ");
             if (innerJoinsStr.length > 0) {
                 innerJoinsStr = ` ${innerJoinsStr}`;
             }
