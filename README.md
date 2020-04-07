@@ -12,15 +12,14 @@ Webapp for Markdown notes and summaries with LaTeX math and `tikzpicture`s that 
 ## Current development state
 
 Basic backend and frontend is ready (debug logs, routing, database integration, markdown rendering, pdf/source export).
+Some tests were added for backend and server routes.
 
 The current (next) features that are being developed are:
 
+- [ ] Check if permission system (friends, public, access entries) is working
 - [ ] Add option to integrate additional document resources (like pdf, svg, png images)
 - [ ] Optimize client side markdown rendering and pandoc options to have output that looks the same (pandoc image size for markdown images)
-- [ ] Implement socket connection with authorization through express session
-- [ ] Actually use the account information to allow/block certain users from seeing "private" documents
-- [ ] Fix SQLite errors when for example the group page is called with a group that has no documents or the document page from a removed document (they currently just load forever)
-- [ ] Update styles to actually look good (like the error page)
+- [ ] Implement socket collaboration test editor (the base is there but a good logic/merge algorithm is missing right now)
 - [ ] Add custom LaTeX templates to give the user even more options like footer/header and custom styles when converting to PDF
 
 ## Requirements
@@ -29,14 +28,15 @@ The current (next) features that are being developed are:
 
 | Program | Version required | Version tested |
 | ------- | ---------------- | -------------- |
-| `nodejs` | 13.9+ | 13.11.0 |
+| `nodejs` | 13.9+ | 13.12.0 |
 | `pandoc` | 2.9+ | 2.9.2 |
 | `xetex`  | | 0.999991 |
 | `inkscape` | 1.0+ (**1.0 did not hit stable yet!!!**) | 1.1.dev |
 
 ### Tested on
 
-- Linux [5.5.11-1-MANJARO] (x64)
+- Linux [5.5.13-1-MANJARO] (x64)
+- Linux [raspberrypi 4.19.66-v7+] (armv7l) *very slow*
 - Windows [10.0.18363] (x64)
 
 ## Quickstart
