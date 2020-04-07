@@ -7,6 +7,17 @@ export interface AddRequest {
 export interface AddRequestApi extends AddRequest, types.ApiRequest {}
 export interface AddResponse {
     id: number
+    // TODO friendId: number
+    // TODO friendName: string
+}
+
+export interface AddNameRequest {
+    accountId: number
+    friendName: string
+}
+export interface AddNameRequestApi extends AddNameRequest, types.ApiRequest {}
+export interface AddNameResponse {
+    id: number
 }
 
 export interface GetRequest {

@@ -44,6 +44,34 @@ export const register = (app: express.Application, options: StartExpressServerOp
             }
         });
 
+    app.post("/api/account_friend/addName",
+        // Validate api input
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            accountId: { isInt: true },
+            apiVersion: schemaValidations.getApiVersionSupported({ couldBeString: true }),
+            friendName: { isString: true }
+        }), { sendJsonError: true }),
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to create user
+        async (req, res) => {
+            debug(`Add: ${JSON.stringify(req.body)}`);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const request = req.body as types.AddNameRequestApi;
+            try {
+                const accountFriendEntryId = await api.database.accountFriend.createName(
+                    options.databasePath, sessionInfo.accountId, request
+                );
+                const response: types.AddNameResponse = {
+                    id: accountFriendEntryId
+                };
+                res.status(200).json(response);
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error });
+            }
+        });
+
     app.post("/api/account_friend/get",
         // Validate api input
         async (req, res, next) => {

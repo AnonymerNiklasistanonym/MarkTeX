@@ -55,18 +55,17 @@
 		<section class="section-home" id="section-home-friends">
 			<h2>Friends:</h2>
 
-			<input class="input-text" type="text" name="friendName" placeholder="New friend name...">
+			<input class="input-text" type="text" name="friendName" id="input-friend-add" placeholder="New friend name...">
 
 			<ul class="actions-vertical">
-				<li><a class="button" id="button-group-new">Add new friend</a></li>
+				<li><a class="button" id="button-friend-add">Add new friend</a></li>
 			</ul>
-
 
 			<ul class="element-list">
 				{{#each friends}}
 				<li>
 					<a class="button" href="/account/{{this.friendAccountId}}">{{this.friendAccountName}}</a>
-					<a class="button button-remove button-remove-friend" friendId="{{this.friendAccountId}}" friendName="{{this.friendAccountName}}">Remove</a>
+					<a class="button button-remove button-remove-friend" friendId="{{this.id}}" friendName="{{this.friendAccountName}}">Remove</a>
 				</li>
 				{{/each}}
 			</ul>
@@ -74,28 +73,39 @@
 
 		<section class="section-home" id="section-home-account">
 			<h2>Update:</h2>
+
+			<ul class="actions-vertical">
+				<li><a class="button" id="button-account-update">Update account</a></li>
+			</ul>
+
 			{{!-- Account update form --}}
 			<form id="form-account" action="/api/account/update" method="post">
 				{{!-- Account name --}}
-				<input class="input-text" type="text" name="name" placeholder="Account name..."
+				<input id="input-account-update-name" class="input-text" type="text" name="name" placeholder="Account name..."
 					pattern="{{input.accountName.pattern}}"
 					maxlength="{{input.accountName.maxLength}}"
 					title="{{input.accountName.errorMessage}}"
 					autocomplete="autocomplete-login"
 					value="{{input.accountName.value}}"
-				required>
-				{{!-- Password --}}
-				<input class="input-text" type="password" name="password" placeholder="Account password..."
+				>
+				{{!-- Current Password --}}
+				<input id="input-account-update-password" class="input-text" type="password" name="password" placeholder="Current account password..."
 					pattern="{{input.accountPassword.pattern}}"
 					minLength="{{input.accountPassword.minLength}}"
 					title="{{input.accountPassword.errorMessage}}"
 					autocomplete="current-password"
 				required>
-				{{!-- Hidden value of api version --}}
-				<input type="number" name="apiVersion" value="1" hidden>
-				<input id="form-account-id" type="number" name="id" value="{{input.accountId}}" hidden>
-				{{!-- Invisible submit input to allow submission on enter in any of the previous text input fields --}}
-				<input type="submit" value="Update account">
+				{{!-- New Password --}}
+				<input id="input-account-update-new-password" class="input-text" type="password" name="newPassword" placeholder="New password..."
+					pattern="{{input.accountPassword.pattern}}"
+					minLength="{{input.accountPassword.minLength}}"
+					title="{{input.accountPassword.errorMessage}}"
+					autocomplete="new-password"
+				>
+
+				<input id="input-account-update-public" type="checkbox" id="scales" name="public" {{#if account.public}}checked{{/if}}>
+				<label for="public">Public</label>
+
 			</form>
 		</section>
 
@@ -104,7 +114,7 @@
 		<section class="section-home" id="section-home-actions">
 			<ul class="actions-vertical">
 				{{#if loggedIn}}
-				<li><a class="button" id="account-button-remove">Delete account</a></li>
+				<li><a class="button" id="button-account-remove">Delete account</a></li>
 				{{else}}
 				<li><a class="button" href="/login">Create account or log in</a></li>
 				{{/if}}

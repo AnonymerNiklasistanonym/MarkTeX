@@ -445,13 +445,66 @@ export const get = async (
     if (runResult) {
         const isPublic = runResult.public === 1;
 
-        await checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, input.id,
-            () => isPublic);
+        // Currently not necessary
+        // await checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, input.id,
+        //     () => isPublic);
 
         return {
             admin: runResult.admin === 1,
             id: input.id,
             name: runResult.name,
+            public: isPublic
+        };
+    }
+};
+
+export interface GetNameInput {
+    name: string
+}
+export interface GetNameOutput {
+    admin: boolean
+    id: number
+    name: string
+    public: boolean
+}
+export interface GetNameDbOut {
+    admin: 1|0
+    id: number
+    public: 1|0
+}
+
+
+/**
+ * Get account.
+ *
+ * @param databasePath Path to database
+ * @param accountId ID of account that wants to do this action
+ * @param input Account get info
+ * @throws When not able to get account or database fails
+ */
+export const getName = async (
+    databasePath: string, accountId: number|undefined, input: GetNameInput
+): Promise<void|GetNameOutput> => {
+    await checkIfAccountExistsName(databasePath, input.name);
+
+    const runResult = await database.requests.getEach<GetNameDbOut>(
+        databasePath,
+        database.queries.select(accountTableName, [ accountColumnId, accountColumnAdmin, accountColumnPublic ], {
+            whereColumn: accountColumnName
+        }),
+        [input.name]
+    );
+    if (runResult) {
+        const isPublic = runResult.public === 1;
+
+        // Currently not necessary
+        // await checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, runResult.id,
+        //     () => isPublic);
+
+        return {
+            admin: runResult.admin === 1,
+            id: runResult.id,
+            name: input.name,
             public: isPublic
         };
     }

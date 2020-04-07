@@ -133,6 +133,37 @@ export const create = async (databasePath: string, accountId: number, input: Cre
     return postResult.lastID;
 };
 
+export interface CreateNameInput {
+    accountId: number
+    friendName: string
+}
+
+export const createName = async (databasePath: string, accountId: number, input: CreateNameInput): Promise<number> => {
+    await account.checkIfAccountExists(databasePath, input.accountId);
+    await account.checkIfAccountExistsName(databasePath, input.friendName);
+    await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.accountId);
+
+    const friendAccountInfo = await account.getName(databasePath, accountId, {
+        name: input.friendName
+    });
+    if (friendAccountInfo) {
+        await checkIfAccountFriendAlreadyExistsAccountAndAccountFriend(
+            databasePath, input.accountId, friendAccountInfo.id
+        );
+    } else {
+        throw Error(GeneralError.NO_ACCESS);
+    }
+
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.insert(accountFriendTableName,
+            [ accountFriendColumnAccountId, accountFriendColumnFriendAccountId ]
+        ),
+        [ input.accountId, friendAccountInfo.id ]
+    );
+    return postResult.lastID;
+};
+
 
 // Get
 // -----------------------------------------------------------------------------

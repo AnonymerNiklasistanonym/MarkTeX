@@ -190,6 +190,35 @@ export const setupTables = async (databasePath: string): Promise<void> => {
             options: { notNull: true },
             type: database.queries.CreateTableColumnType.INTEGER
         }   ], true));
+    // Document resource table
+    await database.requests.post(
+        databasePath,
+        database.queries.createTable("document_resource", [ {
+            name: "id",
+            options: { notNull: true, primaryKey: true, unique: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            foreign: {
+                column: "id",
+                options: ["ON DELETE CASCADE ON UPDATE NO ACTION"],
+                tableName: "document"
+            },
+            name: "document_id",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            name: "data",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.BLOB
+        }, {
+            name: "binary",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.INTEGER
+        }, {
+            name: "name",
+            options: { notNull: true },
+            type: database.queries.CreateTableColumnType.TEXT
+        } ], true));
 };
 
 /**
