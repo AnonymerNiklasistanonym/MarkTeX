@@ -9,12 +9,12 @@ export interface LoginResponse {
     id: number
 }
 
-export interface RegisterRequest {
+export interface CreateRequest {
     name: string
     password: string
 }
-export interface RegisterRequestApi extends RegisterRequest, types.ApiRequest {}
-export interface RegisterResponse {
+export interface CreateRequestApi extends CreateRequest, types.ApiRequest {}
+export interface CreateResponse {
     id: number
 }
 
@@ -39,10 +39,15 @@ export interface RemoveResponse {
 
 export interface UpdateRequest {
     id: number
+    name?: string
+    password?: string
+    currentPassword: string
+    public?: boolean
 }
 export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
 export interface UpdateResponse {
     id: number
     name: string
     admin: boolean
+    public: boolean
 }

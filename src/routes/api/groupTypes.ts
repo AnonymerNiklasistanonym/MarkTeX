@@ -3,6 +3,7 @@ import * as types from "./apiTypes";
 export interface CreateRequest {
     owner: number
     name: string
+    public?: boolean
 }
 
 export interface CreateRequestApi extends CreateRequest, types.ApiRequest {}
@@ -11,6 +12,7 @@ export interface CreateResponse {
     id: number
     name: string
     owner: number
+    public: boolean
 }
 
 export interface GetRequest {
@@ -28,7 +30,8 @@ export interface GetResponse {
 
 export interface UpdateRequest {
     id: number
-    name: string
+    name?: string
+    public?: boolean
 }
 
 export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}

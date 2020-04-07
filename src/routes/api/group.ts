@@ -21,7 +21,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             apiVersion: schemaValidations.getApiVersionSupported(),
             name: { isString: true },
-            owner: { isInt: true }
+            owner: { isInt: true },
+            public: { isBoolean: true, optional: true }
         }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -37,7 +38,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 const response: types.CreateResponse = {
                     id: groupId,
                     name: request.name,
-                    owner: request.owner
+                    owner: request.owner,
+                    public: request.public !== undefined ? request.public : false
                 };
                 return res.status(200).json(response);
             } catch (error) { return res.status(500).json({ error }); }

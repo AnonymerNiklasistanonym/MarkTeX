@@ -366,6 +366,43 @@ export const checkLogin = async (databasePath: string, input: CheckLoginInput): 
     }
 };
 
+export interface CheckLoginIdInput {
+    id: number
+    password: string
+}
+export interface CheckLoginIdDbOut {
+    passwordHash: string
+    passwordSalt: string
+}
+
+export const checkLoginId = async (databasePath: string, input: CheckLoginIdInput): Promise<boolean> => {
+    try {
+        await checkIfAccountExists(databasePath, input.id);
+
+        const runResult = await database.requests.getEach<CheckLoginIdDbOut>(
+            databasePath,
+            database.queries.select(accountTableName,
+                [
+                    { alias: "passwordHash", columnName: accountColumnPasswordHash },
+                    { alias: "passwordSalt", columnName: accountColumnPasswordSalt }
+                ],
+                { whereColumn: accountColumnId }
+            ),
+            [input.id]
+        );
+        if (runResult) {
+            const passwordCorrect = crypto.checkPassword(input.password, {
+                hash: runResult.passwordHash,
+                salt: runResult.passwordSalt
+            });
+            return passwordCorrect;
+        }
+    } catch (error) {
+        return false;
+    }
+    return false;
+};
+
 
 // Get
 // -----------------------------------------------------------------------------

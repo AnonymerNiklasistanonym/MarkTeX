@@ -16,7 +16,7 @@ const debug = debuglog("app-express-route-api-account");
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
 
-    app.post("/api/account/register",
+    app.post("/api/account/create",
         // Validate api input
         expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             apiVersion: schemaValidations.getApiVersionSupported({ couldBeString: true }),
@@ -25,15 +25,15 @@ export const register = (app: express.Application, options: StartExpressServerOp
         }), { sendJsonError: true }),
         // Redirect to home page if already authenticated
         expressMiddlewareSession.redirectIfAuthenticated(),
-        // Try to register user
+        // Try to create user
         async (req, res) => {
-            debug(`Register: ${JSON.stringify(req.body)}`);
-            const request = req.body as types.RegisterRequestApi;
+            debug(`Create: ${JSON.stringify(req.body)}`);
+            const request = req.body as types.CreateRequestApi;
             try {
                 const accountId = await api.database.account.create(options.databasePath, request);
                 // If register was successful authenticate user and redirect to home page
                 expressMiddlewareSession.authenticate(req, accountId);
-                const response: types.RegisterResponse = {
+                const response: types.CreateResponse = {
                     id: accountId
                 };
                 res.status(200).json(response);
@@ -158,12 +158,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
             await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
                 apiVersion: schemaValidations.getApiVersionSupported({ couldBeString: true }),
+                currentPassword: { isString: true },
                 id: schemaValidations.getAccountIdExists({
                     accountId: sessionInfo.accountId,
                     databasePath: options.databasePath
                 }),
                 name: { isString: true, optional: true },
-                password: { isString: true, optional: true }
+                password: { isString: true, optional: true },
+                public: { isBoolean: true, optional: true }
             }), { sendJsonError: true })(req, res, next);
         },
         // Check if session is authenticated
@@ -174,6 +176,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.UpdateRequestApi;
             try {
+                const currentPasswordMatchesLoggedInAccount = await api.database.account.checkLoginId(
+                    options.databasePath, { id: sessionInfo.accountId, password: request.currentPassword }
+                );
+                if (!currentPasswordMatchesLoggedInAccount) {
+                    throw Error("Account update was not successful because the current password was incorrect");
+                }
                 const successful = await api.database.account.update(options.databasePath, sessionInfo.accountId,
                     request
                 );
@@ -184,7 +192,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     const response: types.UpdateResponse = {
                         admin: accountInfo.admin,
                         id: request.id,
-                        name: accountInfo.name
+                        name: accountInfo.name,
+                        public: accountInfo.public
                     };
                     return res.status(200).json(response);
                 }
