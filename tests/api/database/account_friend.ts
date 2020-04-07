@@ -77,9 +77,9 @@ export default (databasePath: string): Mocha.Suite => {
             chai.expect(friendsAccountId1[0].friendAccountName).to.equal(undefined);
             chai.expect(friendsAccountId1[1].friendAccountName).to.equal(undefined);
 
-            const friendsAccountId1Names = await api.database.accountFriend.getAllFromAccount(databasePath, accountId1, {
-                getNames: true, id: accountId1
-            });
+            const friendsAccountId1Names = await api.database.accountFriend.getAllFromAccount(
+                databasePath, accountId1, { getNames: true, id: accountId1 }
+            );
             chai.expect(friendsAccountId1Names.length).to.equal(2);
             chai.expect(friendsAccountId1Names[0].friendAccountId).to.be.a("number");
             chai.expect(friendsAccountId1Names[1].friendAccountId).to.be.a("number");

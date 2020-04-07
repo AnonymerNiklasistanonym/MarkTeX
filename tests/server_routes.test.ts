@@ -20,7 +20,7 @@ const sessionMiddleware = expressSession({
 });
 
 // Turn production to false to get more log output (like for example access errors and their stack)
-const APP = expressApp.getExpressServer({ databasePath, production: false }, { sessionMiddleware });
+const APP = expressApp.getExpressServer({ databasePath, production: true }, { sessionMiddleware });
 
 chai.use(chaiHttp);
 chai.should();

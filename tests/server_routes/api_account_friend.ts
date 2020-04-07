@@ -60,7 +60,6 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                 id: testAccountFriendEntryId
             };
             await chaiAgent.post("/api/account_friend/get").send(getRequest).then(res => {
-                console.warn(res.text);
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
                 const getResponse: apiRequests.accountFriend.types.GetResponse = res.body;
