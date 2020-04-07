@@ -20,6 +20,8 @@ describe("database api", () => {
             chai.expect(db).to.not.equal(undefined, "Database not undefined");
             const exists = await database.exists(databaseName);
             chai.expect(exists).to.equal(true, "Database exists");
+            const db2 = await database.create(databaseName);
+            chai.expect(db2).to.not.equal(undefined, "Database not undefined");
         });
         it("open", async () => {
             await database.remove(databaseName);

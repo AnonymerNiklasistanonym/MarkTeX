@@ -23,6 +23,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             authors: { isString: true, optional: true },
             content: { isString: true },
             date: { isString: true, optional: true },
+            owner: { isInt: true },
             pdfOptions: schemaValidations.getDocumentPdfOptions(),
             title: { isString: true }
         }), { sendJsonError: true }),
@@ -41,6 +42,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     authors: request.authors,
                     date: request.date,
                     id: documentId,
+                    owner: request.owner,
+                    public: request.public !== undefined ? request.public : false,
                     title: request.title
                 };
                 return res.status(200).json(response);
@@ -78,7 +81,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         content: documentInfo.content,
                         date: documentInfo.date,
                         id: request.id,
+                        owner: documentInfo.owner,
                         pdfOptions: documentInfo.pdfOptions,
+                        public: documentInfo.public,
                         title: documentInfo.title
                     };
                     return res.status(200).json(response);
@@ -123,6 +128,8 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         authors: documentInfo.authors,
                         date: documentInfo.date,
                         id: request.id,
+                        owner: documentInfo.owner,
+                        public: documentInfo.public,
                         title: documentInfo.title
                     };
                     return res.status(200).json(response);

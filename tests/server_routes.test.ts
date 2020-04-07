@@ -5,6 +5,7 @@ import expressSession from "express-session";
 import os from "os";
 import path from "path";
 import serverRoutesApiAccount from "./server_routes/api_account";
+import serverRoutesApiDocument from "./server_routes/api_document";
 import serverRoutesApiGroup from "./server_routes/api_group";
 import serverRoutesBrowser from "./server_routes/browser";
 
@@ -27,6 +28,7 @@ describe("server routes", () => {
 
     describe("api", () => {
         serverRoutesApiAccount(databasePath, APP);
+        serverRoutesApiDocument(databasePath, APP);
         serverRoutesApiGroup(databasePath, APP);
     });
 });

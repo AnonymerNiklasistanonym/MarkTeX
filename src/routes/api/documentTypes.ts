@@ -8,6 +8,7 @@ export interface CreateRequest {
     date?: string
     content: string
     pdfOptions?: PdfOptions
+    public?: boolean
 }
 
 export interface CreateRequestApi extends CreateRequest, types.ApiRequest {}
@@ -17,6 +18,8 @@ export interface CreateResponse {
     title: string
     authors?: string
     date?: string
+    owner: number
+    public: boolean
 }
 
 export interface UpdateRequest {
@@ -26,6 +29,7 @@ export interface UpdateRequest {
     date?: string
     content?: string
     pdfOptions?: PdfOptions
+    public?: boolean
 }
 
 export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
@@ -35,6 +39,8 @@ export interface UpdateResponse {
     title: string
     authors?: string
     date?: string
+    public: boolean
+    owner: number
 }
 
 export interface RemoveRequest {
@@ -105,4 +111,6 @@ export interface GetResponse {
     date?: string
     content?: string
     pdfOptions?: PdfOptions
+    owner: number
+    public: boolean
 }
