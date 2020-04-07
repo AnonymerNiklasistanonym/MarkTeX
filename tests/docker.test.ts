@@ -3,7 +3,7 @@ import chai from "chai";
 import { describe } from "mocha";
 
 
-describe("docker api", () => {
+describe("docker", () => {
     it("create Dockerfile", () => {
         const dockerfileString = docker.createDockerfile({
             cmd: ["pdf"],

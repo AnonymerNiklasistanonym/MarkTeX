@@ -115,8 +115,8 @@ export const isAdmin = async (databasePath: string, accountId: number|undefined)
 
 /**
  * @throws When account does not exist
- * @param databasePath
- * @param accountId
+ * @param databasePath Path to database
+ * @param accountId Account id to check
  */
 export const checkIfAccountExists = async (databasePath: string, accountId: number): Promise<void> => {
     if (!await exists(databasePath, { id: accountId })) {
@@ -126,8 +126,8 @@ export const checkIfAccountExists = async (databasePath: string, accountId: numb
 
 /**
  * @throws When account does not exist
- * @param databasePath
- * @param accountName
+ * @param databasePath Path to database
+ * @param accountName Account name to check
  */
 export const checkIfAccountExistsName = async (databasePath: string, accountName: string): Promise<void> => {
     if (!await existsName(databasePath, { name: accountName })) {
@@ -137,7 +137,7 @@ export const checkIfAccountExistsName = async (databasePath: string, accountName
 
 /**
  * @throws When no access is deducted
- * @param databasePath
+ * @param databasePath Path to database
  * @param requesterAccountId
  * @param accessAccountId
  * @param otherAccessOption
@@ -156,7 +156,7 @@ export const checkIfAccountHasAccessToAccount = async (
 
 /**
  * @throws When no access is deducted
- * @param databasePath
+ * @param databasePath Path to database
  * @param requesterAccountId
  * @param accessAccountId
  * @param otherAccessOption
@@ -173,7 +173,7 @@ export const checkIfAccountHasAccessToAccountOrOther = async (
 
 /**
  * @throws When no access is deducted
- * @param databasePath
+ * @param databasePath Path to database
  * @param requesterAccountId
  * @param accessAccountId
  * @param accessAccountIsPublic
@@ -197,7 +197,7 @@ export const checkIfAccountHasAccessToAccountOrIsFriend = async (
 
 /**
  * @throws When no access is deducted
- * @param databasePath
+ * @param databasePath Path to database
  * @param requesterAccountId
  * @param accessAccountId
  * @param accessIsPublic
@@ -212,7 +212,7 @@ export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic = async 
 
 /**
  * @throws When no access is deducted
- * @param databasePath
+ * @param databasePath Path to database
  * @param requesterAccountId
  * @param accessAccountId
  * @param accessIsPublic

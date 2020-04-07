@@ -3,7 +3,7 @@ import chai from "chai";
 import { describe } from "mocha";
 
 
-describe("inkscape api [shell]", () => {
+describe("inkscape [shell]", () => {
     it("version", async () => {
         const version = await inkscape.getVersion();
         chai.expect(version.fullText).to.be.a("string");

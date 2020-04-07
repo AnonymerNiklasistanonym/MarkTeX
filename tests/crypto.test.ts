@@ -3,7 +3,7 @@ import crypto from "../src/modules/crypto";
 import { describe } from "mocha";
 
 
-describe("crypto api", () => {
+describe("crypto", () => {
     it("generate salt", () => {
         const salt = crypto.generateSalt();
         chai.expect(salt).to.be.a("string");

@@ -43,6 +43,7 @@ export interface UpdateRequest {
     password?: string
     currentPassword: string
     public?: boolean
+    admin?: boolean
 }
 export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
 export interface UpdateResponse {

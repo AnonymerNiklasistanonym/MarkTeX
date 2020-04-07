@@ -7,7 +7,7 @@ import path from "path";
 
 const databaseName = path.join(os.tmpdir(), "test.db");
 
-describe("database api", () => {
+describe("database", () => {
     describe("management", () => {
         it("remove", async () => {
             await database.remove(databaseName);

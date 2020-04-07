@@ -3,7 +3,7 @@ import chai from "chai";
 import { describe } from "mocha";
 
 
-describe("pandoc api", () => {
+describe("pandoc", () => {
     it("create config file", () => {
         const pandocConfigYmlStringSimple = pandoc.createPandocConfigFile({
             from: "markdown",

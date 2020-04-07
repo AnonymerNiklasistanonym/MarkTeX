@@ -4,7 +4,7 @@ import { describe } from "mocha";
 import { promises as fs } from "fs";
 
 
-describe("latex api [shell]", () => {
+describe("latex [shell]", () => {
     it("version", async () => {
         const version = await latex.getVersion();
         chai.expect(version.fullText).to.be.a("string");

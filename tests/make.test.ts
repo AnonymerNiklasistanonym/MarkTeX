@@ -3,7 +3,7 @@ import chai from "chai";
 import { describe } from "mocha";
 
 
-describe("make api", () => {
+describe("make", () => {
     it("create Makefile", () => {
         const makeFileStringEmpty = make.createMakefile({
             definitions: [],

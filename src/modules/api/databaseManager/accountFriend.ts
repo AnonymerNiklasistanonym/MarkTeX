@@ -143,14 +143,14 @@ export interface GetInput {
 
 export interface GetOutput {
     id: number
-    account: number
-    friend: number
+    accountId: number
+    friendId: number
 }
 
 export interface GetDbOut {
     id: number
-    account: number
-    friend: number
+    accountId: number
+    friendId: number
 }
 
 /**
@@ -165,23 +165,31 @@ export const get = async (
     databasePath: string, accountId: number, input: GetInput
 ): Promise<void|GetOutput> => {
     await checkIfAccountFriendExists(databasePath, input.id);
-    await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, input.id,
-        async () => {
-            const accountInfo = await account.get(databasePath, accountId, { id: input.id });
-            if (accountInfo) { return accountInfo.public; }
-            return false;
-        });
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
         database.queries.select(accountFriendTableName,
-            [ accountFriendColumnId, accountFriendColumnAccountId, accountFriendColumnFriendAccountId ],
-            { whereColumn: accountFriendColumnAccountId }
+            [
+                accountFriendColumnId,
+                { alias: "accountId", columnName: accountFriendColumnAccountId },
+                { alias: "friendId", columnName: accountFriendColumnFriendAccountId }
+            ],
+            { whereColumn: accountFriendColumnId }
         ),
         [input.id]
     );
     if (runResult) {
-        return runResult;
+        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
+            databasePath, accountId, runResult.accountId, async () => {
+                const accountInfo = await account.get(databasePath, accountId, { id: runResult.accountId });
+                if (accountInfo) { return accountInfo.public; }
+                return false;
+            });
+        return {
+            accountId: runResult.accountId,
+            friendId: runResult.friendId,
+            id: runResult.id
+        };
     }
 };
 
@@ -280,7 +288,7 @@ export const remove = async (databasePath: string, accountId: number, input: Rem
     await checkIfAccountFriendExists(databasePath, input.id);
     const friendInfo = await get(databasePath, accountId, { id: input.id });
     if (friendInfo) {
-        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, friendInfo.account);
+        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, friendInfo.accountId);
     } else {
         throw Error("This should never happen");
     }

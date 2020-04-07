@@ -182,6 +182,17 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 if (!currentPasswordMatchesLoggedInAccount) {
                     throw Error("Account update was not successful because the current password was incorrect");
                 }
+                // When requested to change the admin status check if account is admin
+                if (request.admin !== undefined) {
+                    const accountInfoAdmin = await api.database.account.get(
+                        options.databasePath, sessionInfo.accountId, { id: request.id }
+                    );
+                    if (!(accountInfoAdmin && accountInfoAdmin.admin)) {
+                        throw Error(
+                            "Account update was not successful because to change admin state account must be admin"
+                        );
+                    }
+                }
                 const successful = await api.database.account.update(options.databasePath, sessionInfo.accountId,
                     request
                 );

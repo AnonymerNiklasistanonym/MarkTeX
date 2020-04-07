@@ -9,7 +9,7 @@ import path from "path";
 // Show stack trace on error
 chai.config.includeStack = true;
 
-describe("pandoc api [shell]", () => {
+describe("pandoc [shell]", () => {
     it("version", async () => {
         const version = await pandoc.getVersion();
         chai.expect(version.fullText).to.be.a("string");

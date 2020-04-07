@@ -48,6 +48,27 @@ export const getGroupIdExists = (
     };
 };
 
+export interface InputSchemaValidationExistingAccountFriendId {
+    databasePath: string
+    accountId: number
+}
+
+export const getAccountFriendIdExists = (
+    input: InputSchemaValidationExistingAccountFriendId
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (id: number): Promise<boolean> => {
+                const exists = await api.database.accountFriend.exists(input.databasePath, { id });
+                debug(`Account friend id exists: ${exists}`);
+                return exists;
+            }
+        },
+        errorMessage: "Must be an existing group id",
+        isInt: true
+    };
+};
+
 export interface InputSchemaValidationExistingAccountId {
     databasePath: string
     accountId: number

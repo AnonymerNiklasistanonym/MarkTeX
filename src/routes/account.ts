@@ -76,7 +76,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     header.stylesheets.push({ path: "/stylesheets/account.css" });
                     header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
-                    return res.render("account", {
+                    res.render("account", {
                         account: {
                             ... accountInfo,
                             documents: accountDocuments,
@@ -88,10 +88,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                         production: options.production
                     });
                 } else {
-                    return next(createHttpError(503, `Internal error when getting account info (id=${pageAccountId})`));
+                    next(createHttpError(503, `Internal error when getting account info (id=${pageAccountId})`));
                 }
             } catch (error) {
-                console.warn(error);
+                if (!options.production) { console.error(error); }
                 if ((error as Error).message === api.database.account.GeneralError.NO_ACCESS) {
                     return next(createHttpError(403, "Access denied"));
                 }
@@ -117,7 +117,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
             try {
                 const accountId = await api.database.account.create(options.databasePath, request);
                 expressMiddlewareSession.authenticate(req, accountId);
-                return res.redirect("/");
+                res.redirect("/");
             } catch (error) {
                 // Check for specific create account errors
                 if ((error as Error).message === api.database.account.CreateError.USER_NAME_ALREADY_EXISTS) {
