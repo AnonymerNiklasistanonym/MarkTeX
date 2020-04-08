@@ -16,8 +16,11 @@ const debug = debuglog("app");
 // Load Env File
 loadEnvFile();
 
+// Check if special path to database is requested
+const databasePath = process.env.DATABASE_PATH && process.env.DATABASE_PATH !== ""
+    ? process.env.DATABASE_PATH : path.join(__dirname, "..", "database.db");
+
 // Load database
-const databasePath = path.join(__dirname, "..", "database.db");
 api.database.exists(databasePath)
     .then(async exists => {
         // Setup database if non is found
