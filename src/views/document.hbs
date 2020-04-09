@@ -58,8 +58,8 @@
 			{{#if isOwner}}
 			<form id="form-member">
 				<input id="input-member-add-name" class="input-text" type="text" name="memberName" placeholder="New member name...">
-				<input id="input-member-add-write-access" type="checkbox" id="scales" name="public">
-				<label for="public">Write access</label>
+				<input id="input-member-add-write-access" type="checkbox" id="scales" name="writeAccess">
+				<label for="writeAccess">Write access</label>
 			</form>
 
 			<ul class="actions-vertical">
@@ -77,18 +77,18 @@
 		<section class="section-document can-be-toggled hide-element" id="section-document-metadata">
 			<h2>Metadata:</h2>
 			<form>
-				<input type="number" id="document-info-id" name="id" value="{{document.id}}" hidden>
-				<input type="number" id="document-info-id-owner" name="owner-id" value="{{document.owner.id}}" hidden>
-				<input type="number" id="document-info-id-group" name="group-id" value="{{document.group.id}}" hidden>
-
 				<label for="document-title">Title:</label><br>
-				<input type="text" id="document-info-title" name="document-title" value="{{document.title}}"><br>
+				<input type="text" id="document-info-title" class="input-text" name="document-title" value="{{document.title}}"><br>
 
 				<label for="document-authors">Authors:</label><br>
-				<input type="text" id="document-info-authors" name="document-authors" value="{{document.authors}}"><br>
+				<input type="text" id="document-info-authors" class="input-text" name="document-authors" value="{{document.authors}}"><br>
 
 				<label for="document-date">Date:</label><br>
-				<input type="text" id="document-info-date" name="document-date" value="{{document.date}}">
+				<input type="text" id="document-info-date" class="input-text" name="document-date" value="{{document.date}}">
+
+				<br>
+				<input  type="checkbox" id="document-info-public" name="document-public" {{#if document.public}}checked{{/if}}>
+				<label for="document-public">Public</label>
 			</form>
 		</section>
 
@@ -99,7 +99,7 @@
 				{{#if this.labelBefore}}
 				<label for="pdf-options-{{this.name}}">{{this.label}}</label><br>
 				{{/if}}
-				<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
+				<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" class="input-text" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
 				{{#if this.labelAfter}}
 				<label for="pdf-options-{{this.name}}">{{this.label}}</label>
 				{{/if}}

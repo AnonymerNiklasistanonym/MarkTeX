@@ -8,7 +8,6 @@ const debug = debuglog("app-express-route-api-schema-validation");
 
 export interface InputSchemaValidationExistingDocumentId {
     databasePath: string
-    accountId: number
 }
 
 export const getDocumentIdExists = (
@@ -29,7 +28,6 @@ export const getDocumentIdExists = (
 
 export interface InputSchemaValidationExistingGroupId {
     databasePath: string
-    accountId: number
 }
 
 export const getGroupIdExists = (
@@ -50,7 +48,6 @@ export const getGroupIdExists = (
 
 export interface InputSchemaValidationExistingAccountFriendId {
     databasePath: string
-    accountId: number
 }
 
 export const getAccountFriendIdExists = (
@@ -71,7 +68,6 @@ export const getAccountFriendIdExists = (
 
 export interface InputSchemaValidationExistingAccountId {
     databasePath: string
-    accountId: number
 }
 
 export const getAccountIdExists = (
@@ -92,7 +88,6 @@ export const getAccountIdExists = (
 
 export interface InputSchemaValidationExistingAccountName {
     databasePath: string
-    accountId: number
 }
 
 export const getAccountNameExists = (
@@ -113,7 +108,6 @@ export const getAccountNameExists = (
 
 export interface InputSchemaValidationExistingDocumentAccess {
     databasePath: string
-    accountId: number
 }
 
 export const getDocumentAccessIdExists = (
@@ -134,7 +128,6 @@ export const getDocumentAccessIdExists = (
 
 export interface InputSchemaValidationExistingGroupAccess {
     databasePath: string
-    accountId: number
 }
 
 export const getGroupAccessIdExists = (

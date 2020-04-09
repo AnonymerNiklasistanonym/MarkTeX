@@ -29,7 +29,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
         // Try to create a new group
         async (req, res) => {
             debug(`Create group ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.CreateRequest;
             try {
                 const groupId = await api.database.group.create(
@@ -50,18 +50,12 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/group/get",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getGroupIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
-        // Check if session is authenticated
-        expressMiddlewareSession.checkAuthenticationJson,
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getGroupIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Try to get a group
         async (req, res) => {
             debug(`Get group ${JSON.stringify(req.body)}`);
@@ -89,22 +83,18 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/group/remove",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getGroupIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getGroupIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to remove a group
         async (req, res) => {
             debug(`Remove group ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.RemoveRequestApi;
             try {
                 const successful = await api.database.group.remove(
@@ -125,23 +115,19 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/group/update",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getGroupIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                name: { isString: true, optional: true }
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getGroupIdExists({
+                databasePath: options.databasePath
+            }),
+            name: { isString: true, optional: true }
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to update a group
         async (req, res) => {
             debug(`Update group ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.UpdateRequestApi;
             try {
                 const successful = await api.database.group.update(

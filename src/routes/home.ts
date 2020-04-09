@@ -20,7 +20,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
         if (!loggedIn) {
             return res.render("home", { header, loggedIn, navigationBar, production: options.production });
         }
-        const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+        const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
         header.metaValues = [{ content: `${sessionInfo.accountId}`, name: "accountId" }];
         const accountInfo = await api.database.account.get(
             options.databasePath, sessionInfo.accountId, { id: sessionInfo.accountId  }

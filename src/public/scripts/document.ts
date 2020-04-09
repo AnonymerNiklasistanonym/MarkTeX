@@ -42,6 +42,7 @@ const getDocumentPdfOptions = (): PdfOptions => {
 };
 
 
+// eslint-disable-next-line complexity
 window.addEventListener("load", () => {
 
     const accountId = helper.stringToNumberSafe(helper.getMetaInformation("accountId"));
@@ -65,62 +66,68 @@ window.addEventListener("load", () => {
     const classNameButtonsMemberRemove = "button-remove-member";
     const classNameButtonsMemberToggleWriteAccess = "button-update-write-access";
 
-    const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLAnchorElement;
-    const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLAnchorElement;
-    const marktexButtonView = document.getElementById("marktex-button-view") as HTMLAnchorElement;
+    const marktexButtonBoth = document.getElementById("marktex-button-both");
+    const marktexButtonEdit = document.getElementById("marktex-button-edit");
+    const marktexButtonView = document.getElementById("marktex-button-view");
 
-    // const documentInfoId = document.getElementById("document-info-id") as HTMLInputElement;
-    // const documentInfoIdOwner = document.getElementById("document-info-id-owner") as HTMLInputElement;
-    // const documentInfoIdGroup = document.getElementById("document-info-id-group") as HTMLInputElement;
-    const documentInfoTitle = document.getElementById("document-info-title") as HTMLInputElement;
-    const documentInfoDate = document.getElementById("document-info-date") as HTMLInputElement;
-    const documentInfoAuthors = document.getElementById("document-info-authors") as HTMLInputElement;
+    const documentInfoTitle = document.getElementById("document-info-title") as HTMLInputElement|null;
+    const documentInfoDate = document.getElementById("document-info-date") as HTMLInputElement|null;
+    const documentInfoAuthors = document.getElementById("document-info-authors") as HTMLInputElement|null;
+    const documentInfoPublic = document.getElementById("document-info-public") as HTMLInputElement|null;
 
     // Setup live input/output elements on load
     marktexDocumentEditor.render({
         marktexEditorInput: liveInput,
         marktexEditorOutput: liveOutput
     });
-    marktexDocumentEditor.enableEditorModeSwitching({
-        bothButton: marktexButtonBoth,
-        marktexEditor,
-        onlyEditButton: marktexButtonEdit,
-        onlyViewButton: marktexButtonView,
-        selectedButtonClass: "selected"
-    });
+    if (marktexButtonBoth && marktexEditor && marktexButtonEdit && marktexButtonView) {
+        marktexDocumentEditor.enableEditorModeSwitching({
+            bothButton: marktexButtonBoth,
+            marktexEditor,
+            onlyEditButton: marktexButtonEdit,
+            onlyViewButton: marktexButtonView,
+            selectedButtonClass: "selected"
+        });
+    }
     marktexDocumentEditor.enableEditorRendering({
         marktexEditorInput: liveInput,
         marktexEditorOutput: liveOutput
     });
 
     // Add button functionalities
-    const buttonExportPdf = document.getElementById("document-button-export-pdf") as HTMLButtonElement;
-    buttonExportPdf.addEventListener("click", async () => {
-        if (documentId === undefined) {
-            throw Error("No document id was found");
-        }
-        const response = await apiRequests.document.getPdf({ id: documentId });
-        download.saveAsBinary(response.pdfData, "application/pdf", `document_${response.id}.pdf`);
-    });
-    const buttonExportZip = document.getElementById("document-button-export-zip") as HTMLButtonElement;
-    buttonExportZip.addEventListener("click", async () => {
-        if (documentId === undefined) {
-            throw Error("No document id was found");
-        }
-        const response = await apiRequests.document.getZip({ id: documentId });
-        download.saveAsBinary(response.zipData, " application/zip", `document_${response.id}.zip`);
-    });
-    const buttonExportJson = document.getElementById("document-button-export-json") as HTMLButtonElement;
-    buttonExportJson.addEventListener("click", async () => {
-        if (documentId === undefined) {
-            throw Error("No document id was found");
-        }
-        const response = await apiRequests.document.getJson({ id: documentId });
-        download.saveAsPlainText(JSON.stringify(response.jsonData, null, 4), "application/json",
-            `backup_document_${response.id}.json`);
-    });
-    const buttonUpdateCreate = document.getElementById("document-button-update-create") as HTMLButtonElement;
-    if (buttonUpdateCreate) {
+    const buttonExportPdf = document.getElementById("document-button-export-pdf");
+    if (buttonExportPdf) {
+        buttonExportPdf.addEventListener("click", async () => {
+            if (documentId === undefined) {
+                throw Error("No document id was found");
+            }
+            const response = await apiRequests.document.getPdf({ id: documentId });
+            download.saveAsBinary(response.pdfData, "application/pdf", `document_${response.id}.pdf`);
+        });
+    }
+    const buttonExportZip = document.getElementById("document-button-export-zip");
+    if (buttonExportZip) {
+        buttonExportZip.addEventListener("click", async () => {
+            if (documentId === undefined) {
+                throw Error("No document id was found");
+            }
+            const response = await apiRequests.document.getZip({ id: documentId });
+            download.saveAsBinary(response.zipData, " application/zip", `document_${response.id}.zip`);
+        });
+    }
+    const buttonExportJson = document.getElementById("document-button-export-json");
+    if (buttonExportJson) {
+        buttonExportJson.addEventListener("click", async () => {
+            if (documentId === undefined) {
+                throw Error("No document id was found");
+            }
+            const response = await apiRequests.document.getJson({ id: documentId });
+            download.saveAsPlainText(JSON.stringify(response.jsonData, null, 4), "application/json",
+                `backup_document_${response.id}.json`);
+        });
+    }
+    const buttonUpdateCreate = document.getElementById("document-button-update-create");
+    if (buttonUpdateCreate && documentInfoAuthors && documentInfoDate && documentInfoTitle) {
         buttonUpdateCreate.addEventListener("click", async () => {
             if (!(accountId)) {
                 throw Error("No account id was found");
@@ -149,8 +156,8 @@ window.addEventListener("load", () => {
             }
         });
     }
-    const buttonUpdate = document.getElementById("document-button-update") as HTMLButtonElement;
-    if (buttonUpdate) {
+    const buttonUpdate = document.getElementById("document-button-update");
+    if (buttonUpdate && documentInfoAuthors && documentInfoDate && documentInfoPublic && documentInfoTitle) {
         buttonUpdate.addEventListener("click", async () => {
             if (!(documentId)) {
                 throw Error("No document id was found");
@@ -161,6 +168,7 @@ window.addEventListener("load", () => {
                 date: documentInfoDate.value,
                 id: documentId,
                 pdfOptions: getDocumentPdfOptions(),
+                public: documentInfoPublic.checked,
                 title: documentInfoTitle.value
             });
             await notifications.show({
@@ -171,7 +179,7 @@ window.addEventListener("load", () => {
             documentAuthorsSpan.innerText = response.authors ? `by ${response.authors}` : "";
         });
     }
-    const buttonRemove = document.getElementById("document-button-remove") as HTMLButtonElement;
+    const buttonRemove = document.getElementById("document-button-remove");
     if (buttonRemove) {
         buttonRemove.addEventListener("click", async () => {
             if (!(documentId)) {
@@ -189,18 +197,23 @@ window.addEventListener("load", () => {
         });
     }
 
-    const toggleMetadata = document.getElementById("document-button-edit-metadata") as HTMLElement;
-    const togglePdfOptions = document.getElementById("document-button-edit-pdf-options") as HTMLElement;
-    const toggleMembers = document.getElementById("document-button-edit-members") as HTMLElement;
-    const sectionMetadata = document.getElementById("section-document-metadata") as HTMLElement;
-    const sectionPdfOptions = document.getElementById("section-document-pdf-options") as HTMLElement;
-    const sectionMembers = document.getElementById("section-document-members") as HTMLElement;
-    toggleMetadata.addEventListener("click", () => { sectionMetadata.classList.toggle("hide-element"); });
-    togglePdfOptions.addEventListener("click", () => { sectionPdfOptions.classList.toggle("hide-element"); });
-    toggleMembers.addEventListener("click", () => { sectionMembers.classList.toggle("hide-element"); });
+    const toggleMetadata = document.getElementById("document-button-edit-metadata");
+    const togglePdfOptions = document.getElementById("document-button-edit-pdf-options");
+    const toggleMembers = document.getElementById("document-button-edit-members");
+    const sectionMetadata = document.getElementById("section-document-metadata");
+    const sectionPdfOptions = document.getElementById("section-document-pdf-options");
+    const sectionMembers = document.getElementById("section-document-members");
+    if (toggleMetadata && sectionMetadata) {
+        toggleMetadata.addEventListener("click", () => { sectionMetadata.classList.toggle("hide-element"); });
+    }
+    if (togglePdfOptions && sectionPdfOptions) {
+        togglePdfOptions.addEventListener("click", () => { sectionPdfOptions.classList.toggle("hide-element"); });
+    }
+    if (toggleMembers && sectionMembers) {
+        toggleMembers.addEventListener("click", () => { sectionMembers.classList.toggle("hide-element"); });
+    }
 
-
-    const collaborationButton = document.getElementById("collaboration-button") as HTMLUListElement;
+    const collaborationButton = document.getElementById("collaboration-button") as HTMLUListElement|null;
     if (collaborationButton) {
         let collaborationEnabled = false;
         collaborationButton.addEventListener("click", () => {

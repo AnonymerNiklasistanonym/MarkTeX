@@ -43,7 +43,12 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                 const addResponse: apiRequests.accountFriend.AddResponse = res.body;
                 addResponse.id.should.be.a("number");
                 delete addResponse.id;
-                addResponse.should.be.deep.equal({});
+                addResponse.should.be.deep.equal({
+                    accountId: testAccountId,
+                    accountName: testAccountCredentials.name,
+                    friendAccountId: testFriendAccountId,
+                    friendAccountName: testFriendAccountCredentials.name
+                });
             });
         });
         it("/api/account_friend/get    (get)", async () => {

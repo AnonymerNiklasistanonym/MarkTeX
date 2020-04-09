@@ -202,6 +202,20 @@ export const checkIfAccountExistsName = async (databasePath: string, accountName
  * @param requesterAccountId Id of account that requests to get basic information
  * @param accessAccountId Id of account that is requested to be get
  */
+export const checkIfAccountHasAccessToGetAccountInfoBasic = async (
+    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number
+): Promise<void> => {
+    // Basic info is public
+};
+
+/**
+ * Check a given account has the rights to get basic information about a given account.
+ *
+ * @throws When there is no access
+ * @param databasePath Path to database
+ * @param requesterAccountId Id of account that requests to get basic information
+ * @param accessAccountId Id of account that is requested to be get
+ */
 export const checkIfAccountHasAccessToGetAccountInfo = async (
     databasePath: string, requesterAccountId: number|undefined, accessAccountId: number
 ): Promise<void> => {
@@ -466,7 +480,7 @@ export const get = async (
     databasePath: string, accountId: number|undefined, input: GetInput
 ): Promise<void|GetOutput> => {
     await checkIfAccountExists(databasePath, input.id);
-    await checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, input.id);
+    await checkIfAccountHasAccessToGetAccountInfoBasic(databasePath, accountId, input.id);
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
@@ -526,7 +540,7 @@ export const getName = async (
         [input.name]
     );
     if (runResult) {
-        await checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, runResult.id);
+        await checkIfAccountHasAccessToGetAccountInfoBasic(databasePath, accountId, runResult.id);
 
         return {
             admin: runResult.admin === 1,

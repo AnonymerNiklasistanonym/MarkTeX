@@ -201,7 +201,7 @@ export interface GetDbOut {
  * @throws When not able to get account friend entry or database fails
  */
 export const get = async (
-    databasePath: string, accountId: number, input: GetInput
+    databasePath: string, accountId: number|undefined, input: GetInput
 ): Promise<void|GetOutput> => {
     await checkIfAccountFriendExists(databasePath, input.id);
 
@@ -217,7 +217,7 @@ export const get = async (
         [input.id]
     );
     if (runResult) {
-        await account.checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, runResult.accountId);
+        await account.checkIfAccountHasAccessToGetAccountInfoBasic(databasePath, accountId, runResult.accountId);
 
         return {
             accountId: runResult.accountId,
@@ -260,7 +260,7 @@ export const getAllFromAccount = async (
     databasePath: string, accountId: number|undefined, input: GetAllFromAccountInput
 ): Promise<GetAllFromAccountOutput[]> => {
     await account.checkIfAccountExists(databasePath, input.id);
-    await account.checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, input.id);
+    await account.checkIfAccountHasAccessToGetAccountInfoBasic(databasePath, accountId, input.id);
 
     const columns: (database.queries.SelectColumn|string)[] = [
         { columnName: table.column.id, tableName: table.name },

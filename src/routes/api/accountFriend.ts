@@ -28,7 +28,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
         // Try to create user
         async (req, res) => {
             debug(`Add: ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.AddRequestApi;
             try {
                 const accountFriendEntryId = await api.database.accountFriend.create(
@@ -69,7 +69,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
         // Try to create user
         async (req, res) => {
             debug(`Add: ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.AddNameRequestApi;
             try {
                 const accountFriendEntryId = await api.database.accountFriend.createName(
@@ -100,18 +100,12 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/account_friend/get",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getAccountFriendIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
-        // Check if session is authenticated
-        expressMiddlewareSession.checkAuthenticationJson,
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getAccountFriendIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Try to get account info
         async (req, res) => {
             debug(`Get: ${JSON.stringify(req.body)}`);
@@ -138,22 +132,18 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/account_friend/remove",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getAccountFriendIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getAccountFriendIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to remove user
         async (req, res) => {
             debug(`Remove: ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.RemoveRequestApi;
             try {
                 const successful = await api.database.accountFriend.remove(

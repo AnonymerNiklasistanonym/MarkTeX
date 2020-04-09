@@ -32,7 +32,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
         // Try to create a new document
         async (req, res) => {
             debug(`Create document ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.CreateRequest;
             try {
                 const documentId = await api.database.document.create(
@@ -55,18 +55,14 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document/get",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                getContent: { isBoolean: true, optional: true },
-                getPdfOptions: { isBoolean: true, optional: true },
-                id: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            getContent: { isBoolean: true, optional: true },
+            getPdfOptions: { isBoolean: true, optional: true },
+            id: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to get a document
@@ -100,27 +96,23 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document/update",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                authors: { isString: true, optional: true },
-                content: { isString: true, optional: true },
-                date: { isString: true, optional: true },
-                id: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                pdfOptions: schemaValidations.getDocumentPdfOptions(),
-                title: { isString: true, optional: true }
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            authors: { isString: true, optional: true },
+            content: { isString: true, optional: true },
+            date: { isString: true, optional: true },
+            id: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            }),
+            pdfOptions: schemaValidations.getDocumentPdfOptions(),
+            title: { isString: true, optional: true }
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to update a document
         async (req, res) => {
             debug(`Update document ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.UpdateRequestApi;
             try {
                 const successful = await api.database.document.update(
@@ -149,22 +141,18 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document/remove",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to remove a document
         async (req, res) => {
             debug(`Remove document ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.RemoveRequestApi;
             try {
                 const successful = await api.database.document.remove(
@@ -185,18 +173,12 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document/export/pdf",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
-        // Check if session is authenticated
-        expressMiddlewareSession.checkAuthenticationJson,
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Try to export a document to pdf
         async (req, res) => {
             debug(`Export document [pdf] ${JSON.stringify(req.body)}`);
@@ -207,7 +189,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
-                if (documentInfo && documentInfo.content) {
+                if (documentInfo && documentInfo.content !== undefined) {
                     const pdfData = await api.pandoc.createPdf({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
@@ -230,18 +212,12 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document/export/zip",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
-        // Check if session is authenticated
-        expressMiddlewareSession.checkAuthenticationJson,
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Try to export a documents source files to zip
         async (req, res) => {
             debug("Export document [zip]");
@@ -252,7 +228,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
-                if (documentInfo && documentInfo.content) {
+                if (documentInfo && documentInfo.content !== undefined) {
                     const zipData = await api.pandoc.createSourceZip({
                         authors: documentInfo.authors,
                         content: documentInfo.content,
@@ -275,18 +251,12 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document/export/json",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
-        // Check if session is authenticated
-        expressMiddlewareSession.checkAuthenticationJson,
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Try to export a document to json
         async (req, res) => {
             debug("Export document [json]");
@@ -297,7 +267,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     options.databasePath, sessionInfo.accountId,
                     { ... request, getContent: true, getPdfOptions: true }
                 );
-                if (documentInfo && documentInfo.content) {
+                if (documentInfo && documentInfo.content !== undefined) {
                     const response: types.ExportJsonResponse = {
                         id: request.id,
                         jsonData: {

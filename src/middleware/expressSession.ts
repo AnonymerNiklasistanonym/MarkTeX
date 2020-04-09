@@ -7,6 +7,10 @@ const debug = debuglog("app-express-middleware-express-session");
 
 
 export interface SessionInfo {
+    accountId?: number
+}
+
+export interface SessionInfoAuthenticated {
     accountId: number
 }
 
@@ -15,6 +19,15 @@ export interface AuthenticatedExpressRequestSession {
 }
 
 export const getSessionInfo = (req: express.Request): SessionInfo => {
+    if (req.session) {
+        return {
+            accountId: req.session.accountId
+        };
+    }
+    throw Error("Session information was undefined");
+};
+
+export const getSessionInfoAuthenticated = (req: express.Request): SessionInfoAuthenticated => {
     if (req.session) {
         return {
             accountId: req.session.accountId

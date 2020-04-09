@@ -17,27 +17,22 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document_access/add",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                accountId: schemaValidations.getAccountIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                documentId: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                writeAccess: { isBoolean: true, optional: true }
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            accountId: schemaValidations.getAccountIdExists({
+                databasePath: options.databasePath
+            }),
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            documentId: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            }),
+            writeAccess: { isBoolean: true, optional: true }
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to export a document to json
         async (req, res) => {
             debug(`Add access ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.AddRequestApi;
             try {
                 const documentAccessId = await api.database.documentAccess.add(
@@ -68,27 +63,22 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document_access/addName",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                accountName: schemaValidations.getAccountNameExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                documentId: schemaValidations.getDocumentIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                writeAccess: { isBoolean: true, optional: true }
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            accountName: schemaValidations.getAccountNameExists({
+                databasePath: options.databasePath
+            }),
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            documentId: schemaValidations.getDocumentIdExists({
+                databasePath: options.databasePath
+            }),
+            writeAccess: { isBoolean: true, optional: true }
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to export a document to json
         async (req, res) => {
             debug(`Add access (name) ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.AddNameRequestApi;
             try {
                 const documentAccessId = await api.database.documentAccess.addName(
@@ -119,23 +109,19 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document_access/update",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getDocumentAccessIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                }),
-                writeAccess: { isBoolean: true, optional: true }
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getDocumentAccessIdExists({
+                databasePath: options.databasePath
+            }),
+            writeAccess: { isBoolean: true, optional: true }
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to export a document to json
         async (req, res) => {
             debug(`Update access ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.UpdateRequestApi;
             try {
                 const successful = await api.database.documentAccess.update(
@@ -157,22 +143,18 @@ export default (app: express.Application, options: StartExpressServerOptions): v
 
     app.post("/api/document_access/remove",
         // Validate api input
-        async (req, res, next) => {
-            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-                apiVersion: schemaValidations.getApiVersionSupported(),
-                id: schemaValidations.getDocumentAccessIdExists({
-                    accountId: sessionInfo.accountId,
-                    databasePath: options.databasePath
-                })
-            }), { sendJsonError: true })(req, res, next);
-        },
+        expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+            apiVersion: schemaValidations.getApiVersionSupported(),
+            id: schemaValidations.getDocumentAccessIdExists({
+                databasePath: options.databasePath
+            })
+        }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
         // Try to export a document to json
         async (req, res) => {
             debug(`Remove access ${JSON.stringify(req.body)}`);
-            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const sessionInfo = expressMiddlewareSession.getSessionInfoAuthenticated(req);
             const request = req.body as types.RemoveRequestApi;
             try {
                 const successful = await api.database.documentAccess.remove(
