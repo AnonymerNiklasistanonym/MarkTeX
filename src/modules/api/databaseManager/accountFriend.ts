@@ -11,21 +11,28 @@ export enum GeneralError {
     NOT_EXISTING = "ACCOUNT_FRIEND_NOT_EXISTING"
 }
 
-export const accountFriendTableName = "account_friend";
-export const accountFriendColumnId = "id";
-export const accountFriendColumnAccountId = "account_id";
-export const accountFriendColumnFriendAccountId = "friend_account_id";
+/** Information about the SQlite table for account friend entries */
+export const table = {
+    /** SQlite column names for account friend entries table */
+    column: {
+        /** The unique account id */
+        accountId: "account_id",
+        /** The unique account id that is a friend of the account */
+        friendAccountId: "friend_account_id",
+        /** The unique friend account entry id */
+        id: "id"
+    },
+    /** SQlite table name for account friend entries */
+    name: "account_friend"
+} as const;
 
 
 // Exists
 // -----------------------------------------------------------------------------
 
 export interface ExistsInput {
+    /** ID of account friend entry */
     id: number
-}
-export interface ExistsAccountAndFriendAccountInput {
-    account: number
-    friend: number
 }
 export interface ExistsAccountAndFriendAccountAllDbOut {
     friendAccountId: number
@@ -40,7 +47,7 @@ export interface ExistsAccountAndFriendAccountAllDbOut {
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
     const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
-        database.queries.exists(accountFriendTableName, accountFriendColumnId),
+        database.queries.exists(table.name, table.column.id),
         [input.id]
     );
     if (runResult) {
@@ -53,34 +60,36 @@ export const exists = async (databasePath: string, input: ExistsInput): Promise<
  * Check if account friend entry exists
  *
  * @param databasePath Path to database
- * @param input Account friend entry info
+ * @param accountId ID of account that is checked for friend entries
+ * @param friendAccountId ID of account that is checked to be friend of account
  */
-export const existsAccountAndFriendAccount = async (
-    databasePath: string, input: ExistsAccountAndFriendAccountInput
+export const existsAccountIds = async (
+    databasePath: string, accountId: number, friendAccountId: number|undefined
 ): Promise<boolean> => {
-    try {
-        const runResults = await database.requests.getAll<ExistsAccountAndFriendAccountAllDbOut>(
-            databasePath,
-            database.queries.select(accountFriendTableName,
-                [{
-                    alias: "friendAccountId",
-                    columnName: accountFriendColumnFriendAccountId
-                }],
-                { whereColumn: accountFriendColumnAccountId }
-            ),
-            [input.account]
-        );
-        for (const friendEntry of runResults) {
-            if (friendEntry.friendAccountId === input.friend) {
-                return true;
+    if (accountId) {
+        try {
+            const runResults = await database.requests.getAll<ExistsAccountAndFriendAccountAllDbOut>(
+                databasePath,
+                database.queries.select(table.name,
+                    [{
+                        alias: "friendAccountId",
+                        columnName: table.column.friendAccountId
+                    }],
+                    { whereColumn: table.column.accountId }
+                ),
+                [accountId]
+            );
+            for (const friendEntry of runResults) {
+                if (friendEntry.friendAccountId === friendAccountId) {
+                    return true;
+                }
             }
+        } catch (error) {
+            return false;
         }
-    } catch (error) {
-        return false;
     }
     return false;
 };
-
 
 
 // Checker (internal)
@@ -92,10 +101,10 @@ export const checkIfAccountFriendExists = async (databasePath: string, friendEnt
     }
 };
 
-export const checkIfAccountFriendAlreadyExistsAccountAndAccountFriend = async (
+export const checkIfAccountFriendEntryExistsAccountIds = async (
     databasePath: string, accountId: number, friendAccountId: number
 ): Promise<void> => {
-    if (await existsAccountAndFriendAccount(databasePath, { account: accountId, friend: friendAccountId })) {
+    if (await existsAccountIds(databasePath, accountId, friendAccountId)) {
         throw Error(CreateError.ALREADY_EXISTS);
     }
 };
@@ -106,7 +115,7 @@ export const checkIfAccountFriendAlreadyExistsAccountAndAccountFriend = async (
 
 export interface CreateInput {
     accountId: number
-    friendId: number
+    friendAccountId: number
 }
 
 /**
@@ -119,35 +128,35 @@ export interface CreateInput {
  */
 export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
     await account.checkIfAccountExists(databasePath, input.accountId);
-    await account.checkIfAccountExists(databasePath, input.friendId);
-    await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.accountId);
-    await checkIfAccountFriendAlreadyExistsAccountAndAccountFriend(databasePath, input.accountId, input.friendId);
+    await account.checkIfAccountExists(databasePath, input.friendAccountId);
+    await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.accountId);
+    await checkIfAccountFriendEntryExistsAccountIds(databasePath, input.accountId, input.friendAccountId);
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert(accountFriendTableName,
-            [ accountFriendColumnAccountId, accountFriendColumnFriendAccountId ]
+        database.queries.insert(table.name,
+            [ table.column.accountId, table.column.friendAccountId ]
         ),
-        [ input.accountId, input.friendId ]
+        [ input.accountId, input.friendAccountId ]
     );
     return postResult.lastID;
 };
 
 export interface CreateNameInput {
     accountId: number
-    friendName: string
+    friendAccountName: string
 }
 
 export const createName = async (databasePath: string, accountId: number, input: CreateNameInput): Promise<number> => {
     await account.checkIfAccountExists(databasePath, input.accountId);
-    await account.checkIfAccountExistsName(databasePath, input.friendName);
-    await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.accountId);
+    await account.checkIfAccountExistsName(databasePath, input.friendAccountName);
+    await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.accountId);
 
     const friendAccountInfo = await account.getName(databasePath, accountId, {
-        name: input.friendName
+        name: input.friendAccountName
     });
     if (friendAccountInfo) {
-        await checkIfAccountFriendAlreadyExistsAccountAndAccountFriend(
+        await checkIfAccountFriendEntryExistsAccountIds(
             databasePath, input.accountId, friendAccountInfo.id
         );
     } else {
@@ -156,8 +165,8 @@ export const createName = async (databasePath: string, accountId: number, input:
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert(accountFriendTableName,
-            [ accountFriendColumnAccountId, accountFriendColumnFriendAccountId ]
+        database.queries.insert(table.name,
+            [ table.column.accountId, table.column.friendAccountId ]
         ),
         [ input.accountId, friendAccountInfo.id ]
     );
@@ -175,13 +184,12 @@ export interface GetInput {
 export interface GetOutput {
     id: number
     accountId: number
-    friendId: number
+    friendAccountId: number
 }
 
 export interface GetDbOut {
-    id: number
     accountId: number
-    friendId: number
+    friendAccountId: number
 }
 
 /**
@@ -199,27 +207,22 @@ export const get = async (
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select(accountFriendTableName,
+        database.queries.select(table.name,
             [
-                accountFriendColumnId,
-                { alias: "accountId", columnName: accountFriendColumnAccountId },
-                { alias: "friendId", columnName: accountFriendColumnFriendAccountId }
+                { alias: "accountId", columnName: table.column.accountId },
+                { alias: "friendAccountId", columnName: table.column.friendAccountId }
             ],
-            { whereColumn: accountFriendColumnId }
+            { whereColumn: table.column.id }
         ),
         [input.id]
     );
     if (runResult) {
-        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
-            databasePath, accountId, runResult.accountId, async () => {
-                const accountInfo = await account.get(databasePath, accountId, { id: runResult.accountId });
-                if (accountInfo) { return accountInfo.public; }
-                return false;
-            });
+        await account.checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, runResult.accountId);
+
         return {
             accountId: runResult.accountId,
-            friendId: runResult.friendId,
-            id: runResult.id
+            friendAccountId: runResult.friendAccountId,
+            id: input.id
         };
     }
 };
@@ -257,38 +260,33 @@ export const getAllFromAccount = async (
     databasePath: string, accountId: number|undefined, input: GetAllFromAccountInput
 ): Promise<GetAllFromAccountOutput[]> => {
     await account.checkIfAccountExists(databasePath, input.id);
-    await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, input.id,
-        async () => {
-            const accountInfo = await account.get(databasePath, accountId, { id: input.id });
-            if (accountInfo) { return accountInfo.public; }
-            return false;
-        });
+    await account.checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, input.id);
 
     const columns: (database.queries.SelectColumn|string)[] = [
-        { columnName: accountFriendColumnId, tableName: accountFriendTableName },
-        { alias: "friendAccountId", columnName: accountFriendColumnFriendAccountId }
+        { columnName: table.column.id, tableName: table.name },
+        { alias: "friendAccountId", columnName: table.column.friendAccountId }
     ];
     if (input.getNames) {
         columns.push({
-            alias: "friendAccountName", columnName: account.accountColumnName,
-            tableName: account.accountTableName
+            alias: "friendAccountName", columnName: account.table.column.name,
+            tableName: account.table.name
         });
     }
 
     const innerJoins: database.queries.SelectQueryInnerJoin[] = [];
     if (input.getNames) {
         innerJoins.push({
-            otherColumn: account.accountColumnId,
-            otherTableName: account.accountTableName,
-            thisColumn: accountFriendColumnFriendAccountId
+            otherColumn: account.table.column.id,
+            otherTableName: account.table.name,
+            thisColumn: table.column.friendAccountId
         });
     }
 
     return await database.requests.getAll<GetAllFromAccountDbOut>(
         databasePath,
-        database.queries.select(accountFriendTableName,
+        database.queries.select(table.name,
             columns,
-            { innerJoins, whereColumn: accountFriendColumnAccountId }
+            { innerJoins, whereColumn: table.column.accountId }
         ),
         [input.id]
     );
@@ -319,14 +317,14 @@ export const remove = async (databasePath: string, accountId: number, input: Rem
     await checkIfAccountFriendExists(databasePath, input.id);
     const friendInfo = await get(databasePath, accountId, { id: input.id });
     if (friendInfo) {
-        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, friendInfo.accountId);
+        await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, friendInfo.accountId);
     } else {
         throw Error("This should never happen");
     }
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove(accountFriendTableName, accountFriendColumnId),
+        database.queries.remove(table.name, table.column.id),
         [input.id]
     );
     return postResult.changes > 0;

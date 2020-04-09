@@ -80,6 +80,11 @@ export interface SelectQueryOrderBy {
     ascending: boolean
 }
 
+export interface SelectWhereColumn {
+    columnName: string
+    tableName?: string
+}
+
 export interface SelectQueryOptions {
     /**
      * Inner join descriptions
@@ -89,7 +94,7 @@ export interface SelectQueryOptions {
      * Describe a specification of which value a row needs to have to be included
      * `WHERE column = ?`
      */
-    whereColumn?: string
+    whereColumn?: (string|SelectWhereColumn)
     /**
      * Describe a complicated where information: overwrites whereColumn if defined
      */
@@ -144,7 +149,11 @@ export const select = (tableName: string, columns: (string|SelectColumn)[], opti
             }
         }
         if (options.whereColumn) {
-            whereStr = ` WHERE ${options.whereColumn}=?`;
+            if (typeof options.whereColumn === "string") {
+                whereStr = ` WHERE ${options.whereColumn}=?`;
+            } else {
+                whereStr = ` WHERE ${options.whereColumn.tableName}.${options.whereColumn.columnName}=?`;
+            }
         }
         if (options.orderBy) {
             orderStr = " ORDER BY " +

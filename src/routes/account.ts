@@ -60,10 +60,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 const accountInfo = await api.database.account.get(options.databasePath, accountId, {
                     id: pageAccountId
                 });
-                const accountDocuments = await api.database.document.getAllFromOwner(options.databasePath, accountId, {
-                    id: pageAccountId
-                });
-                const accountGroups = await api.database.group.getAllFromOwner(options.databasePath, accountId, {
+                const accountDocuments = await api.database.document.getAllFromAccount(
+                    options.databasePath, accountId, { id: pageAccountId }
+                );
+                const accountGroups = await api.database.group.getAllFromAccount(options.databasePath, accountId, {
                     id: pageAccountId
                 });
                 const accountFriends = await api.database.accountFriend.getAllFromAccount(

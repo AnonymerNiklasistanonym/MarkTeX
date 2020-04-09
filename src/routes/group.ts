@@ -42,9 +42,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     const accountInfo = await api.database.account.get(
                         options.databasePath, accountId, { id: groupInfo.owner }
                     );
-                    const groupMembers = await api.database.groupAccess.getAllGroupMembers(
-                        options.databasePath, accountId, { id: groupId }
-                    );
+                    const groupMembers = await api.database.group.getMembers(options.databasePath, accountId, {
+                        id: groupId
+                    });
                     const header = viewRendering.getHeaderDefaults(options, { sockets: true });
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });

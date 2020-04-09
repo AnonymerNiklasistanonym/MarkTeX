@@ -7,14 +7,14 @@ import { promises as fs } from "fs";
 /**
  * Check if database already exists.
  *
- * @param databasePath Path to database.
+ * @param databasePath Path to database
  */
 export const exists = async (databasePath: string): Promise<boolean> => database.exists(databasePath);
 
 /**
  * Initialize database if not existing.
  *
- * @param databasePath Path to database.
+ * @param databasePath Path to database
  */
 export const create = async (databasePath: string): Promise<void> => {
     if (!await exists(databasePath)) {
@@ -27,7 +27,7 @@ export const create = async (databasePath: string): Promise<void> => {
 /**
  * Delete database (remove all existing data).
  *
- * @param databasePath Path to database.
+ * @param databasePath Path to database
  */
 export const remove = async (databasePath: string): Promise<void> => {
     if (await exists(databasePath)) {
@@ -38,31 +38,11 @@ export const remove = async (databasePath: string): Promise<void> => {
 /**
  * Reset database (remove all existing data and repeat a setup).
  *
- * @param databasePath Path to database.
+ * @param databasePath Path to database
  */
 export const reset = async (databasePath: string): Promise<void> => {
     if (await exists(databasePath)) {
         await remove(databasePath);
     }
     await create(databasePath);
-};
-
-/**
- * Export database data.
- *
- * @param databasePath Path to database.
- */
-export const exportData = async (databasePath: string): Promise<void> => {
-    // TODO
-    throw Error("Not implemented");
-};
-
-/**
- * Import database data.
- *
- * @param databasePath Path to database.
- */
-export const importData = async (databasePath: string): Promise<void> => {
-    // TODO
-    throw Error("Not implemented");
 };

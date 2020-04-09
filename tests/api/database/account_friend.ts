@@ -21,12 +21,12 @@ export default (databasePath: string): Mocha.Suite => {
 
             const accountFriendId1 = await api.database.accountFriend.create(databasePath, accountId1, {
                 accountId: accountId1,
-                friendId: accountIdFriend1
+                friendAccountId: accountIdFriend1
             });
             chai.expect(accountFriendId1).to.be.an("number");
             const accountFriendId2 = await api.database.accountFriend.create(databasePath, accountId1, {
                 accountId: accountId1,
-                friendId: accountIdFriend2
+                friendAccountId: accountIdFriend2
             });
             chai.expect(accountFriendId2).to.be.an("number");
 
@@ -34,7 +34,7 @@ export default (databasePath: string): Mocha.Suite => {
             try {
                 await api.database.accountFriend.create(databasePath, accountId1, {
                     accountId: accountId1,
-                    friendId: accountIdFriend2
+                    friendAccountId: accountIdFriend2
                 });
             } catch (error) {
                 throwsException = true;
@@ -59,11 +59,11 @@ export default (databasePath: string): Mocha.Suite => {
 
             const accountFriendId1 = await api.database.accountFriend.create(databasePath, accountId1, {
                 accountId: accountId1,
-                friendId: accountIdFriend1
+                friendAccountId: accountIdFriend1
             });
             const accountFriendId2 = await api.database.accountFriend.create(databasePath, accountId1, {
                 accountId: accountId1,
-                friendId: accountIdFriend2
+                friendAccountId: accountIdFriend2
             });
 
             const friendsAccountId1 = await api.database.accountFriend.getAllFromAccount(databasePath, accountId1, {

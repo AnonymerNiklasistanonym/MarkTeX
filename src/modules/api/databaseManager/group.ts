@@ -1,18 +1,153 @@
 import * as account from "./account";
 import * as database from "../../database";
 import * as groupAccess from "./groupAccess";
+import { documentAccess, group } from "../databaseManager";
 
 
+/** Errors that can happen during a document resource creation */
+export enum CreateError {}
+
+/** Errors that can happen during document resource requests */
 export enum GeneralError {
     NO_ACCESS = "GROUP_NO_ACCESS",
     NOT_EXISTING = "GROUP_NOT_EXISTING"
 }
 
-const groupTableName = "document_group";
-const groupColumnId = "id";
-const groupColumnPublic = "public";
-const groupColumnName = "name";
-const groupColumnOwner = "owner";
+/** Information about the SQlite table for groups */
+export const table = {
+    /** SQlite column names for groups table */
+    column: {
+        /** The unique group id */
+        id: "id",
+        /** The name of the group */
+        name: "name",
+        /** The account id of the owner of the group */
+        owner: "owner",
+        /** Is the group public */
+        public: "public"
+    },
+    /** SQlite table name for groups */
+    name: "document_group"
+} as const;
+
+
+// Is XYZ (silent errors)
+// -----------------------------------------------------------------------------
+
+export interface IsPublicGetDbOut {
+    public: 1|0
+}
+
+/**
+ * Get if a given group is a public group.
+ *
+ * @param databasePath Path to database
+ * @param groupId Document id to be checked
+ */
+export const isPublic = async (databasePath: string, groupId: number|undefined): Promise<boolean> => {
+    if (groupId) {
+        try {
+            const runResult = await database.requests.getEach<IsPublicGetDbOut>(
+                databasePath,
+                database.queries.select(table.name,
+                    [table.column.public],
+                    { whereColumn: table.column.id }
+                ),
+                [groupId]
+            );
+            if (runResult) {
+                return runResult.public === 1;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+    return false;
+};
+
+
+export interface GetGroupOwnerDbOut {
+    owner: number
+}
+
+/**
+ * Get the owner account id of a group.
+ *
+ * @param databasePath Path to database
+ * @param groupId Group id
+ */
+export const getGroupOwner = async (
+    databasePath: string, groupId: number|undefined
+): Promise<number|undefined> => {
+    if (groupId) {
+        try {
+            const runResult = await database.requests.getEach<GetGroupOwnerDbOut>(
+                databasePath,
+                database.queries.select(table.name,
+                    [table.column.owner],
+                    { whereColumn: table.column.id }
+                ),
+                [groupId]
+            );
+            if (runResult) {
+                return runResult.owner;
+            }
+        } catch (error) {
+            return undefined;
+        }
+    }
+    return undefined;
+};
+
+/**
+ * Check a given account has the rights to get basic information about a given group.
+ *
+ * @throws When there is no access
+ * @param databasePath Path to database
+ * @param requesterAccountId Id of account that requests to get basic information
+ * @param groupId Id of group that is requested to be get
+ */
+export const checkIfAccountHasAccessToGetGroupInfo = async (
+    databasePath: string, requesterAccountId: number|undefined, groupId: number
+): Promise<void> => {
+    const groupOwnerAccountId = await getGroupOwner(databasePath, groupId);
+    // No problem if:
+    // 1) The account ids match (account is also owner of group)
+    // 2) The requested group is public
+    // 3) The requester account has access to the group to be get
+    // 4) The account that requests basic information is admin
+    if (requesterAccountId !== groupOwnerAccountId && !(
+        await isPublic(databasePath, groupId) ||
+        await groupAccess.existsAccountGroupIds(databasePath, requesterAccountId, groupId) ||
+        await account.isAdmin(databasePath, requesterAccountId)
+    )) {
+        throw Error(GeneralError.NO_ACCESS);
+    }
+};
+
+/**
+ * Check a given account has the rights to update a given group.
+ *
+ * @throws When there is no access
+ * @param databasePath Path to database
+ * @param requesterAccountId Id of account that requests change
+ * @param groupId Id of group that is requested to be changed
+ */
+export const checkIfAccountHasAccessToUpdateGroup = async (
+    databasePath: string, requesterAccountId: number, groupId: number
+): Promise<void> => {
+    const groupOwnerAccountId = await getGroupOwner(databasePath, groupId);
+    // No problem if:
+    // 1) The account ids match (account is also owner of group)
+    // 2) The requester account has access to change the group
+    // 3) The account that requests change is admin
+    if (requesterAccountId !== groupOwnerAccountId && !(
+        await groupAccess.existsAccountGroupIds(databasePath, groupId, requesterAccountId, true) ||
+        await account.isAdmin(databasePath, requesterAccountId)
+    )) {
+        throw Error(GeneralError.NO_ACCESS);
+    }
+};
 
 
 export interface CreateInput {
@@ -31,11 +166,11 @@ export interface CreateInput {
  */
 export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
     await account.checkIfAccountExists(databasePath, input.owner);
-    await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.owner);
+    // TODO: await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.owner);
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert(groupTableName, [ groupColumnName, groupColumnOwner, groupColumnPublic ]),
+        database.queries.insert(table.name, [ table.column.name, table.column.owner, table.column.public ]),
         [ input.name, input.owner, input.public === true ? 1 : 0 ]
     );
     return postResult.lastID;
@@ -51,7 +186,7 @@ export interface ExistsInput {
 export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
     const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
-        database.queries.exists(groupTableName, groupColumnId),
+        database.queries.exists(table.name, table.column.id),
         [input.id]
     );
     if (runResult) {
@@ -93,34 +228,21 @@ export const get = async (
     databasePath: string, accountId: number|undefined, input: GetInput
 ): Promise<void|GetOutput> => {
     await checkIfGroupExists(databasePath, input.id);
+    await checkIfAccountHasAccessToGetGroupInfo(databasePath, accountId, input.id);
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select(groupTableName, [ groupColumnName, groupColumnOwner, groupColumnPublic ], {
-            whereColumn: groupColumnId
+        database.queries.select(table.name, [ table.column.name, table.column.owner, table.column.public ], {
+            whereColumn: table.column.id
         }),
         [input.id]
     );
     if (runResult) {
-        const isPublic = runResult.public === 1;
-
-        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublicOrOther(
-            databasePath, accountId, runResult.owner, () => isPublic,
-            async () => {
-                if (accountId) {
-                    return await groupAccess.existsAccountAndGroup(databasePath, {
-                        accountId, groupId: input.id
-                    });
-                }
-                return false;
-            }
-        );
-
         return {
             id: input.id,
             name: runResult.name,
             owner: runResult.owner,
-            public: isPublic
+            public: runResult.public === 1
         };
     }
 };
@@ -128,7 +250,7 @@ export const get = async (
 export interface GetAllFromOwnerInput {
     id: number
 }
-export interface GetAllFromOwnerOutput {
+export interface GetAllFromAccountOutput {
     id: number
     name: string
     owner: number
@@ -140,42 +262,110 @@ export interface GetAllFromOwnerDbOut {
     public: number
 }
 
-export const getAllFromOwner = async (
+export const getAllFromAccount = async (
     databasePath: string, accountId: number|undefined, input: GetAllFromOwnerInput
-): Promise<GetAllFromOwnerOutput[]> => {
+): Promise<GetAllFromAccountOutput[]> => {
     await account.checkIfAccountExists(databasePath, input.id);
 
     const runResults = await database.requests.getAll<GetAllFromOwnerDbOut>(
         databasePath,
-        database.queries.select(groupTableName, [ groupColumnId, groupColumnName, groupColumnPublic ], {
-            whereColumn: groupColumnOwner
+        database.queries.select(table.name, [ table.column.id, table.column.name, table.column.public ], {
+            whereColumn: table.column.owner
         }),
         [input.id]
     );
-    const allGroups = runResults.map(runResult => ({
-        id: runResult.id,
-        name: runResult.name,
-        owner: input.id,
-        public: runResult.public === 1
-    }));
-    const finalGroups: GetAllFromOwnerOutput[] = [];
+    const allGroups: GetAllFromAccountOutput[] = [];
+    const accountIsGroupOwner = input.id === accountId;
     const accountIsAdmin = await account.isAdmin(databasePath, accountId);
-    for (const group of allGroups) {
-        if (group.owner === accountId || group.public) {
-            finalGroups.push(group);
-            continue;
-        }
-
-        if (accountId) {
-            const accountHasAccess = await groupAccess.existsAccountAndGroup(databasePath, {
-                accountId, groupId: group.id
+    for (const runResult of runResults) {
+        // Only return the groups that the account that requested them has access to
+        // This is the case if:
+        // 1) The group owner account id is the same as the account id of the requester
+        // 2) The group is public
+        // 3) There exists a group access for the requester account
+        // 4) The requester account is admin
+        if (
+            accountIsGroupOwner || runResult.public || accountIsAdmin ||
+            await groupAccess.existsAccountGroupIds(databasePath, accountId, runResult.id)
+        ) {
+            allGroups.push({
+                id: runResult.id,
+                name: runResult.name,
+                owner: input.id,
+                public: runResult.public === 1
             });
-            if (accountHasAccess || accountIsAdmin) {
-                finalGroups.push(group);
-            }
         }
     }
-    return finalGroups;
+    return allGroups;
+};
+
+export interface GetMembersInput {
+    /** Group id */
+    id: number
+}
+export interface GetMembersDbOut {
+    accountId: number
+    accountName: string
+    writeAccess: 1|0
+}
+
+export interface GetMembersOutput {
+    /** Account id */
+    accountId: number
+    /** Account name */
+    accountName: string
+    /** Write access */
+    writeAccess: boolean
+}
+
+export const getMembers = async (
+    databasePath: string, accountId: number|undefined, input: GetMembersInput
+): Promise<GetMembersOutput[]> => {
+    await checkIfGroupExists(databasePath, input.id);
+
+    const runResults = await database.requests.getAll<GetMembersDbOut>(
+        databasePath,
+        database.queries.select(groupAccess.table.name,
+            [
+                { alias: "accountId", columnName: account.table.column.id, tableName: account.table.name },
+                { alias: "accountName", columnName: account.table.column.name, tableName: account.table.name },
+                {
+                    alias: "writeAccess",
+                    columnName: groupAccess.table.column.writeAccess,
+                    tableName: groupAccess.table.name
+                }
+            ], {
+                innerJoins: [{
+                    otherColumn: account.table.column.id,
+                    otherTableName: account.table.name,
+                    thisColumn: groupAccess.table.column.accountId
+                }],
+                whereColumn: { columnName: table.column.id, tableName: groupAccess.table.name }
+            }
+        ),
+        [input.id]
+    );
+    const allGroups: GetMembersOutput[] = [];
+    const accountIsGroupOwner = input.id === accountId;
+    const groupIsPublic = isPublic(databasePath, input.id);
+    const accountIsAdmin = await account.isAdmin(databasePath, accountId);
+    const accountHasGroupAccess = await groupAccess.existsAccountGroupIds(databasePath, accountId, input.id);
+    for (const runResult of runResults) {
+        // Only return the groups that the account that requested them has access to
+        // This is the case if:
+        // 1) The group owner account id is the same as the account id of the requester
+        // 2) The group is public
+        // 3) There exists a group access for the requester account
+        // 4) The requester account is admin
+        if (accountIsGroupOwner || groupIsPublic || accountIsAdmin || accountHasGroupAccess) {
+            allGroups.push({
+                accountId: runResult.accountId,
+                accountName: runResult.accountName,
+                writeAccess: runResult.writeAccess === 1
+            });
+        }
+    }
+    return allGroups;
 };
 
 
@@ -191,32 +381,22 @@ export interface UpdateInput {
 
 export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<boolean> => {
     await checkIfGroupExists(databasePath, input.id);
-    const groupInfo = await get(databasePath, accountId, { id: input.id });
-    if (groupInfo) {
-        await account.checkIfAccountHasAccessToAccountOrOther(
-            databasePath, accountId, groupInfo.owner,
-            () => groupAccess.existsAccountAndGroup(databasePath, {
-                accountId, groupId: groupInfo.id, writeAccess: true
-            })
-        );
-    } else {
-        throw Error(GeneralError.NO_ACCESS);
-    }
+    await checkIfAccountHasAccessToUpdateGroup(databasePath, accountId, input.id);
 
     const columns = [];
     const values = [];
     if (input.name) {
-        columns.push(groupColumnName);
+        columns.push(table.column.name);
         values.push(input.name);
     }
     if (input.public !== undefined) {
-        columns.push(groupColumnPublic);
+        columns.push(table.column.public);
         values.push(input.public ? 1 : 0);
     }
     values.push(input.id);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.update(groupTableName, columns, groupColumnId),
+        database.queries.update(table.name, columns, table.column.id),
         values
     );
     return postResult.changes > 0;
@@ -236,18 +416,11 @@ export interface RemoveInput {
  */
 export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
     await checkIfGroupExists(databasePath, input.id);
-    const documentInfo = await get(databasePath, accountId, { id: input.id });
-    if (documentInfo) {
-        await account.checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(
-            databasePath, accountId, documentInfo.owner, () => documentInfo.public
-        );
-    } else {
-        throw Error(GeneralError.NO_ACCESS);
-    }
+    await checkIfAccountHasAccessToUpdateGroup(databasePath, accountId, input.id);
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove(groupTableName, groupColumnId),
+        database.queries.remove(table.name, table.column.id),
         [input.id]
     );
     return postResult.changes > 0;

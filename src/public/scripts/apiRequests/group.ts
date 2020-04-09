@@ -2,26 +2,28 @@ import type * as api from "../../../routes/api";
 import * as general from "./general";
 
 
+const baseUrl = `${general.baseUrlApi}/group`;
+
 export const update = async (input: api.group.types.UpdateRequest): Promise<api.group.types.UpdateResponse> => {
-    return general.generalApiRequest<api.group.types.UpdateRequest, api.group.types.UpdateResponse>(
-        "/api/group/update", input
+    return general.apiRequest<api.group.types.UpdateRequest, api.group.types.UpdateResponse>(
+        `${baseUrl}/update`, input
     );
 };
 
 export const create = async (input: api.group.types.CreateRequest): Promise<api.group.types.CreateResponse> => {
-    return general.generalApiRequest<api.group.types.CreateRequest, api.group.types.CreateResponse>(
-        "/api/group/create", input
+    return general.apiRequest<api.group.types.CreateRequest, api.group.types.CreateResponse>(
+        `${baseUrl}/create`, input
     );
 };
 
 export const get = async (input: api.group.types.GetRequest): Promise<api.group.types.GetResponse> => {
-    return general.generalApiRequest<api.group.types.GetRequest, api.group.types.GetResponse>(
-        "/api/group/get", input
+    return general.apiRequest<api.group.types.GetRequest, api.group.types.GetResponse>(
+        `${baseUrl}/get`, input
     );
 };
 
 export const remove = async (input: api.group.types.RemoveRequest): Promise<api.group.types.RemoveResponse> => {
-    return general.generalApiRequest<api.group.types.RemoveRequest, api.group.types.RemoveResponse>(
-        "/api/group/remove", input
+    return general.apiRequest<api.group.types.RemoveRequest, api.group.types.RemoveResponse>(
+        `${baseUrl}/remove`, input
     );
 };

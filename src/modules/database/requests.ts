@@ -4,34 +4,58 @@ import sqlite3 from "sqlite3";
 
 
 const debug = debuglog("app-database-request");
+const debugInternal = debuglog("app-database-request-internal");
 
 
+
+/**
+ * List of errors that can happen during a post request
+ */
 export enum ErrorCodePostRequest {
-    SQLITE_CONSTRAINT = "SQLITE_CONSTRAINT"
+    /** Some column specification/constraint was violated */
+    SQLITE_CONSTRAINT = "SQLITE_CONSTRAINT",
+    /** Hard query error like a duplicated column or non existing column */
+    SQLITE_ERROR = "SQLITE_ERROR"
 }
 
 
+/**
+ * Check if an error is a database error.
+ *
+ * @param error A possible database error
+ * @returns True if database error
+ */
 export const isDatabaseError = (error: any): boolean => {
     if (error && error.code) {
         if (error.code === ErrorCodePostRequest.SQLITE_CONSTRAINT) {
+            return true;
+        }
+        if (error.code === ErrorCodePostRequest.SQLITE_ERROR) {
             return true;
         }
     }
     return false;
 };
 
-
-export const getEach = async <T extends object>(dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<(T|undefined)> => {
-
-    const db = await open(dbNamePath, { readOnly: true });
-    db.on("trace", debug);
+/**
+ * Get one result from the database.
+ *
+ * @param databasePath Path to database
+ * @param query The database query that should be run
+ * @param parameters Optional values that are inserted for query `?` symbols
+ * @returns Either undefined when no result or the found result
+ */
+export const getEach = async <DB_OUT extends object>(
+    databasePath: string, query: string, parameters: (string|number)[] = []
+): Promise<(DB_OUT|undefined)> => {
     debug(`Run query get each: "${query}"`);
-    let requestedElement: any;
+    const db = await open(databasePath, { readOnly: true });
+    db.on("trace", debugInternal);
+    let requestedElement: DB_OUT;
     return new Promise((resolve, reject) => db.each(query, parameters,
         (err, row) => {
             if (err) {
-                debug(`Database error each: ${JSON.stringify(err)}`);
+                debug(`Database error each row: ${JSON.stringify(err)}`);
                 reject(err);
             } else {
                 requestedElement = row;
@@ -39,41 +63,49 @@ export const getEach = async <T extends object>(dbNamePath: string, query: strin
         },
         err => {
             if (err) {
-                debug(`Database error: ${JSON.stringify(err)}`);
+                debug(`Database error each: ${JSON.stringify(err)}`);
             }
             db.close(errClose => {
                 if (errClose) {
-                    debug(`Database close error: ${JSON.stringify(errClose)}`);
+                    debug(`Database error each close: ${JSON.stringify(errClose)}`);
                 }
                 if (err || errClose) {
                     return reject(err ? err : errClose);
                 }
-                debug(`Run result: "${JSON.stringify(requestedElement)}"`);
+                debug(`Run result each: "${JSON.stringify(requestedElement)}"`);
                 resolve(requestedElement);
             });
         })
     );
 };
 
-export const getAll = async <T extends object>(dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<T[]> => {
-
-    const db = await open(dbNamePath, { readOnly: true });
-    db.on("trace", debug);
+/**
+ * Get a list of results from the database.
+ *
+ * @param databasePath Path to database
+ * @param query The database query that should be run
+ * @param parameters Optional values that are inserted for query `?` symbols
+ * @returns Either an empty list when no result or the found results
+ */
+export const getAll = async <DB_OUT extends object>(
+    databasePath: string, query: string, parameters: (string|number)[] = []
+): Promise<DB_OUT[]> => {
     debug(`Run query get all: "${query}"`);
+    const db = await open(databasePath, { readOnly: true });
+    db.on("trace", debugInternal);
     return new Promise((resolve, reject) => db.all(query, parameters,
         (err, rows) => {
             if (err) {
-                debug(`Database error each: ${JSON.stringify(err)}`);
+                debug(`Database error all: ${JSON.stringify(err)}`);
             }
             db.close(errClose => {
                 if (errClose) {
-                    debug(`Database close error: ${JSON.stringify(errClose)}`);
+                    debug(`Database error all close: ${JSON.stringify(errClose)}`);
                 }
                 if (err || errClose) {
                     return reject(err ? err : errClose);
                 }
-                debug(`Run result: "${JSON.stringify(rows)}"`);
+                debug(`Run result all: "${JSON.stringify(rows)}"`);
                 resolve(rows);
             });
         })
@@ -81,32 +113,32 @@ export const getAll = async <T extends object>(dbNamePath: string, query: string
 };
 
 /**
- * Edit something in database.
+ * Update something in database.
  *
- * @param dbNamePath Database path.
- * @param query Query for the database.
- * @param parameters Query data.
- * @returns Post result
+ * @param databasePath Path to database
+ * @param query The database query that should be run
+ * @param parameters Optional values that are inserted for query `?` symbols
+ * @returns Database update info
  */
-export const post = async (dbNamePath: string, query: string,
-    parameters: (string|number)[] = []): Promise<sqlite3.RunResult> => {
-
-    const db = await open(dbNamePath);
-    db.on("trace", debug);
+export const post = async (
+    databasePath: string, query: string, parameters: (string|number)[] = []
+): Promise<sqlite3.RunResult> => {
     debug(`Run query post: "${query}"`);
+    const db = await open(databasePath);
+    db.on("trace", debugInternal);
     return new Promise((resolve, reject) => db.run(query, parameters,
         function (err) {
             if (err) {
-                debug(`Database error each: ${JSON.stringify(err)}`);
+                debug(`Database error post: ${JSON.stringify(err)}`);
             }
             db.close(errClose => {
                 if (errClose) {
-                    debug(`Database close error: ${JSON.stringify(errClose)}`);
+                    debug(`Database error post close: ${JSON.stringify(errClose)}`);
                 }
                 if (err || errClose) {
                     return reject(err ? err : errClose);
                 }
-                debug(`Database post result: ${JSON.stringify(this)}`);
+                debug(`Post result: ${JSON.stringify(this)}`);
                 resolve(this);
             });
         })

@@ -1,4 +1,4 @@
-export const generalApiRequest = async <INPUT_TYPE extends object, OUTPUT_TYPE extends object>(
+export const apiRequest = async <INPUT_TYPE extends object, OUTPUT_TYPE extends object>(
     requestUrl: string, input: INPUT_TYPE
 ): Promise<OUTPUT_TYPE> => {
     try {
@@ -22,3 +22,5 @@ export const generalApiRequest = async <INPUT_TYPE extends object, OUTPUT_TYPE e
         throw e;
     }
 };
+
+export const baseUrlApi = "/api";

@@ -9,10 +9,9 @@ import os from "os";
 import path from "path";
 
 
-const databasePath = path.join(os.tmpdir(), "test.db");
-
-
 export default (): Mocha.Suite => {
+    const databasePath = path.join(os.tmpdir(), "test.db");
+
     return describe("database", () => {
         it("remove", async () => {
             await api.database.remove(databasePath);

@@ -233,7 +233,7 @@ window.addEventListener("load", () => {
                 }
                 // Get account name from text input
                 const apiResponse = await apiRequests.accountFriend.addName({
-                    accountId, friendName: inputFriendAdd.value
+                    accountId, friendAccountName: inputFriendAdd.value
                 });
                 // TODO Add new friend entry
                 await notifications.show({

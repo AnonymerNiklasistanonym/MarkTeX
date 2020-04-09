@@ -1,62 +1,51 @@
 import * as account from "./account";
 import * as database from "../../database";
+import * as document from "./document";
 import * as group from "./group";
 
 
+/** Errors that can happen during a group access entry creation */
+export enum CreateError {
+    ALREADY_EXISTS = "GROUP_ACCESS_ALREADY_EXISTS"
+}
+
+/** Errors that can happen during group access entry requests */
 export enum GeneralError {
     NO_ACCESS = "GROUP_ACCESS_NO_ACCESS",
     NOT_EXISTING = "GROUP_ACCESS_NOT_EXISTING"
 }
 
-const groupAccessTableName = "document_group_access";
-const groupAccessColumnId = "id";
-const groupAccessColumnAccountId = "account_id";
-const groupAccessColumnGroupId = "document_group_id";
-const groupAccessColumnWriteAccess = "write_access";
-
-
-export interface CreateInput {
-    accountId: number
-    groupId: number
-}
-
-export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
-    await account.checkIfAccountExists(databasePath, input.accountId);
-    await group.checkIfGroupExists(databasePath, input.groupId);
-    await account.checkIfAccountHasAccessToAccount(databasePath, accountId, input.accountId);
-
-    const postResult = await database.requests.post(
-        databasePath,
-        database.queries.insert(groupAccessTableName, [ groupAccessColumnAccountId, groupAccessColumnGroupId ]),
-        [ input.accountId, input.groupId ]
-    );
-    return postResult.lastID;
-};
+/** Information about the SQlite table for group access entries */
+export const table = {
+    /** SQlite column names for group access entries table */
+    column: {
+        /** The account id */
+        accountId: "account_id",
+        /** The group id */
+        groupId: "document_group_id",
+        /** The unique group access entry id */
+        id: "id",
+        /** Is the access read only or read-write */
+        writeAccess: "write_access"
+    },
+    /** SQlite table name for group access entries */
+    name: "document_group_access"
+} as const;
 
 
 // Exists
 // -----------------------------------------------------------------------------
 
-export interface ExistsInput {
-    id: number
-}
-export interface ExistsAccountAndGroupInput {
+export interface ExistsAccountGroupIdsDbOutput {
     accountId: number
-    groupId: number
-    writeAccess?: boolean
-}
-export interface ExistsAccountAndGroupDbOutput {
-    // eslint-disable-next-line camelcase
-    document_group_id: number
-    // eslint-disable-next-line camelcase
-    write_access: number
+    writeAccess: 1|0
 }
 
-export const exists = async (databasePath: string, input: ExistsInput): Promise<boolean> => {
+export const exists = async (databasePath: string, groupAccessId: number): Promise<boolean> => {
     const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
         databasePath,
-        database.queries.exists(groupAccessTableName, groupAccessColumnId),
-        [input.id]
+        database.queries.exists(table.name, table.column.id),
+        [groupAccessId]
     );
     if (runResult) {
         return runResult.exists_value === 1;
@@ -64,29 +53,65 @@ export const exists = async (databasePath: string, input: ExistsInput): Promise<
     return false;
 };
 
-export const existsAccountAndGroup = async (
-    databasePath: string, input: ExistsAccountAndGroupInput
+export const existsAccountGroupIds = async (
+    databasePath: string, accountId: number|undefined, groupId: number, writeAccess = false
 ): Promise<boolean> => {
-    try {
-        const runResults = await database.requests.getAll<ExistsAccountAndGroupDbOutput>(
-            databasePath,
-            database.queries.select(
-                groupAccessTableName,
-                [ "id", groupAccessColumnGroupId, groupAccessColumnWriteAccess ],
-                { whereColumn: groupAccessColumnAccountId }
-            ),
-            [input.accountId]
-        );
-        for (const groupAccessEntry of runResults) {
-            if (
-                groupAccessEntry.document_group_id === input.groupId
-                && (input.writeAccess === undefined || (groupAccessEntry.write_access === 1) === input.writeAccess)
-            ) {
-                return true;
+    if (accountId) {
+        try {
+            const runResults = await database.requests.getAll<ExistsAccountGroupIdsDbOutput>(
+                databasePath,
+                database.queries.select(
+                    table.name,
+                    [{ alias: "accountId", columnName: table.column.accountId }],
+                    { whereColumn: table.column.groupId }
+                ),
+                [groupId]
+            );
+            for (const groupAccessEntry of runResults) {
+                if (groupAccessEntry.accountId === accountId) {
+                    if (writeAccess && groupAccessEntry.writeAccess !== 1) {
+                        return false;
+                    }
+                    return true;
+                }
             }
+        } catch (error) {
+            return false;
         }
-    } catch (error) {
-        return false;
+    }
+    return false;
+};
+
+// Is XYZ (silent errors)
+// -----------------------------------------------------------------------------
+
+export interface IsWriteAccessDbOut {
+    writeAccess: 1|0
+}
+
+/**
+ * Get if a given group is a public group.
+ *
+ * @param databasePath Path to database
+ * @param groupId Group id to be checked
+ */
+export const isWriteAccess = async (databasePath: string, groupId: number|undefined): Promise<boolean> => {
+    if (groupId) {
+        try {
+            const runResult = await database.requests.getEach<IsWriteAccessDbOut>(
+                databasePath,
+                database.queries.select(table.name,
+                    [table.column.writeAccess],
+                    { whereColumn: table.column.id }
+                ),
+                [groupId]
+            );
+            if (runResult) {
+                return runResult.writeAccess === 1;
+            }
+        } catch (error) {
+            return false;
+        }
     }
     return false;
 };
@@ -96,9 +121,47 @@ export const existsAccountAndGroup = async (
 // -----------------------------------------------------------------------------
 
 export const checkIfGroupAccessExists = async (databasePath: string, documentAccessId: number): Promise<void> => {
-    if (!await exists(databasePath, { id: documentAccessId })) {
+    if (!await exists(databasePath, documentAccessId)) {
         throw Error(GeneralError.NOT_EXISTING);
     }
+};
+
+export const checkIfGroupAccessExistsAccountGroupIds = async (
+    databasePath: string, accountId: number, documentId: number
+): Promise<void> => {
+    if (!await existsAccountGroupIds(databasePath, accountId, documentId)) {
+        throw Error(GeneralError.NOT_EXISTING);
+    }
+};
+
+
+// Create
+// -----------------------------------------------------------------------------
+
+export interface CreateInput {
+    accountId: number
+    groupId: number
+    writeAccess?: boolean
+}
+
+export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
+    await account.checkIfAccountExists(databasePath, input.accountId);
+    await document.checkIfDocumentExists(databasePath, input.groupId);
+    await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.accountId);
+
+    if (await existsAccountGroupIds(databasePath, input.accountId, input.groupId)) {
+        throw Error(CreateError.ALREADY_EXISTS);
+    }
+
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.insert(
+            table.name,
+            [ table.column.accountId, table.column.groupId, table.column.writeAccess ]
+        ),
+        [ input.accountId, input.groupId, input.writeAccess ? 1 : 0 ]
+    );
+    return postResult.lastID;
 };
 
 
@@ -111,17 +174,13 @@ export interface GetInput {
 export interface GetOutput {
     accountId: number
     groupId: number
-    id: number
     writeAccess: boolean
+    id: number
 }
 export interface GetDbOut {
-    // eslint-disable-next-line camelcase
-    account_Id: number
-    // eslint-disable-next-line camelcase
-    document_group_Id: number
-    id: number
-    // eslint-disable-next-line camelcase
-    write_access: 1|0
+    accountId: number
+    groupId: number
+    writeAccess: 1|0
 }
 
 export const get = async (
@@ -131,94 +190,27 @@ export const get = async (
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select(groupAccessTableName,
-            [ groupAccessColumnAccountId, groupAccessColumnGroupId, groupAccessColumnWriteAccess ],
-            { whereColumn: groupAccessColumnId }
+        database.queries.select(
+            table.name,
+            [
+                { alias: "accountId", columnName: table.column.accountId },
+                { alias: "groupId", columnName: table.column.groupId },
+                { alias: "writeAccess", columnName: table.column.writeAccess }
+            ],
+            { whereColumn: table.column.id }
         ),
         [input.id]
     );
     if (runResult) {
-
-        await account.checkIfAccountHasAccessToAccountOrIsFriend(
-            databasePath, accountId, runResult.account_Id
-        );
+        await group.checkIfAccountHasAccessToGetGroupInfo(databasePath, accountId, runResult.groupId);
 
         return {
-            accountId: runResult.account_Id,
-            groupId: runResult.document_group_Id,
-            id: runResult.id,
-            writeAccess: runResult.write_access === 1
+            accountId: runResult.accountId,
+            groupId: runResult.groupId,
+            id: input.id,
+            writeAccess: runResult.writeAccess === 1
         };
     }
-};
-
-export interface GetAllGroupMembersInput {
-    id: number
-    getNames?: boolean
-}
-export interface GetAllGroupMembersOutput {
-    accountId: number
-    accountName?: string
-    groupId: number
-    id: number
-    writeAccess: boolean
-}
-export interface GetAllGroupMembersDbOut {
-    accountId: number
-    accountName?: string
-    groupId: number
-    id: number
-    writeAccess: 1|0
-}
-
-export const getAllGroupMembers = async (
-    databasePath: string, accountId: number|undefined, input: GetAllGroupMembersInput
-): Promise<GetAllGroupMembersOutput[]> => {
-    await group.checkIfGroupExists(databasePath, input.id);
-
-    const columns: (database.queries.SelectColumn|string)[] = [
-        groupAccessColumnId,
-        { alias: "accountId", columnName: groupAccessColumnAccountId, tableName: groupAccessTableName },
-        { alias: "groupId", columnName: groupAccessColumnGroupId, tableName: groupAccessTableName },
-        { alias: "writeAccess", columnName: groupAccessColumnWriteAccess, tableName: groupAccessTableName }
-    ];
-    if (input.getNames) {
-        columns.push({
-            alias: "accountName",
-            columnName: account.accountColumnName,
-            tableName: account.accountTableName
-        });
-    }
-
-    const innerJoins: database.queries.SelectQueryInnerJoin[] = [];
-    if (input.getNames) {
-        innerJoins.push({
-            otherColumn: account.accountColumnId,
-            otherTableName: account.accountTableName,
-            thisColumn: groupAccessColumnAccountId
-        });
-    }
-
-    const groupMembers = await database.requests.getAll<GetAllGroupMembersDbOut>(
-        databasePath,
-        database.queries.select(groupAccessTableName,
-            columns,
-            { innerJoins, whereColumn: groupAccessColumnId }
-        ),
-        [input.id]
-    );
-    const finalMembers: GetAllGroupMembersOutput[] = [];
-    for (const groupMember of groupMembers) {
-        // TODO Check each member for access
-        finalMembers.push({
-            accountId: groupMember.accountId,
-            accountName: groupMember.accountName,
-            groupId: groupMember.groupId,
-            id: groupMember.id,
-            writeAccess: groupMember.writeAccess === 1
-        });
-    }
-    return finalMembers;
 };
 
 
@@ -231,16 +223,16 @@ export interface RemoveInput {
 
 export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
     await checkIfGroupAccessExists(databasePath, input.id);
-    const documentAccessInfo = await get(databasePath, accountId, { id: input.id });
-    if (documentAccessInfo) {
-        await account.checkIfAccountHasAccessToAccount(databasePath, accountId, documentAccessInfo.accountId);
+    const groupAccessInfo = await get(databasePath, accountId, { id: input.id });
+    if (groupAccessInfo) {
+        await group.checkIfAccountHasAccessToUpdateGroup(databasePath, accountId, groupAccessInfo.groupId);
     } else {
         throw Error(GeneralError.NO_ACCESS);
     }
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove(groupAccessTableName, groupAccessColumnId),
+        database.queries.remove(table.name, table.column.id),
         [input.id]
     );
     return postResult.changes > 0;

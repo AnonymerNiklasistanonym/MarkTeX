@@ -21,7 +21,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             accountId: { isInt: true },
             apiVersion: schemaValidations.getApiVersionSupported({ couldBeString: true }),
-            friendId: { isInt: true }
+            friendAccountId: { isInt: true }
         }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -49,7 +49,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
         expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
             accountId: { isInt: true },
             apiVersion: schemaValidations.getApiVersionSupported({ couldBeString: true }),
-            friendName: { isString: true }
+            friendAccountName: { isString: true }
         }), { sendJsonError: true }),
         // Check if session is authenticated
         expressMiddlewareSession.checkAuthenticationJson,
@@ -98,7 +98,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 if (accountFriendEntryInfo) {
                     const response: types.GetResponse = {
                         accountId: accountFriendEntryInfo.accountId,
-                        friendId: accountFriendEntryInfo.friendId,
+                        friendId: accountFriendEntryInfo.friendAccountId,
                         id: accountFriendEntryInfo.id
                     };
                     return res.status(200).json(response);

@@ -3,33 +3,50 @@ import * as database from "../../database";
 import crypto from "../../crypto";
 
 
+/** Errors that can happen during an account creation */
 export enum CreateError {
     PASSWORD_INVALID_FORMAT = "ACCOUNT_USER_NAME_INVALID_FORMAT",
     USER_NAME_ALREADY_EXISTS = "ACCOUNT_USER_NAME_ALREADY_EXISTS",
     USER_NAME_INVALID_FORMAT = "ACCOUNT_USER_NAME_INVALID_FORMAT"
 }
 
+/** Errors that can happen during account requests */
 export enum GeneralError {
     NO_ACCESS = "ACCOUNT_NO_ACCESS",
     NOT_EXISTING = "ACCOUNT_NOT_EXISTING"
 }
 
-export const accountTableName = "account";
-export const accountColumnId = "id";
-export const accountColumnName = "name";
-export const accountColumnAdmin = "admin";
-export const accountColumnPublic = "public";
-export const accountColumnPasswordHash = "password_hash";
-export const accountColumnPasswordSalt = "password_salt";
+/** Information about the SQlite table for accounts */
+export const table = {
+    /** SQlite column names for accounts table */
+    column: {
+        /** Is the account an admin */
+        admin: "admin",
+        /** The unique account id */
+        id: "id",
+        /** The unique account name */
+        name: "name",
+        /** The password hash */
+        passwordHash: "password_hash",
+        /** The salt that is used next to the password for the password hash */
+        passwordSalt: "password_salt",
+        /** Is the account public */
+        public: "public"
+    },
+    /** SQlite table name for accounts */
+    name: "account"
+} as const;
 
 
 // Exists
 // -----------------------------------------------------------------------------
 
 export interface ExistsInput {
+    /** ID of account that should be checked for existence */
     id: number
 }
 export interface ExistsNameInput {
+    /** Name of account that should be checked for existence */
     name: string
 }
 
@@ -41,13 +58,13 @@ export interface ExistsNameInput {
  */
 export const existsName = async (databasePath: string, input: ExistsNameInput): Promise<boolean> => {
     try {
-        const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
+        const runResultExists = await database.requests.getEach<database.queries.ExistsDbOut>(
             databasePath,
-            database.queries.exists(accountTableName, accountColumnName),
+            database.queries.exists(table.name, table.column.name),
             [input.name]
         );
-        if (runResult) {
-            return runResult.exists_value === 1;
+        if (runResultExists) {
+            return runResultExists.exists_value === 1;
         }
     } catch (error) {
         return false;
@@ -56,7 +73,7 @@ export const existsName = async (databasePath: string, input: ExistsNameInput): 
 };
 
 /**
- * Check if account exists.
+ * Check if account exists given its id.
  *
  * @param databasePath Path to database
  * @param input Info necessary to check it
@@ -65,7 +82,7 @@ export const exists = async (databasePath: string, input: ExistsInput): Promise<
     try {
         const runResult = await database.requests.getEach<database.queries.ExistsDbOut>(
             databasePath,
-            database.queries.exists(accountTableName, accountColumnId),
+            database.queries.exists(table.name, table.column.id),
             [input.id]
         );
         if (runResult) {
@@ -78,11 +95,11 @@ export const exists = async (databasePath: string, input: ExistsInput): Promise<
 };
 
 
-// Is admin
+// Is XYZ (silent errors)
 // -----------------------------------------------------------------------------
 
 export interface IsAdminGetDbOut {
-    admin: number
+    admin: 1|0
 }
 
 /**
@@ -96,7 +113,10 @@ export const isAdmin = async (databasePath: string, accountId: number|undefined)
         try {
             const runResult = await database.requests.getEach<IsAdminGetDbOut>(
                 databasePath,
-                database.queries.select(accountTableName, [accountColumnAdmin], { whereColumn: accountColumnId }),
+                database.queries.select(table.name,
+                    [table.column.admin],
+                    { whereColumn: table.column.id }
+                ),
                 [accountId]
             );
             if (runResult) {
@@ -109,17 +129,52 @@ export const isAdmin = async (databasePath: string, accountId: number|undefined)
     return false;
 };
 
+export interface IsPublicGetDbOut {
+    public: 1|0
+}
 
-// Checker (internal)
+/**
+ * Get if a given account is a public account.
+ *
+ * @param databasePath Path to database
+ * @param accountId Account id to be checked
+ */
+export const isPublic = async (databasePath: string, accountId: number|undefined): Promise<boolean> => {
+    if (accountId) {
+        try {
+            const runResult = await database.requests.getEach<IsPublicGetDbOut>(
+                databasePath,
+                database.queries.select(table.name,
+                    [table.column.public],
+                    { whereColumn: table.column.id }
+                ),
+                [accountId]
+            );
+            if (runResult) {
+                return runResult.public === 1;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+    return false;
+};
+
+
+// Checker (throw errors and have no return value)
 // -----------------------------------------------------------------------------
 
 /**
  * @throws When account does not exist
  * @param databasePath Path to database
- * @param accountId Account id to check
+ * @param accountId Account id to check if existing
  */
-export const checkIfAccountExists = async (databasePath: string, accountId: number): Promise<void> => {
-    if (!await exists(databasePath, { id: accountId })) {
+export const checkIfAccountExists = async (databasePath: string, accountId: number|undefined): Promise<void> => {
+    if (accountId) {
+        if (!await exists(databasePath, { id: accountId })) {
+            throw Error(GeneralError.NOT_EXISTING);
+        }
+    } else {
         throw Error(GeneralError.NOT_EXISTING);
     }
 };
@@ -127,103 +182,79 @@ export const checkIfAccountExists = async (databasePath: string, accountId: numb
 /**
  * @throws When account does not exist
  * @param databasePath Path to database
- * @param accountName Account name to check
+ * @param accountName Account name to check if existing
  */
-export const checkIfAccountExistsName = async (databasePath: string, accountName: string): Promise<void> => {
-    if (!await existsName(databasePath, { name: accountName })) {
+export const checkIfAccountExistsName = async (databasePath: string, accountName: string|undefined): Promise<void> => {
+    if (accountName) {
+        if (!await existsName(databasePath, { name: accountName })) {
+            throw Error(GeneralError.NOT_EXISTING);
+        }
+    } else {
         throw Error(GeneralError.NOT_EXISTING);
     }
 };
 
 /**
- * @throws When no access is deducted
+ * Check a given account has the rights to get basic information about a given account.
+ *
+ * @throws When there is no access
  * @param databasePath Path to database
- * @param requesterAccountId
- * @param accessAccountId
- * @param otherAccessOption
+ * @param requesterAccountId Id of account that requests to get basic information
+ * @param accessAccountId Id of account that is requested to be get
  */
-export const checkIfAccountHasAccessToAccount = async (
-    databasePath: string, requesterAccountId: number, accessAccountId: number,
-    otherAccessOption = false
+export const checkIfAccountHasAccessToGetAccountInfo = async (
+    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number
 ): Promise<void> => {
+    // No problem if:
+    // 1) The account ids match (same account)
+    // 2) The requested account is public
+    // 3) The requester account is a friend of the account to be get
+    // 4) The account that requests basic information is admin
     if (requesterAccountId !== accessAccountId && !(
+        await isPublic(databasePath, requesterAccountId) ||
+        await accountFriends.existsAccountIds(databasePath, accessAccountId, requesterAccountId) ||
         await isAdmin(databasePath, requesterAccountId)
-        || otherAccessOption
     )) {
         throw Error(GeneralError.NO_ACCESS);
     }
 };
 
 /**
- * @throws When no access is deducted
+ * Check a given account has the rights to update a given account.
+ *
+ * @throws When there is no access
  * @param databasePath Path to database
- * @param requesterAccountId
- * @param accessAccountId
- * @param otherAccessOption
+ * @param requesterAccountId Id of account that requests an update
+ * @param accessAccountId Id of account that is requested to be updated
  */
-export const checkIfAccountHasAccessToAccountOrOther = async (
-    databasePath: string, requesterAccountId: number, accessAccountId: number,
-    otherAccessOption: () => boolean|Promise<boolean>
+export const checkIfAccountHasAccessToUpdateAccount = async (
+    databasePath: string, requesterAccountId: number, accessAccountId: number
 ): Promise<void> => {
-    await checkIfAccountHasAccessToAccount(
-        databasePath, requesterAccountId, accessAccountId,
-        await otherAccessOption()
-    );
-};
-
-/**
- * @throws When no access is deducted
- * @param databasePath Path to database
- * @param requesterAccountId
- * @param accessAccountId
- * @param accessAccountIsPublic
- * @param accessOtherOptions
- */
-export const checkIfAccountHasAccessToAccountOrIsFriend = async (
-    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
-    accessAccountIsPublic = false, accessOtherOptions = false
-): Promise<void> => {
-    if (requesterAccountId !== accessAccountId && !(
-        accessAccountIsPublic
-        || (requesterAccountId && await accountFriends.existsAccountAndFriendAccount(databasePath, {
-            account: accessAccountId, friend: requesterAccountId
-        }))
-        || await isAdmin(databasePath, requesterAccountId)
-        || accessOtherOptions
-    )) {
+    // No problem if:
+    // 1) The account ids match (same account)
+    // 2) The account that requests change is admin
+    if (requesterAccountId !== accessAccountId && !(await isAdmin(databasePath, requesterAccountId))) {
         throw Error(GeneralError.NO_ACCESS);
     }
 };
 
 /**
- * @throws When no access is deducted
+ * Check a given account has the rights to remove a given account.
+ *
+ * @throws When there is no access
  * @param databasePath Path to database
- * @param requesterAccountId
- * @param accessAccountId
- * @param accessIsPublic
+ * @param requesterAccountId Id of account that requests an removal
+ * @param accessAccountId Id of account that is requested to be removed
  */
-export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic = async (
-    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
-    accessIsPublic: () => (Promise<boolean>|boolean)
+export const checkIfAccountHasAccessToRemoveAccount = async (
+    databasePath: string, requesterAccountId: number, accessAccountId: number
 ): Promise<void> => {
-    await checkIfAccountHasAccessToAccountOrIsFriend(databasePath, requesterAccountId, accessAccountId,
-        await accessIsPublic());
-};
-
-/**
- * @throws When no access is deducted
- * @param databasePath Path to database
- * @param requesterAccountId
- * @param accessAccountId
- * @param accessIsPublic
- * @param accessOtherOption
- */
-export const checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublicOrOther = async (
-    databasePath: string, requesterAccountId: number|undefined, accessAccountId: number,
-    accessIsPublic: () => (Promise<boolean>|boolean), accessOtherOption: () => (Promise<boolean>|boolean)
-): Promise<void> => {
-    await checkIfAccountHasAccessToAccountOrIsFriend(databasePath, requesterAccountId, accessAccountId,
-        await accessIsPublic(), await accessOtherOption());
+    // No problem if:
+    // 1) The account ids match (same account)
+    // 2) The account that requests change is admin
+    if (requesterAccountId !== accessAccountId && !(await isAdmin(databasePath, requesterAccountId))) {
+        throw Error(GeneralError.NO_ACCESS);
+    }
 };
 
 
@@ -264,7 +295,7 @@ export interface CreateInput {
  * @returns ID of created account
  */
 export const create = async (databasePath: string, input: CreateInput): Promise<number> => {
-    // Validate that password and user name have correct format and that user name does not already exist
+    // Special validations for account creation
     if (await existsName(databasePath, { name: input.name })) {
         throw Error(CreateError.USER_NAME_ALREADY_EXISTS);
     }
@@ -275,17 +306,17 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
         throw Error(CreateError.PASSWORD_INVALID_FORMAT);
     }
 
-    const columns = [ accountColumnName, accountColumnPasswordHash, accountColumnPasswordSalt ];
     const hashAndSalt = crypto.generateHashAndSalt(input.password);
-    const values: (string|number)[] = [ input.name, hashAndSalt.hash, hashAndSalt.salt ];
-    columns.push(accountColumnAdmin);
-    values.push(input.admin === true ? 1 : 0);
-    columns.push(accountColumnPublic);
-    values.push(input.public === true ? 1 : 0);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.insert(accountTableName, columns),
-        values
+        database.queries.insert(table.name, [
+            table.column.name, table.column.passwordHash, table.column.passwordSalt,
+            table.column.admin, table.column.public
+        ]),
+        [
+            input.name, hashAndSalt.hash, hashAndSalt.salt,
+            input.admin === true ? 1 : 0, input.public === true ? 1 : 0
+        ]
     );
     return postResult.lastID;
 };
@@ -295,6 +326,7 @@ export const create = async (databasePath: string, input: CreateInput): Promise<
 // -----------------------------------------------------------------------------
 
 export interface RemoveInput {
+    /** ID of account that should be removed */
     id: number
 }
 
@@ -308,11 +340,11 @@ export interface RemoveInput {
  */
 export const remove = async (databasePath: string, accountId: number, input: RemoveInput): Promise<boolean> => {
     await checkIfAccountExists(databasePath, input.id);
-    await checkIfAccountHasAccessToAccount(databasePath, accountId, input.id);
+    await checkIfAccountHasAccessToRemoveAccount(databasePath, accountId, input.id);
 
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.remove(accountTableName, accountColumnId),
+        database.queries.remove(table.name, table.column.id),
         [input.id]
     );
     return postResult.changes > 0;
@@ -345,13 +377,13 @@ export const checkLogin = async (databasePath: string, input: CheckLoginInput): 
 
     const runResult = await database.requests.getEach<CheckLoginDbOut>(
         databasePath,
-        database.queries.select(accountTableName,
+        database.queries.select(table.name,
             [
-                accountColumnId,
-                { alias: "passwordHash", columnName: accountColumnPasswordHash },
-                { alias: "passwordSalt", columnName: accountColumnPasswordSalt }
+                table.column.id,
+                { alias: "passwordHash", columnName: table.column.passwordHash },
+                { alias: "passwordSalt", columnName: table.column.passwordSalt }
             ],
-            { whereColumn: accountColumnName }
+            { whereColumn: table.column.name }
         ),
         [input.name]
     );
@@ -381,12 +413,12 @@ export const checkLoginId = async (databasePath: string, input: CheckLoginIdInpu
 
         const runResult = await database.requests.getEach<CheckLoginIdDbOut>(
             databasePath,
-            database.queries.select(accountTableName,
+            database.queries.select(table.name,
                 [
-                    { alias: "passwordHash", columnName: accountColumnPasswordHash },
-                    { alias: "passwordSalt", columnName: accountColumnPasswordSalt }
+                    { alias: "passwordHash", columnName: table.column.passwordHash },
+                    { alias: "passwordSalt", columnName: table.column.passwordSalt }
                 ],
-                { whereColumn: accountColumnId }
+                { whereColumn: table.column.id }
             ),
             [input.id]
         );
@@ -434,26 +466,23 @@ export const get = async (
     databasePath: string, accountId: number|undefined, input: GetInput
 ): Promise<void|GetOutput> => {
     await checkIfAccountExists(databasePath, input.id);
+    await checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, input.id);
 
     const runResult = await database.requests.getEach<GetDbOut>(
         databasePath,
-        database.queries.select(accountTableName, [ accountColumnName, accountColumnAdmin, accountColumnPublic ], {
-            whereColumn: accountColumnId
+        database.queries.select(table.name, [
+            table.column.name, table.column.admin, table.column.public
+        ], {
+            whereColumn: table.column.id
         }),
         [input.id]
     );
     if (runResult) {
-        const isPublic = runResult.public === 1;
-
-        // Currently not necessary
-        // await checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, input.id,
-        //     () => isPublic);
-
         return {
             admin: runResult.admin === 1,
             id: input.id,
             name: runResult.name,
-            public: isPublic
+            public: runResult.public === 1
         };
     }
 };
@@ -475,7 +504,7 @@ export interface GetNameDbOut {
 
 
 /**
- * Get account.
+ * Get account given its name.
  *
  * @param databasePath Path to database
  * @param accountId ID of account that wants to do this action
@@ -489,23 +518,21 @@ export const getName = async (
 
     const runResult = await database.requests.getEach<GetNameDbOut>(
         databasePath,
-        database.queries.select(accountTableName, [ accountColumnId, accountColumnAdmin, accountColumnPublic ], {
-            whereColumn: accountColumnName
+        database.queries.select(table.name, [
+            table.column.id, table.column.admin, table.column.public
+        ], {
+            whereColumn: table.column.name
         }),
         [input.name]
     );
     if (runResult) {
-        const isPublic = runResult.public === 1;
-
-        // Currently not necessary
-        // await checkIfAccountHasAccessToAccountOrIsFriendOrAccessIsPublic(databasePath, accountId, runResult.id,
-        //     () => isPublic);
+        await checkIfAccountHasAccessToGetAccountInfo(databasePath, accountId, runResult.id);
 
         return {
             admin: runResult.admin === 1,
             id: runResult.id,
             name: input.name,
-            public: isPublic
+            public: runResult.public === 1
         };
     }
 };
@@ -532,32 +559,32 @@ export interface UpdateInput {
  */
 export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<boolean> => {
     await checkIfAccountExists(databasePath, input.id);
-    await checkIfAccountHasAccessToAccount(databasePath, accountId, input.id);
+    await checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.id);
 
     const columns = [];
     const values = [];
     if (input.public !== undefined) {
-        columns.push(accountColumnPublic);
+        columns.push(table.column.public);
         values.push(input.public ? 1 : 0);
     }
     if (input.password) {
         const hashAndSalt = crypto.generateHashAndSalt(input.password);
-        columns.push(accountColumnPasswordHash, accountColumnPasswordSalt);
+        columns.push(table.column.passwordHash, table.column.passwordSalt);
         values.push(hashAndSalt.hash, hashAndSalt.salt);
     }
     if (input.name) {
-        columns.push(accountColumnName);
+        columns.push(table.column.name);
         values.push(input.name);
     }
     if (input.admin !== undefined) {
         console.warn("Account admin status was updated", input.admin);
-        columns.push(accountColumnAdmin);
+        columns.push(table.column.admin);
         values.push(input.admin ? 1 : 0);
     }
     values.push(input.id);
     const postResult = await database.requests.post(
         databasePath,
-        database.queries.update(accountTableName, columns, accountColumnId),
+        database.queries.update(table.name, columns, table.column.id),
         values
     );
     return postResult.changes > 0;

@@ -25,13 +25,13 @@ export const register = (app: express.Application, options: StartExpressServerOp
         const accountInfo = await api.database.account.get(
             options.databasePath, sessionInfo.accountId, { id: sessionInfo.accountId  }
         );
-        const accountDocuments = await api.database.document.getAllFromOwner(
+        const accountDocuments = await api.database.document.getAllFromAccount(
             options.databasePath, sessionInfo.accountId, { id: sessionInfo.accountId }
         );
         const accountFriends = await api.database.accountFriend.getAllFromAccount(
             options.databasePath, sessionInfo.accountId, { getNames: true, id: sessionInfo.accountId }
         );
-        const accountGroups = await api.database.group.getAllFromOwner(
+        const accountGroups = await api.database.group.getAllFromAccount(
             options.databasePath, sessionInfo.accountId, { id: sessionInfo.accountId }
         );
         if (!accountInfo || !accountDocuments) {

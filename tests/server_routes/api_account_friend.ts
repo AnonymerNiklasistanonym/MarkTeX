@@ -34,9 +34,10 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             const addRequest: apiRequests.accountFriend.types.AddRequestApi = {
                 accountId: testAccountId,
                 apiVersion: 1,
-                friendId: testFriendAccountId
+                friendAccountId: testFriendAccountId
             };
             await chaiAgent.post("/api/account_friend/add").send(addRequest).then(res => {
+                console.warn(res.text);
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
                 const addResponse: apiRequests.accountFriend.types.AddResponse = res.body;
@@ -50,7 +51,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             const testAccountId = await api.database.account.create(databasePath, testAccountCredentials);
             const testFriendAccountId = await api.database.account.create(databasePath, testFriendAccountCredentials);
             const testAccountFriendEntryId = await api.database.accountFriend.create(databasePath, testAccountId, {
-                accountId: testAccountId, friendId: testFriendAccountId
+                accountId: testAccountId, friendAccountId: testFriendAccountId
             });
 
             const chaiAgent = chai.request.agent(APP);
@@ -75,7 +76,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             const testAccountId = await api.database.account.create(databasePath, testAccountCredentials);
             const testFriendAccountId = await api.database.account.create(databasePath, testFriendAccountCredentials);
             const testAccountFriendEntryId = await api.database.accountFriend.create(databasePath, testAccountId, {
-                accountId: testAccountId, friendId: testFriendAccountId
+                accountId: testAccountId, friendAccountId: testFriendAccountId
             });
 
             const chaiAgent = chai.request.agent(APP);
