@@ -308,7 +308,6 @@ export interface GetMembersDbOut {
     accountName: string
     writeAccess: 1|0
 }
-
 export interface GetMembersOutput {
     /** Account id */
     accountId: number
@@ -345,7 +344,7 @@ export const getMembers = async (
         ),
         [input.id]
     );
-    const allGroups: GetMembersOutput[] = [];
+    const allMembers: GetMembersOutput[] = [];
     const accountIsGroupOwner = input.id === accountId;
     const groupIsPublic = isPublic(databasePath, input.id);
     const accountIsAdmin = await account.isAdmin(databasePath, accountId);
@@ -358,14 +357,14 @@ export const getMembers = async (
         // 3) There exists a group access for the requester account
         // 4) The requester account is admin
         if (accountIsGroupOwner || groupIsPublic || accountIsAdmin || accountHasGroupAccess) {
-            allGroups.push({
+            allMembers.push({
                 accountId: runResult.accountId,
                 accountName: runResult.accountName,
                 writeAccess: runResult.writeAccess === 1
             });
         }
     }
-    return allGroups;
+    return allMembers;
 };
 
 

@@ -507,6 +507,74 @@ export const getAllFromGroup = async (
     return allDocuments;
 };
 
+export interface GetMembersInput {
+    /** Document id */
+    id: number
+}
+export interface GetMembersDbOut {
+    accountId: number
+    accountName: string
+    writeAccess: 1|0
+}
+export interface GetMembersOutput {
+    /** Account id */
+    accountId: number
+    /** Account name */
+    accountName: string
+    /** Write access */
+    writeAccess: boolean
+}
+
+export const getMembers = async (
+    databasePath: string, accountId: number|undefined, input: GetMembersInput
+): Promise<GetMembersOutput[]> => {
+    await checkIfDocumentExists(databasePath, input.id);
+
+    const runResults = await database.requests.getAll<GetMembersDbOut>(
+        databasePath,
+        database.queries.select(documentAccess.table.name,
+            [
+                { alias: "accountId", columnName: account.table.column.id, tableName: account.table.name },
+                { alias: "accountName", columnName: account.table.column.name, tableName: account.table.name },
+                {
+                    alias: "writeAccess",
+                    columnName: documentAccess.table.column.writeAccess,
+                    tableName: documentAccess.table.name
+                }
+            ], {
+                innerJoins: [{
+                    otherColumn: account.table.column.id,
+                    otherTableName: account.table.name,
+                    thisColumn: documentAccess.table.column.accountId
+                }],
+                whereColumn: { columnName: table.column.id, tableName: documentAccess.table.name }
+            }
+        ),
+        [input.id]
+    );
+    const allMembers: GetMembersOutput[] = [];
+    const accountIsDocumentOwner = input.id === accountId;
+    const documentIsPublic = isPublic(databasePath, input.id);
+    const accountIsAdmin = await account.isAdmin(databasePath, accountId);
+    const accountHasDocumentAccess = await documentAccess.existsAccountDocumentIds(databasePath, accountId, input.id);
+    for (const runResult of runResults) {
+        // Only return the groups that the account that requested them has access to
+        // This is the case if:
+        // 1) The document owner account id is the same as the account id of the requester
+        // 2) The document is public
+        // 3) There exists a document access for the requester account
+        // 4) The requester account is admin
+        if (accountIsDocumentOwner || documentIsPublic || accountIsAdmin || accountHasDocumentAccess) {
+            allMembers.push({
+                accountId: runResult.accountId,
+                accountName: runResult.accountName,
+                writeAccess: runResult.writeAccess === 1
+            });
+        }
+    }
+    return allMembers;
+};
+
 
 // Update
 // -----------------------------------------------------------------------------

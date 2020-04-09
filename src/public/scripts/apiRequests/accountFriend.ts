@@ -4,30 +4,26 @@ import * as general from "./general";
 
 const baseUrl = `${general.baseUrlApi}/account_friend`;
 
-export const get = async (input: api.accountFriend.types.GetRequest): Promise<api.accountFriend.types.GetResponse> => {
-    return general.apiRequest<api.accountFriend.types.GetRequest, api.accountFriend.types.GetResponse>(
+export const get = async (input: api.accountFriend.GetRequest): Promise<api.accountFriend.GetResponse> => {
+    return general.apiRequest<api.accountFriend.GetRequest, api.accountFriend.GetResponse>(
         `${baseUrl}/get`, input
     );
 };
 
-export const add = async (input: api.accountFriend.types.AddRequest): Promise<api.accountFriend.types.AddResponse> => {
-    return general.apiRequest<api.accountFriend.types.AddRequest, api.accountFriend.types.AddResponse>(
+export const add = async (input: api.accountFriend.AddRequest): Promise<api.accountFriend.AddResponse> => {
+    return general.apiRequest<api.accountFriend.AddRequest, api.accountFriend.AddResponse>(
         `${baseUrl}/add`, input
     );
 };
 
-export const addName = async (
-    input: api.accountFriend.types.AddNameRequest
-): Promise<api.accountFriend.types.AddNameResponse> => {
-    return general.apiRequest<api.accountFriend.types.AddNameRequest, api.accountFriend.types.AddNameResponse>(
+export const addName = async (input: api.accountFriend.AddNameRequest): Promise<api.accountFriend.AddNameResponse> => {
+    return general.apiRequest<api.accountFriend.AddNameRequest, api.accountFriend.AddNameResponse>(
         `${baseUrl}/addName`, input
     );
 };
 
-export const remove = async (
-    input: api.accountFriend.types.RemoveRequest
-): Promise<api.accountFriend.types.RemoveResponse> => {
-    return general.apiRequest<api.accountFriend.types.RemoveRequest, api.accountFriend.types.RemoveResponse>(
+export const remove = async (input: api.accountFriend.RemoveRequest): Promise<api.accountFriend.RemoveResponse> => {
+    return general.apiRequest<api.accountFriend.RemoveRequest, api.accountFriend.RemoveResponse>(
         `${baseUrl}/remove`, input
     );
 };

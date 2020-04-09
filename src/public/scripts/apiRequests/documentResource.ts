@@ -4,26 +4,22 @@ import * as general from "./general";
 
 const baseUrl = `${general.baseUrlApi}/document_resource`;
 
-export const get = async (
-    input: api.documentResource.types.GetRequest
-): Promise<api.documentResource.types.GetResponse> => {
-    return general.apiRequest<api.documentResource.types.GetRequest, api.documentResource.types.GetResponse>(
+export const get = async (input: api.documentResource.GetRequest): Promise<api.documentResource.GetResponse> => {
+    return general.apiRequest<api.documentResource.GetRequest, api.documentResource.GetResponse>(
         `${baseUrl}/get`, input
     );
 };
 
-export const add = async (
-    input: api.documentResource.types.AddRequest
-): Promise<api.documentResource.types.AddResponse> => {
-    return general.apiRequest<api.documentResource.types.AddRequest, api.documentResource.types.AddResponse>(
+export const add = async (input: api.documentResource.AddRequest): Promise<api.documentResource.AddResponse> => {
+    return general.apiRequest<api.documentResource.AddRequest, api.documentResource.AddResponse>(
         `${baseUrl}/add`, input
     );
 };
 
 export const remove = async (
-    input: api.documentResource.types.RemoveRequest
-): Promise<api.documentResource.types.RemoveResponse> => {
-    return general.apiRequest<api.documentResource.types.RemoveRequest, api.documentResource.types.RemoveResponse>(
+    input: api.documentResource.RemoveRequest
+): Promise<api.documentResource.RemoveResponse> => {
+    return general.apiRequest<api.documentResource.RemoveRequest, api.documentResource.RemoveResponse>(
         `${baseUrl}/remove`, input
     );
 };

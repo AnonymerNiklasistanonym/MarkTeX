@@ -19,7 +19,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             name: "TestUserFriend",
             password: "TestUserFriendPassword"
         };
-        const loginRequest: apiRequests.account.types.LoginRequestApi = {
+        const loginRequest: apiRequests.account.LoginRequestApi = {
             apiVersion: 1,
             ... testAccountCredentials
         };
@@ -31,7 +31,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
 
             const chaiAgent = chai.request.agent(APP);
             await chaiAgent.post("/api/account/login").send(loginRequest).then();
-            const addRequest: apiRequests.accountFriend.types.AddRequestApi = {
+            const addRequest: apiRequests.accountFriend.AddRequestApi = {
                 accountId: testAccountId,
                 apiVersion: 1,
                 friendAccountId: testFriendAccountId
@@ -40,7 +40,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                 console.warn(res.text);
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const addResponse: apiRequests.accountFriend.types.AddResponse = res.body;
+                const addResponse: apiRequests.accountFriend.AddResponse = res.body;
                 addResponse.id.should.be.a("number");
                 delete addResponse.id;
                 addResponse.should.be.deep.equal({});
@@ -56,14 +56,14 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
 
             const chaiAgent = chai.request.agent(APP);
             await chaiAgent.post("/api/account/login").send(loginRequest).then();
-            const getRequest: apiRequests.accountFriend.types.GetRequestApi = {
+            const getRequest: apiRequests.accountFriend.GetRequestApi = {
                 apiVersion: 1,
                 id: testAccountFriendEntryId
             };
             await chaiAgent.post("/api/account_friend/get").send(getRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const getResponse: apiRequests.accountFriend.types.GetResponse = res.body;
+                const getResponse: apiRequests.accountFriend.GetResponse = res.body;
                 getResponse.should.be.deep.equal({
                     accountId: testAccountId,
                     friendId: testFriendAccountId,
@@ -81,14 +81,14 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
 
             const chaiAgent = chai.request.agent(APP);
             await chaiAgent.post("/api/account/login").send(loginRequest).then();
-            const removeRequest: apiRequests.accountFriend.types.RemoveRequestApi = {
+            const removeRequest: apiRequests.accountFriend.RemoveRequestApi = {
                 apiVersion: 1,
                 id: testAccountFriendEntryId
             };
             await chaiAgent.post("/api/account_friend/remove").send(removeRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const removeResponse: apiRequests.accountFriend.types.RemoveResponse = res.body;
+                const removeResponse: apiRequests.accountFriend.RemoveResponse = res.body;
                 removeResponse.should.be.deep.equal({
                     id: testAccountFriendEntryId
                 });

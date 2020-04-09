@@ -81,12 +81,33 @@ export const getAccountIdExists = (
         custom: {
             options: async (id: number): Promise<boolean> => {
                 const exists = await api.database.account.exists(input.databasePath, { id });
-                debug(`Group id exists: ${exists}`);
+                debug(`Account id '${id}' exists: ${exists}`);
                 return exists;
             }
         },
         errorMessage: "Must be an existing account id",
         isInt: true
+    };
+};
+
+export interface InputSchemaValidationExistingAccountName {
+    databasePath: string
+    accountId: number
+}
+
+export const getAccountNameExists = (
+    input: InputSchemaValidationExistingAccountName
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (name: string): Promise<boolean> => {
+                const exists = await api.database.account.existsName(input.databasePath, { name });
+                debug(`Account name '${name}' exists: ${exists}`);
+                return exists;
+            }
+        },
+        errorMessage: "Must be an existing account name",
+        isString: true
     };
 };
 

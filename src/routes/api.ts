@@ -1,14 +1,15 @@
-import * as account from "./api/account";
-import * as accountFriend from "./api/accountFriend";
-import * as document from "./api/document";
-import * as documentAccess from "./api/documentAccess";
-import * as documentResource from "./api/documentResource";
-import * as group from "./api/group";
-import * as groupAccess from "./api/groupAccess";
-import * as latex2svg from "./api/latex2svg";
+import routesAccount, { types as account } from "./api/account";
+import routesAccountFriend, { types as accountFriend } from "./api/accountFriend";
+import routesDocument, { types as document } from "./api/document";
+import routesDocumentAccess, { types as documentAccess } from "./api/documentAccess";
+import routesDocumentResource, { types as documentResource } from "./api/documentResource";
+import routesGroup, { types as group } from "./api/group";
+import routesGroupAccess, { types as groupAccess } from "./api/groupAccess";
+import routesLatex2svg, { types as latex2svg } from "./api/latex2svg";
 import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
+// Export api request/response types
 export type {
     account,
     accountFriend,
@@ -20,14 +21,14 @@ export type {
     latex2svg
 };
 
-
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
-    account.register(app, options);
-    accountFriend.register(app, options);
-    document.register(app, options);
-    documentAccess.register(app, options);
-    documentResource.register(app, options);
-    group.register(app, options);
-    groupAccess.register(app, options);
-    latex2svg.register(app, options);
+// Export all api routes
+export default (app: express.Application, options: StartExpressServerOptions): void => {
+    routesAccount(app, options);
+    routesAccountFriend(app, options);
+    routesDocument(app, options);
+    routesDocumentAccess(app, options);
+    routesDocumentResource(app, options);
+    routesGroup(app, options);
+    routesGroupAccess(app, options);
+    routesLatex2svg(app, options);
 };

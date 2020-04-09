@@ -11,14 +11,14 @@ import { validateWithError } from "../../middleware/expressValidator";
 export type { types };
 
 
+/** Dev debug logger */
 const debug = debuglog("app-express-route-api");
 
 
-let latestRequestDate = "";
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
-
-
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+    /** Saves the date of the latest request */
+    let latestRequestDate = "";
 
     app.post("/api/latex2svg",
         validateWithError(expressValidator.checkSchema({

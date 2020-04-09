@@ -14,7 +14,7 @@ export type { types };
 const debug = debuglog("app-express-route-api-document");
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/document/create",
         // Validate api input
@@ -47,7 +47,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     title: request.title
                 };
                 return res.status(200).json(response);
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/document/get",
@@ -89,7 +92,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: No document info was returned");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/document/update",
@@ -135,7 +141,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Document update was not successful");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/document/remove",
@@ -168,7 +177,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Account removal was not successful");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/document/export/pdf",
@@ -210,7 +222,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: No document info was returned");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/document/export/zip",
@@ -252,7 +267,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: No document info was returned");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/document/export/json",
@@ -294,6 +312,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: No document info was returned");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 };

@@ -5,7 +5,8 @@ import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+// Export login/register routes
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     // Login page
     app.get("/login", (req, res) => {

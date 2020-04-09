@@ -14,7 +14,7 @@ export type { types };
 const debug = debuglog("app-express-route-api-account-friend");
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/account_friend/add",
         // Validate api input
@@ -40,7 +40,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 res.status(200).json(response);
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -68,7 +68,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 res.status(200).json(response);
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -106,7 +106,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 throw Error("Internal error: Account friend entry info was not returned");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -137,16 +137,12 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     const response: types.RemoveResponse = {
                         id: request.id
                     };
-                    // When the removed account is the current account remove authentication
-                    if (sessionInfo.accountId === request.id) {
-                        expressMiddlewareSession.removeAuthentication(req);
-                    }
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Account friend entry removal was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 

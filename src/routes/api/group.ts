@@ -14,7 +14,7 @@ export type { types };
 const debug = debuglog("app-express-route-api-group");
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/group/create",
         // Validate api input
@@ -42,7 +42,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     public: request.public !== undefined ? request.public : false
                 };
                 return res.status(200).json(response);
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/group/get",
@@ -78,7 +81,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: No document info was returned");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/group/remove",
@@ -111,7 +117,10 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Group removal was not successful");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 
     app.post("/api/group/update",
@@ -151,6 +160,9 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     return res.status(200).json(response);
                 }
                 throw Error("Internal error: Document update was not successful");
-            } catch (error) { return res.status(500).json({ error }); }
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
         });
 };

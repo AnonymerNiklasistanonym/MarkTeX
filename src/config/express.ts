@@ -1,11 +1,4 @@
 import * as expressMiddlewareSession from "../middleware/expressSession";
-import * as routesAccount from "../routes/account";
-import * as routesApi from "../routes/api";
-import * as routesDocument from "../routes/document";
-import * as routesGroup from "../routes/group";
-import * as routesHome from "../routes/home";
-import * as routesLogin from "../routes/login";
-import * as routesTesting from "../routes/testing";
 import * as viewRendering from "../view_rendering/view_rendering";
 import bodyParser from "body-parser";
 import compression from "compression";
@@ -19,6 +12,13 @@ import http from "http";
 import http2 from "http2";
 import httpErrors from "http-errors";
 import path from "path";
+import routesAccount from "../routes/account";
+import routesApi from "../routes/api";
+import routesDocument from "../routes/document";
+import routesGroup from "../routes/group";
+import routesHome from "../routes/home";
+import routesLogin from "../routes/login";
+import routesTesting from "../routes/testing";
 import spdy from "spdy";
 
 
@@ -104,13 +104,13 @@ export const getExpressServer = (
     app.use("/githubmdcss", express.static(path.join(__dirname, "..", "..", "node_modules", "github-markdown-css")));
 
     // Configure routes
-    routesAccount.register(app, options);
-    routesApi.register(app, options);
-    routesDocument.register(app, options);
-    routesGroup.register(app, options);
-    routesHome.register(app, options);
-    routesLogin.register(app, options);
-    routesTesting.register(app, options);
+    routesAccount(app, options);
+    routesApi(app, options);
+    routesDocument(app, options);
+    routesGroup(app, options);
+    routesHome(app, options);
+    routesLogin(app, options);
+    routesTesting(app, options);
 
     // Catch URL not found (404) and forward to error handler
     app.use((req, res, next) => {

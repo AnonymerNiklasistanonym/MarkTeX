@@ -137,16 +137,16 @@ export const checkIfDocumentAccessExistsAccountDocumentIds = async (
 // Create
 // -----------------------------------------------------------------------------
 
-export interface CreateInput {
+export interface AddInput {
     accountId: number
     documentId: number
     writeAccess?: boolean
 }
 
-export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
+export const add = async (databasePath: string, accountId: number, input: AddInput): Promise<number> => {
     await account.checkIfAccountExists(databasePath, input.accountId);
     await document.checkIfDocumentExists(databasePath, input.documentId);
-    await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.accountId);
+    await document.checkIfAccountHasAccessToUpdateDocument(databasePath, accountId, input.documentId);
 
     if (await existsAccountDocumentIds(databasePath, input.accountId, input.documentId)) {
         throw Error(CreateError.ALREADY_EXISTS);
@@ -159,6 +159,37 @@ export const create = async (databasePath: string, accountId: number, input: Cre
             [ table.column.accountId, table.column.documentId, table.column.writeAccess ]
         ),
         [ input.accountId, input.documentId, input.writeAccess ? 1 : 0 ]
+    );
+    return postResult.lastID;
+};
+
+export interface AddNameInput {
+    accountName: string
+    documentId: number
+    writeAccess?: boolean
+}
+
+export const addName = async (databasePath: string, accountId: number, input: AddNameInput): Promise<number> => {
+    await account.checkIfAccountExistsName(databasePath, input.accountName);
+    await document.checkIfDocumentExists(databasePath, input.documentId);
+
+    const accountInfo = await account.getName(databasePath, accountId, { name: input.accountName });
+    if (!(accountInfo)) {
+        throw Error(account.GeneralError.NOT_EXISTING);
+    }
+    await document.checkIfAccountHasAccessToUpdateDocument(databasePath, accountId, input.documentId);
+
+    if (await existsAccountDocumentIds(databasePath, accountInfo.id, input.documentId)) {
+        throw Error(CreateError.ALREADY_EXISTS);
+    }
+
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.insert(
+            table.name,
+            [ table.column.accountId, table.column.documentId, table.column.writeAccess ]
+        ),
+        [ accountInfo.id, input.documentId, input.writeAccess ? 1 : 0 ]
     );
     return postResult.lastID;
 };

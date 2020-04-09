@@ -6,9 +6,9 @@ import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+// Export home page route
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
-    // Home page
     app.get("/", async (req, res, next) => {
         const loggedIn = expressMiddlewareSession.isAuthenticated(req);
         const header = viewRendering.getHeaderDefaults(options, { sockets: true });

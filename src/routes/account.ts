@@ -9,6 +9,9 @@ import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
+const debug = debuglog("app-express-route-account");
+
+
 export interface LoginRequest {
     name: string
     password: string
@@ -19,10 +22,8 @@ export interface RegisterRequest {
 }
 
 
-const debug = debuglog("app-express-route-account");
-
-
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+// Export all account routes
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     // View logged in account
     app.get("/account", (req, res) => {

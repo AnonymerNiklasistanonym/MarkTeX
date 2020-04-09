@@ -9,7 +9,8 @@ import { PdfOptionsPaperSize } from "../modules/api/databaseManager/documentPdfO
 import { StartExpressServerOptions } from "../config/express";
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+// Export all document routes
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     // View document
     app.get("/document/:id",
@@ -44,7 +45,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     id: documentId
                 });
                 if (documentInfo) {
-                    let accountInfo = {
+                    let owner = {
                         id: documentInfo.owner,
                         name: "Private",
                         public: false
@@ -54,22 +55,25 @@ export const register = (app: express.Application, options: StartExpressServerOp
                             id: documentInfo.owner
                         });
                         if (temp) {
-                            accountInfo = temp;
+                            owner = temp;
                         }
                     } catch (error) {
                         // Nothing?
                     }
-                    let groupInfo = {};
+                    let group = {};
                     try {
                         const temp = documentInfo.group ? await api.database.group.get(
                             options.databasePath, accountId, { id: documentInfo.group }
                         ) : undefined;
                         if (temp) {
-                            groupInfo = temp;
+                            group = temp;
                         }
                     } catch (error) {
                         // Nothing?
                     }
+                    const members =  await api.database.document.getMembers(
+                        options.databasePath, accountId, { id: documentId }
+                    );
                     if (!documentInfo.pdfOptions) { documentInfo.pdfOptions = {}; }
                     if (!documentInfo.pdfOptions.tableOfContents) { documentInfo.pdfOptions.tableOfContents = {}; }
                     if (!documentInfo.pdfOptions.header) { documentInfo.pdfOptions.header = {}; }
@@ -173,7 +177,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     ];
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     res.render("document", {
-                        document: { ... documentInfo, group: groupInfo, owner: accountInfo, pdfOptions },
+                        document: { ... documentInfo, group, members, owner, pdfOptions },
                         header,
                         isOwner: documentInfo.owner === accountId,
                         loggedIn,

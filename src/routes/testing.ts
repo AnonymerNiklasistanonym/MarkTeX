@@ -4,7 +4,8 @@ import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+// Export testing routes
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     // Testing page
     app.get("/testing", (req, res) => {

@@ -14,7 +14,7 @@ export type { types };
 const debug = debuglog("app-express-route-api-account");
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     app.post("/api/account/create",
         // Validate api input
@@ -39,7 +39,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 res.status(200).json(response);
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -69,7 +69,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 throw Error("Login was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -108,7 +108,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 throw Error("Internal error: Account info was not returned");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -148,7 +148,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 throw Error("Internal error: Account removal was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 
@@ -211,7 +211,7 @@ export const register = (app: express.Application, options: StartExpressServerOp
                 throw Error("Account update was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error });
+                res.status(500).json({ error: error.message ? error.message : error });
             }
         });
 

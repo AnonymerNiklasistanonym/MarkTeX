@@ -135,19 +135,19 @@ export const checkIfGroupAccessExistsAccountGroupIds = async (
 };
 
 
-// Create
+// Add
 // -----------------------------------------------------------------------------
 
-export interface CreateInput {
+export interface AddInput {
     accountId: number
     groupId: number
     writeAccess?: boolean
 }
 
-export const create = async (databasePath: string, accountId: number, input: CreateInput): Promise<number> => {
+export const add = async (databasePath: string, accountId: number, input: AddInput): Promise<number> => {
     await account.checkIfAccountExists(databasePath, input.accountId);
-    await document.checkIfDocumentExists(databasePath, input.groupId);
-    await account.checkIfAccountHasAccessToUpdateAccount(databasePath, accountId, input.accountId);
+    await group.checkIfGroupExists(databasePath, input.groupId);
+    await group.checkIfAccountHasAccessToUpdateGroup(databasePath, accountId, input.groupId);
 
     if (await existsAccountGroupIds(databasePath, input.accountId, input.groupId)) {
         throw Error(CreateError.ALREADY_EXISTS);
@@ -160,6 +160,37 @@ export const create = async (databasePath: string, accountId: number, input: Cre
             [ table.column.accountId, table.column.groupId, table.column.writeAccess ]
         ),
         [ input.accountId, input.groupId, input.writeAccess ? 1 : 0 ]
+    );
+    return postResult.lastID;
+};
+
+export interface AddNameInput {
+    accountName: string
+    groupId: number
+    writeAccess?: boolean
+}
+
+export const addName = async (databasePath: string, accountId: number, input: AddNameInput): Promise<number> => {
+    await account.checkIfAccountExistsName(databasePath, input.accountName);
+    await group.checkIfGroupExists(databasePath, input.groupId);
+
+    const accountInfo = await account.getName(databasePath, accountId, { name: input.accountName });
+    if (!(accountInfo)) {
+        throw Error(account.GeneralError.NOT_EXISTING);
+    }
+    await group.checkIfAccountHasAccessToUpdateGroup(databasePath, accountId, input.groupId);
+
+    if (await existsAccountGroupIds(databasePath, accountInfo.id, input.groupId)) {
+        throw Error(CreateError.ALREADY_EXISTS);
+    }
+
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.insert(
+            table.name,
+            [ table.column.accountId, table.column.groupId, table.column.writeAccess ]
+        ),
+        [ accountInfo.id, input.groupId, input.writeAccess ? 1 : 0 ]
     );
     return postResult.lastID;
 };

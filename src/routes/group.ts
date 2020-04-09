@@ -8,7 +8,8 @@ import express from "express";
 import { StartExpressServerOptions } from "../config/express";
 
 
-export const register = (app: express.Application, options: StartExpressServerOptions): void => {
+// Export all group routes
+export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     // View group
     app.get("/group/:id",

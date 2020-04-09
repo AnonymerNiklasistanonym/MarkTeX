@@ -89,7 +89,7 @@ window.addEventListener("load", () => {
     }
 
     if (buttonDocumentImportJson && inputDocumentImportJson) {
-        let jsonData: api.document.types.CreateRequest|undefined;
+        let jsonData: api.document.CreateRequest|undefined;
         inputDocumentImportJson.addEventListener("change", (): void => {
             const fileReader = new FileReader();
             fileReader.onload = (): void => {

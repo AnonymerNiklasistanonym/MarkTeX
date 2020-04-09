@@ -15,11 +15,11 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             name: "TestUser",
             password: "TestUserPassword"
         };
-        const loginRequest: apiRequests.account.types.LoginRequestApi = {
+        const loginRequest: apiRequests.account.LoginRequestApi = {
             apiVersion: 1,
             ... testAccountCredentials
         };
-        const createRequest: apiRequests.account.types.CreateRequestApi = {
+        const createRequest: apiRequests.account.CreateRequestApi = {
             apiVersion: 1,
             ... testAccountCredentials
         };
@@ -31,7 +31,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chai.request(APP).post("/api/account/login").send(loginRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const loginResponse: apiRequests.account.types.LoginResponse = res.body;
+                const loginResponse: apiRequests.account.LoginResponse = res.body;
                 loginResponse.should.be.deep.equal({
                     id: testAccountId
                 });
@@ -43,7 +43,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chai.request(APP).post("/api/account/create").send(createRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const createResponse: apiRequests.account.types.CreateResponse = res.body;
+                const createResponse: apiRequests.account.CreateResponse = res.body;
                 createResponse.id.should.be.a("number");
                 delete createResponse.id;
                 createResponse.should.be.deep.equal({});
@@ -55,14 +55,14 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
 
             const chaiAgent = chai.request.agent(APP);
             await chaiAgent.post("/api/account/login").send(loginRequest).then();
-            const getRequest: apiRequests.account.types.GetRequestApi = {
+            const getRequest: apiRequests.account.GetRequestApi = {
                 apiVersion: 1,
                 id: testAccountId
             };
             await chaiAgent.post("/api/account/get").send(getRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const getResponse: apiRequests.account.types.GetResponse = res.body;
+                const getResponse: apiRequests.account.GetResponse = res.body;
                 getResponse.should.be.deep.equal({
                     admin: false,
                     id: testAccountId,
@@ -77,14 +77,14 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
 
             const chaiAgent = chai.request.agent(APP);
             await chaiAgent.post("/api/account/login").send(loginRequest).then();
-            const removeRequest: apiRequests.account.types.RemoveRequestApi = {
+            const removeRequest: apiRequests.account.RemoveRequestApi = {
                 apiVersion: 1,
                 id: testAccountId
             };
             await chaiAgent.post("/api/account/remove").send(removeRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const getResponse: apiRequests.account.types.RemoveResponse = res.body;
+                const getResponse: apiRequests.account.RemoveResponse = res.body;
                 getResponse.should.be.deep.equal({
                     id: testAccountId
                 });
@@ -98,7 +98,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/account/login").send(loginRequest).then();
             const newName = "NewName";
             const newPublic = true;
-            const updateRequest: apiRequests.account.types.UpdateRequestApi = {
+            const updateRequest: apiRequests.account.UpdateRequestApi = {
                 apiVersion: 1,
                 currentPassword: testAccountCredentials.password,
                 id: testAccountId,
@@ -108,7 +108,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/account/update").send(updateRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const updateResponse: apiRequests.account.types.UpdateRequestApi = res.body;
+                const updateResponse: apiRequests.account.UpdateRequestApi = res.body;
                 updateResponse.should.be.deep.equal({
                     admin: false,
                     id: testAccountId,
@@ -118,7 +118,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             });
 
             // Test if current password is correctly checked
-            const updateRequestBad: apiRequests.account.types.UpdateRequestApi = {
+            const updateRequestBad: apiRequests.account.UpdateRequestApi = {
                 apiVersion: 1,
                 currentPassword: testAccountCredentials.password + "bad",
                 id: testAccountId,
@@ -131,7 +131,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
 
             // Test if password can be changed
             const newPassword = "NewPassword";
-            const updateRequestNewPassword: apiRequests.account.types.UpdateRequestApi = {
+            const updateRequestNewPassword: apiRequests.account.UpdateRequestApi = {
                 apiVersion: 1,
                 currentPassword: testAccountCredentials.password,
                 id: testAccountId,
