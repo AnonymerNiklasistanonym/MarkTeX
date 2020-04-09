@@ -11,7 +11,7 @@ window.addEventListener("load", () => {
     const accountId = helper.stringToNumberSafe(helper.getMetaInformation("accountId"));
     console.warn("accountId", accountId);
 
-    // Buttons
+    // Buttons/Inputs
     const buttonDocumentCreate = document.getElementById("button-document-new");
     const buttonDocumentImportJson = document.getElementById("button-document-import-json");
     const inputDocumentImportJson = document.getElementById("input-document-import-json") as HTMLInputElement|null;

@@ -167,11 +167,15 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
                     header.title = `${documentInfo.title} by ${documentInfo.authors}`;
                     header.description = `${documentInfo.title} by ${documentInfo.authors} from ${documentInfo.date}`;
-                    header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
+                    header.metaValues = [
+                        { content: `${accountId}`, name: "accountId" },
+                        { content: `${documentId}`, name: "documentId" }
+                    ];
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     res.render("document", {
                         document: { ... documentInfo, group: groupInfo, owner: accountInfo, pdfOptions },
                         header,
+                        isOwner: documentInfo.owner === accountId,
                         loggedIn,
                         navigationBar,
                         production: options.production

@@ -4,15 +4,40 @@
 <div class="container-group">
 	<div class="container-group-content">
 
-		<h1>{{group.name}} from <a href="/account/{{group.owner.id}}">{{group.owner.name}}</a></h1>
+		<h1>
+			<span id="group-name">{{group.name}}</span>
+		</h1>
 
 		<br>
 
+		<section class="section-document" id="section-document-infos">
+			<ul class="actions-vertical">
+				<li><a class="button" href="/account/{{group.owner.id}}">Owner: {{group.owner.name}}</a></li>
+			</ul>
+		</section>
+
 		<section class="section-group" id="section-group-members">
 			<h2>Members:</h2>
-			<ul>
+
+			{{#if isOwner}}
+			<form id="form-member">
+				<input id="input-member-add-name" class="input-text" type="text" name="memberName" placeholder="New member name...">
+				<input id="input-member-add-write-access" type="checkbox" id="scales" name="public">
+				<label for="public">Write access</label>
+			</form>
+
+			<ul class="actions-vertical">
+				<li><a class="button" id="button-member-add">Add new member</a></li>
+			</ul>
+			{{/if}}
+
+			<ul class="element-list">
 				{{#each group.members}}
-				<li><a class="button" href="/account/{{this.id}}">{{this.name}} ({{#if group.writeAccess}}[write]{{/if}}</a></li>
+				<li>
+					<a class="button" href="/account/{{this.accountId}}">{{this.accountName}} ({{#if this.writeAccess}}[write]{{/if}}</a>
+					<a class="button button-property button-property-write-access" memberId="{{this.id}}" memberAccountName="{{this.accountName}}">Toggle write access</a>
+					<a class="button button-remove button-remove-member" memberId="{{this.id}}" memberAccountName="{{this.accountName}}">Remove</a>
+				</li>
 				{{/each}}
 			</ul>
 		</section>

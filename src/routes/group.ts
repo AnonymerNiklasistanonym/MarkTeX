@@ -49,10 +49,14 @@ export const register = (app: express.Application, options: StartExpressServerOp
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });
                     header.stylesheets.push({ path: "/stylesheets/group.css" });
-                    header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
+                    header.metaValues = [
+                        { content: `${accountId}`, name: "accountId" },
+                        { content: `${groupId}`, name: "groupId" }
+                    ];
                     res.render("group", {
                         group: { ... groupInfo, documents: groupDocuments, members: groupMembers, owner: accountInfo },
                         header,
+                        isOwner: groupInfo.owner === accountId,
                         navigationBar,
                         production: options.production
                     });

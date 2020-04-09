@@ -22,9 +22,12 @@ export type {
 
 
 export const register = (app: express.Application, options: StartExpressServerOptions): void => {
-    latex2svg.register(app, options);
-    document.register(app, options);
     account.register(app, options);
     accountFriend.register(app, options);
+    document.register(app, options);
+    documentAccess.register(app, options);
+    documentResource.register(app, options);
     group.register(app, options);
+    groupAccess.register(app, options);
+    latex2svg.register(app, options);
 };

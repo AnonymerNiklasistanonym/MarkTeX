@@ -45,6 +45,8 @@ window.addEventListener("load", () => {
 
     const accountId = helper.stringToNumberSafe(helper.getMetaInformation("accountId"));
     console.warn("accountId", accountId);
+    const documentId = helper.stringToNumberSafe(helper.getMetaInformation("documentId"));
+    console.warn("documentId", documentId);
 
     // Get live input/output elements
     const marktexEditor = document.getElementById("marktex-editor") as HTMLTextAreaElement;
@@ -53,6 +55,13 @@ window.addEventListener("load", () => {
 
     const documentTitleSpan = document.getElementById("document-title") as HTMLSpanElement;
     const documentAuthorsSpan = document.getElementById("document-authors") as HTMLSpanElement;
+
+    // Buttons/Inputs
+    const buttonMemberAdd = document.getElementById("button-member-add");
+    const inputMemberAddName = document.getElementById("input-member-add-name") as HTMLInputElement|null;
+    const inputMemberAddWriteAccess = document.getElementById("input-member-add-write-access") as HTMLInputElement|null;
+
+    const buttonsMemberRemove = document.getElementsByClassName("button-remove-member");
 
     const marktexButtonBoth = document.getElementById("marktex-button-both") as HTMLAnchorElement;
     const marktexButtonEdit = document.getElementById("marktex-button-edit") as HTMLAnchorElement;
@@ -82,22 +91,28 @@ window.addEventListener("load", () => {
         marktexEditorOutput: liveOutput
     });
 
-    // Get document metadata
-    const documentId = Number(window.location.href.split("/").slice(-1)[0]);
-
     // Add button functionalities
     const buttonExportPdf = document.getElementById("document-button-export-pdf") as HTMLButtonElement;
     buttonExportPdf.addEventListener("click", async () => {
+        if (documentId === undefined) {
+            throw Error("No document id was found");
+        }
         const response = await apiRequests.document.getPdf({ id: documentId });
         download.saveAsBinary(response.pdfData, "application/pdf", `document_${response.id}.pdf`);
     });
     const buttonExportZip = document.getElementById("document-button-export-zip") as HTMLButtonElement;
     buttonExportZip.addEventListener("click", async () => {
+        if (documentId === undefined) {
+            throw Error("No document id was found");
+        }
         const response = await apiRequests.document.getZip({ id: documentId });
         download.saveAsBinary(response.zipData, " application/zip", `document_${response.id}.zip`);
     });
     const buttonExportJson = document.getElementById("document-button-export-json") as HTMLButtonElement;
     buttonExportJson.addEventListener("click", async () => {
+        if (documentId === undefined) {
+            throw Error("No document id was found");
+        }
         const response = await apiRequests.document.getJson({ id: documentId });
         download.saveAsPlainText(JSON.stringify(response.jsonData, null, 4), "application/json",
             `backup_document_${response.id}.json`);
@@ -105,33 +120,28 @@ window.addEventListener("load", () => {
     const buttonUpdateCreate = document.getElementById("document-button-update-create") as HTMLButtonElement;
     if (buttonUpdateCreate) {
         buttonUpdateCreate.addEventListener("click", async () => {
-            if (accountId) {
-                const response = await apiRequests.document.create({
-                    authors: documentInfoAuthors.value,
-                    content: liveInput.value,
-                    date: documentInfoDate.value,
-                    owner: accountId,
-                    pdfOptions: getDocumentPdfOptions(),
-                    title: documentInfoTitle.value
+            if (!(accountId)) {
+                throw Error("No account id was found");
+            }
+            const response = await apiRequests.document.create({
+                authors: documentInfoAuthors.value,
+                content: liveInput.value,
+                date: documentInfoDate.value,
+                owner: accountId,
+                pdfOptions: getDocumentPdfOptions(),
+                title: documentInfoTitle.value
+            });
+            if (response) {
+                await notifications.show({
+                    body: `New document "${response.title}" by "${response.authors}" from "${response.date}"`,
+                    onClickUrl: `/document/${response.id}`,
+                    title: "New document was created"
                 });
-                if (response) {
-                    await notifications.show({
-                        body: `New document "${response.title}" by "${response.authors}" from "${response.date}"`,
-                        onClickUrl: `/document/${response.id}`,
-                        title: "New document was created"
-                    });
-                    // Redirect user to document page
-                    window.location.href = `/document/${response.id}`;
-                } else {
-                    await notifications.show({
-                        body: "The response was not OK",
-                        title: "Error: Something went wrong when creating a new document"
-                    });
-                }
+                // Redirect user to document page
+                window.location.href = `/document/${response.id}`;
             } else {
                 await notifications.show({
-                    body: "You are not logged in",
-                    onClickUrl: "/login",
+                    body: "The response was not OK",
                     title: "Error: Something went wrong when creating a new document"
                 });
             }
@@ -140,6 +150,9 @@ window.addEventListener("load", () => {
     const buttonUpdate = document.getElementById("document-button-update") as HTMLButtonElement;
     if (buttonUpdate) {
         buttonUpdate.addEventListener("click", async () => {
+            if (!(documentId)) {
+                throw Error("No document id was found");
+            }
             const response = await apiRequests.document.update({
                 authors: documentInfoAuthors.value,
                 content: liveInput.value,
@@ -159,6 +172,9 @@ window.addEventListener("load", () => {
     const buttonRemove = document.getElementById("document-button-remove") as HTMLButtonElement;
     if (buttonRemove) {
         buttonRemove.addEventListener("click", async () => {
+            if (!(documentId)) {
+                throw Error("No document id was found");
+            }
             const response = await apiRequests.document.remove({ id: documentId });
             if (response) {
                 await notifications.show({
@@ -173,16 +189,22 @@ window.addEventListener("load", () => {
 
     const toggleMetadata = document.getElementById("document-button-edit-metadata") as HTMLElement;
     const togglePdfOptions = document.getElementById("document-button-edit-pdf-options") as HTMLElement;
+    const toggleMembers = document.getElementById("document-button-edit-members") as HTMLElement;
     const sectionMetadata = document.getElementById("section-document-metadata") as HTMLElement;
     const sectionPdfOptions = document.getElementById("section-document-pdf-options") as HTMLElement;
+    const sectionMembers = document.getElementById("section-document-members") as HTMLElement;
     toggleMetadata.addEventListener("click", () => { sectionMetadata.classList.toggle("hide-element"); });
     togglePdfOptions.addEventListener("click", () => { sectionPdfOptions.classList.toggle("hide-element"); });
+    toggleMembers.addEventListener("click", () => { sectionMembers.classList.toggle("hide-element"); });
 
 
     const collaborationButton = document.getElementById("collaboration-button") as HTMLUListElement;
     if (collaborationButton) {
         let collaborationEnabled = false;
         collaborationButton.addEventListener("click", () => {
+            if (documentId === undefined) {
+                throw Error("No document id was found");
+            }
             if (collaborationEnabled) {
                 collaborationTextEditor.disable();
                 collaborationButton.innerText = "Enable collaboration [Beta]";
@@ -196,6 +218,67 @@ window.addEventListener("load", () => {
                     textInput: liveInput
                 });
                 collaborationButton.innerText = "Disable collaboration [Beta]";
+            }
+        });
+    }
+
+    // Member handling
+    // -------------------------------------------------------------------------
+
+    for (const buttonMemberRemove of buttonsMemberRemove) {
+        buttonMemberRemove.addEventListener("click", async () => {
+            const memberId = Number(buttonMemberRemove.getAttribute("memberId"));
+            const memberAccountName = buttonMemberRemove.getAttribute("memberAccountName");
+            try {
+                if (accountId === undefined) {
+                    throw Error("No account id was found");
+                }
+                if (documentId === undefined) {
+                    throw Error("No document id was found");
+                }
+                if (isNaN(memberId)) {
+                    throw Error(`Member id is not a number (${memberId})`);
+                }
+                await apiRequests.groupAccess.remove({
+                    id: memberId
+                });
+                await notifications.show({
+                    body: memberAccountName !== null ? memberAccountName : undefined,
+                    title: "Document access was removed"
+                });
+                if (buttonMemberRemove.parentNode && buttonMemberRemove.parentNode.parentNode) {
+                    buttonMemberRemove.parentNode.parentNode.removeChild(buttonMemberRemove.parentNode);
+                }
+            } catch (err) {
+                await notifications.showError(
+                    `Something went wrong when removing the access of ${memberAccountName}`, err
+                );
+            }
+        });
+    }
+
+    if (buttonMemberAdd && inputMemberAddName && inputMemberAddWriteAccess ) {
+        buttonMemberAdd.addEventListener("click", async () => {
+            try {
+                if (accountId === undefined) {
+                    throw Error("No account id was found");
+                }
+                if (documentId === undefined) {
+                    throw Error("No group id was found");
+                }
+                await apiRequests.documentAccess.addName({
+                    accountName: inputMemberAddName.value,
+                    documentId,
+                    writeAccess: inputMemberAddWriteAccess.checked
+                });
+                await notifications.show({
+                    body: `${inputMemberAddName.value} is now member of document`,
+                    title: "Account was added as member"
+                });
+                // TODO Render in page - currently just refreshes the page
+                window.location.reload(true);
+            } catch (err) {
+                await notifications.showError("Something went wrong when adding a new member", err);
             }
         });
     }
