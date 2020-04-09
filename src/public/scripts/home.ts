@@ -3,6 +3,7 @@ import type * as api from "../../routes/api";
 import * as apiRequests from "./apiRequests";
 import * as helper from "./helper";
 import * as notifications from "./notifications";
+import handlebarsRenderer from "./handlebarsRenderer";
 
 
 // eslint-disable-next-line complexity
@@ -29,38 +30,40 @@ window.addEventListener("load", () => {
     const inputAccountUpdatePublic = document.getElementById("input-account-update-public") as HTMLInputElement|null;
     const buttonAccountRemove = document.getElementById("button-account-remove");
 
-    const buttonsDocumentRemove = document.getElementsByClassName("button-remove-document");
-    const buttonsGroupRemove = document.getElementsByClassName("button-remove-group");
-    const buttonsFriendRemove = document.getElementsByClassName("button-remove-friend");
+    const classNameButtonsDocumentRemove = "button-remove-document";
+    const classNameButtonsGroupRemove = "button-remove-group";
+    const classNameButtonsFriendRemove = "button-remove-friend";
 
     // Document handling
     // -------------------------------------------------------------------------
 
-    for (const buttonDocumentRemove of buttonsDocumentRemove) {
-        buttonDocumentRemove.addEventListener("click", async () => {
-            const documentId = Number(buttonDocumentRemove.getAttribute("documentId"));
-            const documentName = buttonDocumentRemove.getAttribute("documentName");
-            try {
-                if (accountId === undefined) {
-                    throw Error("No account id was found");
-                }
-                if (isNaN(documentId)) {
-                    throw Error(`Document id is not a number (${documentId})`);
-                }
-                await apiRequests.document.remove({
-                    id: documentId
-                });
-                await notifications.show({
-                    body: documentName !== null ? documentName : undefined,
-                    title: "Document was removed"
-                });
-                if (buttonDocumentRemove.parentNode && buttonDocumentRemove.parentNode.parentNode) {
-                    buttonDocumentRemove.parentNode.parentNode.removeChild(buttonDocumentRemove.parentNode);
-                }
-            } catch (err) {
-                await notifications.showError(`Something went wrong when removing the document ${documentName}`, err);
+    const getEventListenerDocumentRemove = (buttonDocumentRemove: Element) => async (): Promise<void> => {
+        const documentId = Number(buttonDocumentRemove.getAttribute("documentId"));
+        const documentName = buttonDocumentRemove.getAttribute("documentName");
+        try {
+            if (accountId === undefined) {
+                throw Error("No account id was found");
             }
-        });
+            if (isNaN(documentId)) {
+                throw Error(`Document id is not a number (${documentId})`);
+            }
+            await apiRequests.document.remove({
+                id: documentId
+            });
+            await notifications.show({
+                body: documentName !== null ? documentName : undefined,
+                title: "Document was removed"
+            });
+            if (buttonDocumentRemove.parentNode && buttonDocumentRemove.parentNode.parentNode) {
+                buttonDocumentRemove.parentNode.parentNode.removeChild(buttonDocumentRemove.parentNode);
+            }
+        } catch (err) {
+            await notifications.showError(`Something went wrong when removing the document ${documentName}`, err);
+        }
+    };
+
+    for (const buttonDocumentRemove of document.getElementsByClassName(classNameButtonsDocumentRemove)) {
+        buttonDocumentRemove.addEventListener("click", getEventListenerDocumentRemove(buttonDocumentRemove));
     }
 
     if (buttonDocumentCreate) {
@@ -117,7 +120,7 @@ window.addEventListener("load", () => {
 
                 if (DEBUG_APP) { console.warn("JSON data:", jsonData); }
 
-                const apiResponse = await apiRequests.document.create({
+                const response = await apiRequests.document.create({
                     authors: jsonData.authors,
                     content: jsonData.content,
                     date: jsonData.date,
@@ -127,12 +130,22 @@ window.addEventListener("load", () => {
                 // Clear JSON data again for another import
                 jsonData = undefined;
                 await notifications.show({
-                    body: `${apiResponse.title} by ${apiResponse.authors} from ${apiResponse.date}`,
-                    onClickUrl: `/document/${apiResponse.id}`,
+                    body: `${response.title} by ${response.authors} from ${response.date}`,
+                    onClickUrl: `/document/${response.id}`,
                     title: "New document was created"
                 });
-                // TODO Render in page - currently just refreshes the page
-                window.location.reload(true);
+                const elementList = document.getElementById("element-list-documents") as HTMLElement;
+                elementList.appendChild(handlebarsRenderer.document.createEntry({
+                    authors: response.authors,
+                    date: response.date,
+                    id: response.id,
+                    title: response.title
+                }, (sandboxDoc) => {
+                    // Add event listeners to latest element in sandbox
+                    for (const button of sandboxDoc.getElementsByClassName(classNameButtonsDocumentRemove)) {
+                        button.addEventListener("click", getEventListenerDocumentRemove(button));
+                    }
+                }));
             } catch (err) {
                 await notifications.showError("Something went wrong when import a document (JSON)", err);
             }
@@ -142,31 +155,33 @@ window.addEventListener("load", () => {
     // Group handling
     // -------------------------------------------------------------------------
 
-    for (const buttonGroupRemove of buttonsGroupRemove) {
-        buttonGroupRemove.addEventListener("click", async () => {
-            const groupId = Number(buttonGroupRemove.getAttribute("groupId"));
-            const groupName = buttonGroupRemove.getAttribute("groupName");
-            try {
-                if (accountId === undefined) {
-                    throw Error("No account id was found");
-                }
-                if (isNaN(groupId)) {
-                    throw Error(`Group id is not a number (${groupId})`);
-                }
-                await apiRequests.group.remove({
-                    id: groupId
-                });
-                await notifications.show({
-                    body: groupName !== null ? groupName : undefined,
-                    title: "Group was removed"
-                });
-                if (buttonGroupRemove.parentNode && buttonGroupRemove.parentNode.parentNode) {
-                    buttonGroupRemove.parentNode.parentNode.removeChild(buttonGroupRemove.parentNode);
-                }
-            } catch (err) {
-                await notifications.showError(`Something went wrong when removing the group ${groupName}`, err);
+    const getEventListenerGroupRemove = (buttonGroupRemove: Element) => async (): Promise<void> => {
+        const groupId = Number(buttonGroupRemove.getAttribute("groupId"));
+        const groupName = buttonGroupRemove.getAttribute("groupName");
+        try {
+            if (accountId === undefined) {
+                throw Error("No account id was found");
             }
-        });
+            if (isNaN(groupId)) {
+                throw Error(`Group id is not a number (${groupId})`);
+            }
+            await apiRequests.group.remove({
+                id: groupId
+            });
+            await notifications.show({
+                body: groupName !== null ? groupName : undefined,
+                title: "Group was removed"
+            });
+            if (buttonGroupRemove.parentNode && buttonGroupRemove.parentNode.parentNode) {
+                buttonGroupRemove.parentNode.parentNode.removeChild(buttonGroupRemove.parentNode);
+            }
+        } catch (err) {
+            await notifications.showError(`Something went wrong when removing the group ${groupName}`, err);
+        }
+    };
+
+    for (const buttonGroupRemove of document.getElementsByClassName(classNameButtonsGroupRemove)) {
+        buttonGroupRemove.addEventListener("click", getEventListenerGroupRemove(buttonGroupRemove));
     }
 
     if (buttonGroupCreate) {
@@ -175,17 +190,17 @@ window.addEventListener("load", () => {
                 if (accountId === undefined) {
                     throw Error("No account id was found");
                 }
-                const apiResponse = await apiRequests.group.create({
+                const response = await apiRequests.group.create({
                     name: `New group (${new Date().toISOString().substring(0, 10)})`,
                     owner: accountId
                 });
                 await notifications.show({
-                    body: `${apiResponse.name}`,
-                    onClickUrl: `/document/${apiResponse.id}`,
+                    body: `${response.name}`,
+                    onClickUrl: `/document/${response.id}`,
                     title: "New group was created"
                 });
                 // Redirect user to document page
-                window.location.href = `/group/${apiResponse.id}`;
+                window.location.href = `/group/${response.id}`;
             } catch (err) {
                 await notifications.showError("Something went wrong when creating a new group", err);
             }
@@ -195,34 +210,36 @@ window.addEventListener("load", () => {
     // Friend handling
     // -------------------------------------------------------------------------
 
-    for (const buttonFriendRemove of buttonsFriendRemove) {
-        buttonFriendRemove.addEventListener("click", async () => {
-            const friendId = Number(buttonFriendRemove.getAttribute("friendId"));
-            const friendName = buttonFriendRemove.getAttribute("friendName");
-            try {
-                if (accountId === undefined) {
-                    throw Error("No account id was found");
-                }
-                if (!(friendName)) {
-                    throw Error("No friend name was found");
-                }
-                if (isNaN(friendId)) {
-                    throw Error(`Friend id is not a number (${friendId})`);
-                }
-                await apiRequests.accountFriend.remove({
-                    id: friendId
-                });
-                await notifications.show({
-                    body: friendName,
-                    title: "Friend was removed"
-                });
-                if (buttonFriendRemove.parentNode && buttonFriendRemove.parentNode.parentNode) {
-                    buttonFriendRemove.parentNode.parentNode.removeChild(buttonFriendRemove.parentNode);
-                }
-            } catch (err) {
-                await notifications.showError(`Something went wrong when removing the friend ${friendName}`, err);
+    const getEventListenerFriendRemove = (buttonFriendRemove: Element) => async (): Promise<void> => {
+        const friendId = Number(buttonFriendRemove.getAttribute("friendId"));
+        const friendName = buttonFriendRemove.getAttribute("friendName");
+        try {
+            if (accountId === undefined) {
+                throw Error("No account id was found");
             }
-        });
+            if (!(friendName)) {
+                throw Error("No friend name was found");
+            }
+            if (isNaN(friendId)) {
+                throw Error(`Friend id is not a number (${friendId})`);
+            }
+            await apiRequests.accountFriend.remove({
+                id: friendId
+            });
+            await notifications.show({
+                body: friendName,
+                title: "Friend was removed"
+            });
+            if (buttonFriendRemove.parentNode && buttonFriendRemove.parentNode.parentNode) {
+                buttonFriendRemove.parentNode.parentNode.removeChild(buttonFriendRemove.parentNode);
+            }
+        } catch (err) {
+            await notifications.showError(`Something went wrong when removing the friend ${friendName}`, err);
+        }
+    };
+
+    for (const buttonFriendRemove of document.getElementsByClassName(classNameButtonsFriendRemove)) {
+        buttonFriendRemove.addEventListener("click", getEventListenerFriendRemove(buttonFriendRemove));
     }
 
     if (buttonFriendAdd && inputFriendAdd) {
@@ -232,16 +249,24 @@ window.addEventListener("load", () => {
                     throw Error("No account id was found");
                 }
                 // Get account name from text input
-                const apiResponse = await apiRequests.accountFriend.addName({
+                const response = await apiRequests.accountFriend.addName({
                     accountId, friendAccountName: inputFriendAdd.value
                 });
-                // TODO Add new friend entry
                 await notifications.show({
                     body: `${inputFriendAdd.value}`,
                     title: "A friend was added"
                 });
-                // TODO Render in page - currently just refreshes the page
-                window.location.reload(true);
+                const elementList = document.getElementById("element-list-friends") as HTMLElement;
+                elementList.appendChild(handlebarsRenderer.friend.createEntry({
+                    friendAccountId: response.friendAccountId,
+                    friendAccountName: response.friendAccountName,
+                    id: response.id
+                }, (sandboxDoc) => {
+                    // Add event listeners to latest element in sandbox
+                    for (const button of sandboxDoc.getElementsByClassName(classNameButtonsFriendRemove)) {
+                        button.addEventListener("click", getEventListenerFriendRemove(button));
+                    }
+                }));
             } catch (err) {
                 await notifications.showError("Something went wrong when adding a friend", err);
             }
@@ -292,8 +317,6 @@ window.addEventListener("load", () => {
                     body: `${apiResponse.name} was updated`,
                     title: "Account was updated"
                 });
-                // TODO Render in page - currently just refreshes the page
-                window.location.reload(true);
             } catch (err) {
                 await notifications.showError("Something went wrong when updating the account", err);
             }

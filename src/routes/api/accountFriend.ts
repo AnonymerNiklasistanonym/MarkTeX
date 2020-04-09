@@ -34,10 +34,23 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 const accountFriendEntryId = await api.database.accountFriend.create(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                const response: types.AddResponse = {
-                    id: accountFriendEntryId
-                };
-                res.status(200).json(response);
+                const accountInfo = await api.database.account.get(
+                    options.databasePath, sessionInfo.accountId, { id: request.accountId }
+                );
+                const friendAccountInfo = await api.database.account.get(
+                    options.databasePath, sessionInfo.accountId, { id: request.friendAccountId }
+                );
+                if (accountInfo && friendAccountInfo) {
+                    const response: types.AddResponse = {
+                        accountId: accountInfo.id,
+                        accountName: accountInfo.name,
+                        friendAccountId: friendAccountInfo.id,
+                        friendAccountName: friendAccountInfo.name,
+                        id: accountFriendEntryId
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("There was an error during the response creation of the friend entry");
             } catch (error) {
                 if (!options.production) { console.error(error); }
                 res.status(500).json({ error: error.message ? error.message : error });
@@ -62,10 +75,23 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 const accountFriendEntryId = await api.database.accountFriend.createName(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                const response: types.AddNameResponse = {
-                    id: accountFriendEntryId
-                };
-                res.status(200).json(response);
+                const accountInfo = await api.database.account.get(
+                    options.databasePath, sessionInfo.accountId, { id: request.accountId }
+                );
+                const friendAccountInfo = await api.database.account.getName(
+                    options.databasePath, sessionInfo.accountId, { name: request.friendAccountName }
+                );
+                if (accountInfo && friendAccountInfo) {
+                    const response: types.AddResponse = {
+                        accountId: accountInfo.id,
+                        accountName: accountInfo.name,
+                        friendAccountId: friendAccountInfo.id,
+                        friendAccountName: friendAccountInfo.name,
+                        id: accountFriendEntryId
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("There was an error during the response creation of the friend entry");
             } catch (error) {
                 if (!options.production) { console.error(error); }
                 res.status(500).json({ error: error.message ? error.message : error });

@@ -7,8 +7,10 @@ export interface AddRequest {
 export interface AddRequestApi extends AddRequest, types.ApiRequest {}
 export interface AddResponse {
     id: number
-    // TODO friendId: number
-    // TODO friendName: string
+    accountId: number
+    accountName: string
+    friendAccountId: number
+    friendAccountName: string
 }
 
 export interface AddNameRequest {
@@ -18,6 +20,10 @@ export interface AddNameRequest {
 export interface AddNameRequestApi extends AddNameRequest, types.ApiRequest {}
 export interface AddNameResponse {
     id: number
+    accountId: number
+    accountName: string
+    friendAccountId: number
+    friendAccountName: string
 }
 
 export interface GetRequest {

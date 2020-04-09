@@ -1,8 +1,8 @@
 import "./webpackVars";
 import * as apiRequests from "./apiRequests";
-import * as hbsTemplates from "./handlebars/access";
 import * as helper from "./helper";
 import * as notifications from "./notifications";
+import handlebarsRenderer from "./handlebarsRenderer";
 
 
 window.addEventListener("load", () => {
@@ -112,7 +112,7 @@ window.addEventListener("load", () => {
                     title: "Account was added as member"
                 });
                 const elementList = document.getElementById("element-list-members") as HTMLElement;
-                elementList.appendChild(hbsTemplates.accessMemberChildNode({
+                elementList.appendChild(handlebarsRenderer.access.createMember({
                     accountId: response.accountId,
                     accountName: response.accountName,
                     id: response.id,

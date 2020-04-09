@@ -25,12 +25,9 @@
 				</li>
 			</ul>
 
-			<ul class="element-list">
+			<ul class="element-list" id="element-list-documents">
 				{{#each documents}}
-				<li>
-					<a class="button" href="/document/{{this.id}}">{{this.title}} by {{this.authors}} ({{this.date}})</a>
-					<a class="button button-remove button-remove-document" documentId="{{this.id}}" documentName="{{this.title}}">Remove</a>
-				</li>
+				{{> document_entry}}
 				{{/each}}
 			</ul>
 		</section>
@@ -42,12 +39,9 @@
 				<li><a class="button" id="button-group-new">Create new group</a></li>
 			</ul>
 
-			<ul class="element-list">
+			<ul class="element-list" id="element-list-groups">
 				{{#each groups}}
-				<li>
-					<a class="button" href="/group/{{this.id}}">{{this.name}}</a>
-					<a class="button button-remove button-remove-group" groupId="{{this.id}}" groupName="{{this.name}}">Remove</a>
-				</li>
+				{{> group_entry}}
 				{{/each}}
 			</ul>
 		</section>
@@ -63,10 +57,7 @@
 
 			<ul class="element-list" id="element-list-friends">
 				{{#each friends}}
-				<li>
-					<a class="button" href="/account/{{this.friendAccountId}}">{{this.friendAccountName}}</a>
-					<a class="button button-remove button-remove-friend" friendId="{{this.id}}" friendName="{{this.friendAccountName}}">Remove</a>
-				</li>
+				{{> friend_entry}}
 				{{/each}}
 			</ul>
 		</section>
