@@ -111,6 +111,48 @@ export const getAccountNameExists = (
     };
 };
 
+export interface InputSchemaValidationExistingDocumentAccess {
+    databasePath: string
+    accountId: number
+}
+
+export const getDocumentAccessIdExists = (
+    input: InputSchemaValidationExistingDocumentAccess
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (id: number): Promise<boolean> => {
+                const exists = await api.database.documentAccess.exists(input.databasePath, id);
+                debug(`Document access '${id}' exists: ${exists}`);
+                return exists;
+            }
+        },
+        errorMessage: "Must be an existing document access id",
+        isInt: true
+    };
+};
+
+export interface InputSchemaValidationExistingGroupAccess {
+    databasePath: string
+    accountId: number
+}
+
+export const getGroupAccessIdExists = (
+    input: InputSchemaValidationExistingGroupAccess
+): expressValidator.ValidationParamSchema => {
+    return {
+        custom: {
+            options: async (id: number): Promise<boolean> => {
+                const exists = await api.database.groupAccess.exists(input.databasePath, id);
+                debug(`Group access '${id}' exists: ${exists}`);
+                return exists;
+            }
+        },
+        errorMessage: "Must be an existing group access id",
+        isInt: true
+    };
+};
+
 export interface GetApiVersionSupportedOptions {
     couldBeString?: boolean
     supportedApiVersions?: number[]

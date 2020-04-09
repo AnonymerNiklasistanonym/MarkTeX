@@ -70,7 +70,7 @@
 			<ul class="element-list">
 				{{#each document.members}}
 				<li>
-					<a class="button" href="/account/{{this.accountId}}">{{this.accountName}} ({{#if this.writeAccess}}[write]{{/if}}</a>
+					<a class="button" href="/account/{{this.accountId}}">{{this.accountName}} {{#if this.writeAccess}}[write]{{/if}}</a>
 					<a class="button button-property button-property-write-access" memberId="{{this.id}}" memberAccountName="{{this.accountName}}">Toggle write access</a>
 					<a class="button button-remove button-remove-member" memberId="{{this.id}}" memberAccountName="{{this.accountName}}">Remove</a>
 				</li>

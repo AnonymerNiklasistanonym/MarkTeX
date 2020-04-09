@@ -304,6 +304,7 @@ export interface GetMembersInput {
     id: number
 }
 export interface GetMembersDbOut {
+    id: number
     accountId: number
     accountName: string
     writeAccess: 1|0
@@ -313,6 +314,8 @@ export interface GetMembersOutput {
     accountId: number
     /** Account name */
     accountName: string
+    /** Group access id */
+    id: number
     /** Write access */
     writeAccess: boolean
 }
@@ -326,6 +329,7 @@ export const getMembers = async (
         databasePath,
         database.queries.select(groupAccess.table.name,
             [
+                { columnName: groupAccess.table.column.id, tableName: groupAccess.table.name },
                 { alias: "accountId", columnName: account.table.column.id, tableName: account.table.name },
                 { alias: "accountName", columnName: account.table.column.name, tableName: account.table.name },
                 {
@@ -339,7 +343,10 @@ export const getMembers = async (
                     otherTableName: account.table.name,
                     thisColumn: groupAccess.table.column.accountId
                 }],
-                whereColumn: { columnName: table.column.id, tableName: groupAccess.table.name }
+                whereColumn: {
+                    columnName: groupAccess.table.column.groupId,
+                    tableName: groupAccess.table.name
+                }
             }
         ),
         [input.id]
@@ -360,6 +367,7 @@ export const getMembers = async (
             allMembers.push({
                 accountId: runResult.accountId,
                 accountName: runResult.accountName,
+                id: runResult.id,
                 writeAccess: runResult.writeAccess === 1
             });
         }

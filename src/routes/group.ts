@@ -46,6 +46,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     const groupMembers = await api.database.group.getMembers(options.databasePath, accountId, {
                         id: groupId
                     });
+                    console.warn({ groupMembers });
                     const header = viewRendering.getHeaderDefaults(options, { sockets: true });
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });

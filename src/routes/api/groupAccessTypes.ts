@@ -23,6 +23,16 @@ export interface AddNameResponse {
     id: number
 }
 
+export interface UpdateRequest {
+    id: number
+    writeAccess?: boolean
+}
+export interface UpdateRequestApi extends UpdateRequest, types.ApiRequest {}
+export interface UpdateResponse {
+    id: number
+    writeAccess: boolean
+}
+
 export interface RemoveRequest {
     /** Access entry id */
     id: number

@@ -514,6 +514,7 @@ export interface GetMembersInput {
 export interface GetMembersDbOut {
     accountId: number
     accountName: string
+    id: number
     writeAccess: 1|0
 }
 export interface GetMembersOutput {
@@ -521,6 +522,8 @@ export interface GetMembersOutput {
     accountId: number
     /** Account name */
     accountName: string
+    /** Group access id */
+    id: number
     /** Write access */
     writeAccess: boolean
 }
@@ -534,6 +537,7 @@ export const getMembers = async (
         databasePath,
         database.queries.select(documentAccess.table.name,
             [
+                { columnName: documentAccess.table.column.id, tableName: documentAccess.table.name },
                 { alias: "accountId", columnName: account.table.column.id, tableName: account.table.name },
                 { alias: "accountName", columnName: account.table.column.name, tableName: account.table.name },
                 {
@@ -547,7 +551,10 @@ export const getMembers = async (
                     otherTableName: account.table.name,
                     thisColumn: documentAccess.table.column.accountId
                 }],
-                whereColumn: { columnName: table.column.id, tableName: documentAccess.table.name }
+                whereColumn: {
+                    columnName: documentAccess.table.column.documentId,
+                    tableName: documentAccess.table.name
+                }
             }
         ),
         [input.id]
@@ -568,6 +575,7 @@ export const getMembers = async (
             allMembers.push({
                 accountId: runResult.accountId,
                 accountName: runResult.accountName,
+                id: runResult.id,
                 writeAccess: runResult.writeAccess === 1
             });
         }

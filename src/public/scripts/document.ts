@@ -239,7 +239,7 @@ window.addEventListener("load", () => {
                 if (isNaN(memberId)) {
                     throw Error(`Member id is not a number (${memberId})`);
                 }
-                await apiRequests.groupAccess.remove({
+                await apiRequests.documentAccess.remove({
                     id: memberId
                 });
                 await notifications.show({
