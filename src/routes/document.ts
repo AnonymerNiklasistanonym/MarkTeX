@@ -74,7 +74,6 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     const members =  await api.database.document.getMembers(
                         options.databasePath, accountId, { id: documentId }
                     );
-                    console.warn({ documentMembers: members });
                     if (!documentInfo.pdfOptions) { documentInfo.pdfOptions = {}; }
                     if (!documentInfo.pdfOptions.tableOfContents) { documentInfo.pdfOptions.tableOfContents = {}; }
                     if (!documentInfo.pdfOptions.header) { documentInfo.pdfOptions.header = {}; }

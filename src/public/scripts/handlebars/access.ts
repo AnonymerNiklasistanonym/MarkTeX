@@ -1,16 +1,9 @@
+import "../webpackVars";
 import handlebars from "handlebars";
+import templateAccessMemberText from "raw-loader!../../../views/partials/access_member.hbs";
 
 
-const templateMember = "<li>"
- + "<a class=\"button\" href=\"/account/{{this.accountId}}\">{{this.accountName}}</a>"
- + "<a class=\"button button-update button-update-write-access\" memberId=\"{{this.id}}\""
- + "memberAccountName=\"{{this.accountName}}\" memberWriteAccess=\"{{this.writeAccess}}\">"
- + "{{#if this.writeAccess}}read-write{{else}}read-only{{/if}}</a>"
- + "<a class=\"button button-remove button-remove-member\" memberId=\"{{this.id}}\""
- + "memberAccountName=\"{{this.accountName}}\">Remove</a>"
- + "</li>";
-
-const compliedTemplateMember = handlebars.compile(templateMember);
+const compliedTemplateMember = handlebars.compile(templateAccessMemberText);
 
 export interface AccessMember {
     id: number
