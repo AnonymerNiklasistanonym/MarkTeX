@@ -72,6 +72,7 @@ const databasePath = process.env.DATABASE_PATH && process.env.DATABASE_PATH !== 
             debug(`database was found (${databasePath})`);
         } else {
             debug(`setup database as it does not exist (${databasePath})`);
+            await api.database.create(databasePath);
         }
 
         // Start express sever
