@@ -43,10 +43,23 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 const documentAccessId = await api.database.documentAccess.add(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                const response: types.AddResponse = {
-                    id: documentAccessId
-                };
-                return res.status(200).json(response);
+                const documentAccessInfo = await api.database.documentAccess.get(
+                    options.databasePath, sessionInfo.accountId, { id: documentAccessId }
+                );
+                const accountInfo = await api.database.account.get(
+                    options.databasePath, sessionInfo.accountId, { id: request.accountId }
+                );
+                if (documentAccessInfo && accountInfo) {
+                    const response: types.AddResponse = {
+                        accountId: documentAccessInfo.accountId,
+                        accountName: accountInfo.name,
+                        documentId: documentAccessInfo.documentId,
+                        id: documentAccessId,
+                        writeAccess: documentAccessInfo.writeAccess
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("Creation of document access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
                 res.status(500).json({ error: error.message ? error.message : error });
@@ -81,10 +94,23 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 const documentAccessId = await api.database.documentAccess.addName(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                const response: types.AddNameResponse = {
-                    id: documentAccessId
-                };
-                return res.status(200).json(response);
+                const documentAccessInfo = await api.database.documentAccess.get(
+                    options.databasePath, sessionInfo.accountId, { id: documentAccessId }
+                );
+                const accountInfo = await api.database.account.getName(
+                    options.databasePath, sessionInfo.accountId, { name: request.accountName }
+                );
+                if (documentAccessInfo && accountInfo) {
+                    const response: types.AddNameResponse = {
+                        accountId: documentAccessInfo.accountId,
+                        accountName: accountInfo.name,
+                        documentId: documentAccessInfo.documentId,
+                        id: documentAccessId,
+                        writeAccess: documentAccessInfo.writeAccess
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("Creation of document access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
                 res.status(500).json({ error: error.message ? error.message : error });

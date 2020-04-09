@@ -6,10 +6,9 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const production = process.env.NODE_ENV !== "development";
 
 // eslint-disable-next-line no-console
-console.log(`Mode: ${production
-    ? "production" : "development"
-} (process.env.NODE_ENV=${process.env.NODE_ENV})`);
+console.log(`Mode: ${production ? "production" : "development"} (process.env.NODE_ENV=${process.env.NODE_ENV})`);
 
+/** @type {webpack.Plugin[]} */
 const plugins = [
     new webpack.DefinePlugin({
         DEBUG_APP: !production
@@ -24,6 +23,7 @@ if (production) {
     }));
 }
 
+/** @type {webpack.Configuration} */
 module.exports = {
     devtool: production ? undefined : "inline-source-map",
     entry: {

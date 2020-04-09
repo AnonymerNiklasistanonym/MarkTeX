@@ -10,6 +10,10 @@ export interface AddRequestApi extends AddRequest, types.ApiRequest {}
 export interface AddResponse {
     /** Access entry id */
     id: number
+    accountId: number
+    accountName: string
+    groupId: number
+    writeAccess: boolean
 }
 
 export interface AddNameRequest {
@@ -21,6 +25,10 @@ export interface AddNameRequestApi extends AddNameRequest, types.ApiRequest {}
 export interface AddNameResponse {
     /** Access entry id */
     id: number
+    accountId: number
+    accountName: string
+    groupId: number
+    writeAccess: boolean
 }
 
 export interface UpdateRequest {

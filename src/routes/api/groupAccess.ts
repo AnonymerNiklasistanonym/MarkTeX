@@ -41,13 +41,26 @@ export default (app: express.Application, options: StartExpressServerOptions): v
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.AddRequestApi;
             try {
-                const documentAccessId = await api.database.groupAccess.add(
+                const groupAccessId = await api.database.groupAccess.add(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                const response: types.AddResponse = {
-                    id: documentAccessId
-                };
-                return res.status(200).json(response);
+                const groupAccessInfo = await api.database.groupAccess.get(
+                    options.databasePath, sessionInfo.accountId, { id: groupAccessId }
+                );
+                const accountInfo = await api.database.account.get(
+                    options.databasePath, sessionInfo.accountId, { id: request.accountId }
+                );
+                if (groupAccessInfo && accountInfo) {
+                    const response: types.AddResponse = {
+                        accountId: groupAccessInfo.accountId,
+                        accountName: accountInfo.name,
+                        groupId: groupAccessInfo.groupId,
+                        id: groupAccessId,
+                        writeAccess: groupAccessInfo.writeAccess
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("Creation of group access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
                 res.status(500).json({ error: error.message ? error.message : error });
@@ -79,13 +92,26 @@ export default (app: express.Application, options: StartExpressServerOptions): v
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
             const request = req.body as types.AddNameRequestApi;
             try {
-                const documentAccessId = await api.database.groupAccess.addName(
+                const groupAccessId = await api.database.groupAccess.addName(
                     options.databasePath, sessionInfo.accountId, request
                 );
-                const response: types.AddNameResponse = {
-                    id: documentAccessId
-                };
-                return res.status(200).json(response);
+                const groupAccessInfo = await api.database.groupAccess.get(
+                    options.databasePath, sessionInfo.accountId, { id: groupAccessId }
+                );
+                const accountInfo = await api.database.account.getName(
+                    options.databasePath, sessionInfo.accountId, { name: request.accountName }
+                );
+                if (groupAccessInfo && accountInfo) {
+                    const response: types.AddNameResponse = {
+                        accountId: groupAccessInfo.accountId,
+                        accountName: accountInfo.name,
+                        groupId: groupAccessInfo.groupId,
+                        id: groupAccessId,
+                        writeAccess: groupAccessInfo.writeAccess
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("Creation of group access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
                 res.status(500).json({ error: error.message ? error.message : error });
