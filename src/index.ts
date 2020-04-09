@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as inkscape from "./modules/inkscape";
 import * as latex from "./modules/latex";
 import * as pandoc from "./modules/pandoc";
@@ -10,8 +11,50 @@ import { loadEnvFile } from "./config/env";
 import os from "os";
 import path from "path";
 
+
 // Debug console
 const debug = debuglog("app");
+
+// Version
+const marktexVersion = "1.0.0";
+
+// Read command line arguments
+let ignoreWarnings = false;
+const cliArgs = process.argv.slice(2);
+debug(`Command line arguments: ${cliArgs.join(",")}`);
+const helpOptions = [
+    { option: "--help                     ", text: "Usage info" },
+    { option: "--version                  ", text: "Version info" },
+    { option: "--ignoreWarnings           ", text: "Ignore warnings about connected programs that would stop the app" }
+];
+const envVariables = [
+    { option: "SERVER_PORT=8080           ", text: "Set server port of marktex server" },
+    { option: "DATABASE_PATH=~/database.db", text: "Set database path of marktex" },
+    { option: "NODE_DEBUG=app*            ", text: "Get debug logs for certain parts regarding the server backend" }
+];
+for (const arg of cliArgs) {
+    if (arg === "--help") {
+        // Display help
+        console.log(
+            "marktex [OPTIONS]" +
+            "\n\n" +
+            "Optional options:\n" + helpOptions.map(a => `\t${a.option}  ${a.text}`).join("\n") +
+            "\n\n" +
+            "Optional environment variables:\n" + envVariables.map(a => `\t${a.option}  ${a.text}`).join("\n")
+        );
+        process.exit(0);
+    } else if (arg === "--version") {
+        // Display version
+        console.log(marktexVersion);
+        process.exit(0);
+    }  else if (arg === "--ignoreWarnings") {
+        ignoreWarnings = true;
+    } else {
+        // Display error
+        console.error(`Unknown command line option: "${arg}"`);
+        process.exit(0);
+    }
+}
 
 // Load Env File
 loadEnvFile();
@@ -20,32 +63,31 @@ loadEnvFile();
 const databasePath = process.env.DATABASE_PATH && process.env.DATABASE_PATH !== ""
     ? process.env.DATABASE_PATH : path.join(__dirname, "..", "database.db");
 
-// Load database
-api.database.exists(databasePath)
-    .then(async exists => {
-        // Setup database if non is found
-        if (!exists) {
-            debug("setup database '%s' as it does not exist", databasePath);
-            await api.database.create(databasePath);
+
+(async (): Promise<void> => {
+    try {
+        // Load database
+        const databaseExists = await api.database.exists(databasePath);
+        if (databaseExists) {
+            debug(`database was found (${databasePath})`);
         } else {
-            debug("database '%s' found", databasePath);
+            debug(`setup database as it does not exist (${databasePath})`);
         }
-    })
-    .then(() => {
+
+        // Start express sever
         const sessionMiddleware = expressSession({
             resave: false,
             saveUninitialized: true,
             secret: "secret"
         });
-        // Start sever (start http2 server if keys are found)
+        // Start http2 server if keys are found
         const startServer = findHttp2Keys() ? startExpressServerHttp2 : startExpressServerHttp1;
         const server = startServer({
             databasePath,
             production: process.env.NODE_ENV !== "development"
         }, { sessionMiddleware });
-        debug("server was started");
 
-        // Bind socket server
+        // Bind socket server to express server
         const socketServer = bindSocketServer(server, {
             sessionMiddleware: (socket, next) => { sessionMiddleware(socket.request, socket.request.res, next); },
             socketOptions: {
@@ -57,7 +99,6 @@ api.database.exists(databasePath)
                 }
             }
         });
-        debug("socket server was bound to server");
 
         // Handling terminate gracefully
         process.on("SIGTERM", () => {
@@ -69,32 +110,40 @@ api.database.exists(databasePath)
                 debug("socket server was closed");
             });
         });
-    })
-    .catch(err => {
-        // eslint-disable-next-line no-console
-        console.error(err);
-        process.exit(1);
-    })
-    .then(() => inkscape.getVersion()).then(version => {
-        // eslint-disable-next-line no-console
-        console.log(`inkscape: ${version.major}.${version.minor}.${version.patch} (${version.date.toISOString()})`);
-    })
-    .then(() => pandoc.getVersion()).then(version => {
-        // eslint-disable-next-line no-console
-        console.log(`pandoc:   ${version.major}.${version.minor}.${version.patch}`);
-    })
-    .then(() => latex.getVersion()).then(version => {
-        // eslint-disable-next-line no-console
-        console.log(`latex:    ${version.major}.${version.minor} (${version.engine})`);
-    })
-    .then(() => {
-        // eslint-disable-next-line no-console
+
+        // Get program version
+        let errorWasThrown = false;
+        try {
+            const version = await inkscape.getVersion();
+            console.log(`inkscape: ${version.major}.${version.minor}.${version.patch} (${version.date.toISOString()})`);
+        } catch (error) {
+            console.error(error);
+            errorWasThrown = true;
+        }
+        try {
+            const version = await pandoc.getVersion();
+            console.log(`pandoc:   ${version.major}.${version.minor}.${version.patch}`);
+        } catch (error) {
+            console.error(error);
+            errorWasThrown = true;
+        }
+        try {
+            const version = await latex.getVersion();
+            console.log(`latex:    ${version.major}.${version.minor} (${version.engine})`);
+        } catch (error) {
+            console.error(error);
+            errorWasThrown = true;
+        }
+
         console.log(`node:     ${process.versions.node}`);
-        // eslint-disable-next-line no-console
         console.log(`os:       ${os.platform()} [${os.release()}] (${os.arch()})`);
-    })
-    .catch(err => {
-        // eslint-disable-next-line no-console
-        console.error(err);
+
+        if (!ignoreWarnings && errorWasThrown) {
+            throw Error("Quit program because at least one essential command line program was not found");
+        }
+
+    } catch (error) {
+        console.error(error);
         process.exit(1);
-    });
+    }
+})();
