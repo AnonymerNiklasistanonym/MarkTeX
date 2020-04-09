@@ -23,3 +23,9 @@ export const remove = async (input: api.documentAccess.RemoveRequest): Promise<a
         `${baseUrl}/remove`, input
     );
 };
+
+export const update = async (input: api.documentAccess.UpdateRequest): Promise<api.documentAccess.UpdateResponse> => {
+    return general.apiRequest<api.documentAccess.UpdateRequest, api.documentAccess.UpdateResponse>(
+        `${baseUrl}/update`, input
+    );
+};

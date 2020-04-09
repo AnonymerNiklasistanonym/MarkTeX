@@ -10,18 +10,20 @@ export const add = async (input: api.groupAccess.AddRequest): Promise<api.groupA
     );
 };
 
-export const addName = async (
-    input: api.groupAccess.AddNameRequest
-): Promise<api.groupAccess.AddNameResponse> => {
+export const addName = async (input: api.groupAccess.AddNameRequest): Promise<api.groupAccess.AddNameResponse> => {
     return general.apiRequest<api.groupAccess.AddNameRequest, api.groupAccess.AddNameResponse>(
         `${baseUrl}/addName`, input
     );
 };
 
-export const remove = async (
-    input: api.groupAccess.RemoveRequest
-): Promise<api.groupAccess.RemoveResponse> => {
+export const remove = async (input: api.groupAccess.RemoveRequest): Promise<api.groupAccess.RemoveResponse> => {
     return general.apiRequest<api.groupAccess.RemoveRequest, api.groupAccess.RemoveResponse>(
         `${baseUrl}/remove`, input
+    );
+};
+
+export const update = async (input: api.documentAccess.UpdateRequest): Promise<api.documentAccess.UpdateResponse> => {
+    return general.apiRequest<api.documentAccess.UpdateRequest, api.documentAccess.UpdateResponse>(
+        `${baseUrl}/update`, input
     );
 };

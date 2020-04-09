@@ -91,39 +91,43 @@ export default (app: express.Application, options: StartExpressServerOptions): v
             }
         });
 
-    // app.post("/api/document_access/update",
-    //     // Validate api input
-    //     async (req, res, next) => {
-    //         const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
-    //         await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
-    //             apiVersion: schemaValidations.getApiVersionSupported(),
-    //             id: schemaValidations.getDocumentAccessIdExists({
-    //                 accountId: sessionInfo.accountId,
-    //                 databasePath: options.databasePath
-    //             }),
-    //             writeAccess: { isBoolean: true, optional: true }
-    //         }), { sendJsonError: true })(req, res, next);
-    //     },
-    //     // Check if session is authenticated
-    //     expressMiddlewareSession.checkAuthenticationJson,
-    //     // Try to export a document to json
-    //     async (req, res) => {
-    //         debug(`Update access ${JSON.stringify(req.body)}`);
-    //         const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
-    //         const request = req.body as types.UpdateRequestApi;
-    //         try {
-    //             const documentAccessId = await api.database.documentAccess.update(
-    //                 options.databasePath, sessionInfo.accountId, request
-    //             );
-    //             const response: types.UpdateResponse = {
-    //                 id: documentAccessId
-    //             };
-    //             return res.status(200).json(response);
-    //         } catch (error) {
-    //             if (!options.production) { console.error(error); }
-    //             res.status(500).json({ error: error.message ? error.message : error });
-    //         }
-    //     });
+    app.post("/api/document_access/update",
+        // Validate api input
+        async (req, res, next) => {
+            const sessionInfo = req.session as unknown as expressMiddlewareSession.SessionInfo;
+            await expressMiddlewareValidator.validateWithError(expressValidator.checkSchema({
+                apiVersion: schemaValidations.getApiVersionSupported(),
+                id: schemaValidations.getDocumentAccessIdExists({
+                    accountId: sessionInfo.accountId,
+                    databasePath: options.databasePath
+                }),
+                writeAccess: { isBoolean: true, optional: true }
+            }), { sendJsonError: true })(req, res, next);
+        },
+        // Check if session is authenticated
+        expressMiddlewareSession.checkAuthenticationJson,
+        // Try to export a document to json
+        async (req, res) => {
+            debug(`Update access ${JSON.stringify(req.body)}`);
+            const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
+            const request = req.body as types.UpdateRequestApi;
+            try {
+                const successful = await api.database.documentAccess.update(
+                    options.databasePath, sessionInfo.accountId, request
+                );
+                if (successful) {
+                    const response: types.UpdateResponse = {
+                        id: request.id,
+                        writeAccess: request.writeAccess ? true : false
+                    };
+                    return res.status(200).json(response);
+                }
+                throw Error("Update of document access was not successful");
+            } catch (error) {
+                if (!options.production) { console.error(error); }
+                res.status(500).json({ error: error.message ? error.message : error });
+            }
+        });
 
     app.post("/api/document_access/remove",
         // Validate api input

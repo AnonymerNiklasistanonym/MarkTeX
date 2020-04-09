@@ -134,7 +134,7 @@ export const checkIfDocumentAccessExistsAccountDocumentIds = async (
 };
 
 
-// Create
+// Add
 // -----------------------------------------------------------------------------
 
 export interface AddInput {
@@ -241,6 +241,40 @@ export const get = async (
             writeAccess: runResult.writeAccess === 1
         };
     }
+};
+
+
+// Update
+// -----------------------------------------------------------------------------
+
+export interface UpdateInput {
+    id: number
+    writeAccess?: boolean
+}
+
+export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<boolean> => {
+    await checkIfDocumentAccessExists(databasePath, input.id);
+    const documentAccessInfo = await get(databasePath, accountId, { id: input.id });
+    if (documentAccessInfo) {
+        await document.checkIfAccountHasAccessToUpdateDocument(databasePath, accountId, documentAccessInfo.documentId);
+    } else {
+        throw Error(GeneralError.NO_ACCESS);
+    }
+
+    const columns = [];
+    const values = [];
+    if (input.writeAccess !== undefined) {
+        columns.push(table.column.writeAccess);
+        values.push(input.writeAccess ? 1 : 0);
+    }
+    values.push(input.id);
+
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.update(table.name, columns, table.column.id),
+        values
+    );
+    return postResult.changes > 0;
 };
 
 

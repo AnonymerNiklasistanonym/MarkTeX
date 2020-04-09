@@ -17,6 +17,7 @@ window.addEventListener("load", () => {
     const inputMemberAddWriteAccess = document.getElementById("input-member-add-write-access") as HTMLInputElement|null;
 
     const buttonsMemberRemove = document.getElementsByClassName("button-remove-member");
+    const buttonsMemberToggleWriteAccess = document.getElementsByClassName("button-update-write-access");
 
 
     // Member handling
@@ -49,6 +50,39 @@ window.addEventListener("load", () => {
             } catch (err) {
                 await notifications.showError(
                     `Something went wrong when removing the access of ${memberAccountName}`, err
+                );
+            }
+        });
+    }
+
+    for (const buttonMemberToggleWriteAccess of buttonsMemberToggleWriteAccess) {
+        buttonMemberToggleWriteAccess.addEventListener("click", async () => {
+            const memberId = Number(buttonMemberToggleWriteAccess.getAttribute("memberId"));
+            const memberAccountName = buttonMemberToggleWriteAccess.getAttribute("memberAccountName");
+            const memberWriteAccess = buttonMemberToggleWriteAccess.getAttribute("memberWriteAccess") === "true";
+            try {
+                if (accountId === undefined) {
+                    throw Error("No account id was found");
+                }
+                if (groupId === undefined) {
+                    throw Error("No group id was found");
+                }
+                if (isNaN(memberId)) {
+                    throw Error(`Member id is not a number (${memberId})`);
+                }
+                const response = await apiRequests.groupAccess.update({
+                    id: memberId,
+                    writeAccess: !memberWriteAccess
+                });
+                await notifications.show({
+                    body: `Write access of '${memberAccountName}' is now ${response.writeAccess}`,
+                    title: "Document access was updated"
+                });
+                buttonMemberToggleWriteAccess.textContent = response.writeAccess ? "read-write" : "read-only";
+                buttonMemberToggleWriteAccess.setAttribute("memberWriteAccess", `${response.writeAccess}`);
+            } catch (err) {
+                await notifications.showError(
+                    `Something went wrong when updating the access of ${memberAccountName}`, err
                 );
             }
         });

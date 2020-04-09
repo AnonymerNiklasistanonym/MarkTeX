@@ -245,6 +245,40 @@ export const get = async (
 };
 
 
+// Update
+// -----------------------------------------------------------------------------
+
+export interface UpdateInput {
+    id: number
+    writeAccess?: boolean
+}
+
+export const update = async (databasePath: string, accountId: number, input: UpdateInput): Promise<boolean> => {
+    await checkIfGroupAccessExists(databasePath, input.id);
+    const groupAccessInfo = await get(databasePath, accountId, { id: input.id });
+    if (groupAccessInfo) {
+        await group.checkIfAccountHasAccessToUpdateGroup(databasePath, accountId, groupAccessInfo.groupId);
+    } else {
+        throw Error(GeneralError.NO_ACCESS);
+    }
+
+    const columns = [];
+    const values = [];
+    if (input.writeAccess !== undefined) {
+        columns.push(table.column.writeAccess);
+        values.push(input.writeAccess ? 1 : 0);
+    }
+    values.push(input.id);
+
+    const postResult = await database.requests.post(
+        databasePath,
+        database.queries.update(table.name, columns, table.column.id),
+        values
+    );
+    return postResult.changes > 0;
+};
+
+
 // Remove
 // -----------------------------------------------------------------------------
 
