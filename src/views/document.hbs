@@ -35,19 +35,19 @@
 			<h2>Actions:</h2>
 			{{#if loggedIn}}
 			<ul class="actions-vertical">
-				<li><a class="button" id="document-button-edit-metadata" tabindex="0">Toggle edit metadata</a></li>
-				<li><a class="button" id="document-button-edit-pdf-options" tabindex="0">Toggle edit PDF options</a></li>
-				<li><a class="button" id="document-button-edit-members" tabindex="0">Toggle edit members</a></li>
+				<li><a class="button" id="document-button-edit-metadata" tabindex="0" role="button">Toggle edit metadata</a></li>
+				<li><a class="button" id="document-button-edit-pdf-options" tabindex="0" role="button">Toggle edit PDF options</a></li>
+				<li><a class="button" id="document-button-edit-members" tabindex="0" role="button">Toggle edit members</a></li>
 			</ul>
 			{{/if}}
 			<ul class="actions-vertical">
-				<li><a class="button" id="document-button-export-pdf" tabindex="0">Export to PDF</a></li>
-				<li><a class="button" id="document-button-export-zip" tabindex="0">Export to ZIP</a></li>
-				<li><a class="button" id="document-button-export-json" tabindex="0">Export document (JSON)</a></li>
+				<li><a class="button" id="document-button-export-pdf" tabindex="0" role="button">Export to PDF</a></li>
+				<li><a class="button" id="document-button-export-zip" tabindex="0" role="button">Export to ZIP</a></li>
+				<li><a class="button" id="document-button-export-json" tabindex="0" role="button">Export document (JSON)</a></li>
 				{{#if loggedIn}}
-				<li><a class="button" id="document-button-update-create" tabindex="0">Save as new document</a></li>
-				<li><a class="button" id="document-button-update" tabindex="0">Save document</a></li>
-				<li><a class="button" id="document-button-remove" tabindex="0">Delete document</a></li>
+				<li><a class="button" id="document-button-update-create" tabindex="0" role="button">Save as new document</a></li>
+				<li><a class="button" id="document-button-update" tabindex="0" role="button">Save document</a></li>
+				<li><a class="button" id="document-button-remove" tabindex="0" role="button">Delete document</a></li>
 				{{/if}}
 			</ul>
 		</section>
@@ -63,7 +63,7 @@
 			</form>
 
 			<ul class="actions-vertical">
-				<li><a class="button" id="button-member-add" tabindex="0">Add new member</a></li>
+				<li><a class="button" id="button-member-add" tabindex="0" role="button">Add new member</a></li>
 			</ul>
 			{{/if}}
 
@@ -113,16 +113,16 @@
 
 			{{#if loggedIn}}
 			<ul class="actions-vertical">
-				<li><a class="button" id="collaboration-button" tabindex="0">Enable collaboration</a></li>
+				<li><a class="button" id="collaboration-button" tabindex="0" role="button">Enable collaboration</a></li>
 			</ul>
 {{> collaboration_test_editor_header idMain="connected-users" idList="connected-users-list"}}
 			{{/if}}
 
 			{{#if loggedIn}}
 			<ul class="actions-vertical">
-				<li><a class="button" id="marktex-button-both" tabindex="0">Both</a></li>
-				<li><a class="button" id="marktex-button-edit" tabindex="0">Edit</a></li>
-				<li><a class="button selected" id="marktex-button-view" tabindex="0">View</a></li>
+				<li><a class="button" id="marktex-button-both" tabindex="0" role="button">Both</a></li>
+				<li><a class="button" id="marktex-button-edit" tabindex="0" role="button">Edit</a></li>
+				<li><a class="button selected" id="marktex-button-view" tabindex="0" role="button">View</a></li>
 			</ul>
 			{{/if}}
 {{> marktex_document_editor idEditor="marktex-editor" idInput="marktex-input" idOutput="marktex-output" modusViewOnly=true input=document.content}}
