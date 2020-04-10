@@ -1,5 +1,5 @@
 <li>
 	<a class="button" href="/account/{{this.accountId}}">{{this.accountName}}</a>
-	<a class="button button-update button-update-write-access" memberId="{{this.id}}" memberAccountName="{{this.accountName}}" memberWriteAccess="{{this.writeAccess}}">{{#if this.writeAccess}}read-write{{else}}read-only{{/if}}</a>
-	<a class="button button-remove button-remove-member" memberId="{{this.id}}" memberAccountName="{{this.accountName}}">Remove</a>
+	<a class="button button-update button-update-write-access" memberId="{{this.id}}" memberAccountName="{{this.accountName}}" memberWriteAccess="{{this.writeAccess}}" tabindex="0">{{#if this.writeAccess}}read-write{{else}}read-only{{/if}}</a>
+	<a class="button button-remove button-remove-member" memberId="{{this.id}}" memberAccountName="{{this.accountName}}" tabindex="0">Remove</a>
 </li>

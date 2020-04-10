@@ -170,19 +170,25 @@ a.button.button-update {
 }
 
 a.button.selected,
-a.button:hover {
+a.button:hover,
+a.button:focus {
 	background-color: var(--global-button-background-hovered);
 	color: white;
+	outline: none;
 }
 
 a.button.button-remove.selected,
-a.button.button-remove:hover {
+a.button.button-remove:hover,
+a.button.button-remove:focus {
 	background: var(--global-button-background-dangerous-hovered);
+	outline: none;
 }
 
 a.button.button-update.selected,
-a.button.button-update:hover {
+a.button.button-update:hover,
+a.button.button-update:focus {
 	background: var(--global-button-background-update-hovered);
+	outline: none;
 }
 
 a.button.selected {
@@ -269,8 +275,10 @@ div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link {
 	text-decoration: none;
 }
 
-div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link:hover {
+div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link:hover,
+div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link:focus {
 	background-color: var(--global-color-background-toolbar-element-hovered);
+	outline: none;
 }
 
 .invisible {

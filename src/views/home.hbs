@@ -18,9 +18,9 @@
 			<h2>Documents:</h2>
 
 			<ul class="actions-vertical">
-				<li><a class="button" id="button-document-new">Create new document</a></li>
+				<li><a class="button" id="button-document-new" tabindex="0">Create new document</a></li>
 				<li>
-					<a class="button" id="button-document-import-json">Import document (JSON)</a>
+					<a class="button" id="button-document-import-json" tabindex="0">Import document (JSON)</a>
 					<input class="invisible" id="input-document-import-json" type="file" accept="json">
 				</li>
 			</ul>
@@ -36,7 +36,7 @@
 			<h2>Groups:</h2>
 
 			<ul class="actions-vertical">
-				<li><a class="button" id="button-group-new">Create new group</a></li>
+				<li><a class="button" id="button-group-new" tabindex="0">Create new group</a></li>
 			</ul>
 
 			<ul class="element-list" id="element-list-groups">
@@ -52,7 +52,7 @@
 			<input class="input-text" type="text" name="friendName" id="input-friend-add" placeholder="New friend name...">
 
 			<ul class="actions-vertical">
-				<li><a class="button" id="button-friend-add">Add new friend</a></li>
+				<li><a class="button" id="button-friend-add" tabindex="0">Add new friend</a></li>
 			</ul>
 
 			<ul class="element-list" id="element-list-friends">
@@ -66,7 +66,7 @@
 			<h2>Update:</h2>
 
 			<ul class="actions-vertical">
-				<li><a class="button" id="button-account-update">Update account</a></li>
+				<li><a class="button" id="button-account-update" tabindex="0">Update account</a></li>
 			</ul>
 
 			{{!-- Account update form --}}
@@ -105,7 +105,7 @@
 		<section class="section-home" id="section-home-actions">
 			<ul class="actions-vertical">
 				{{#if loggedIn}}
-				<li><a class="button" id="button-account-remove">Delete account</a></li>
+				<li><a class="button" id="button-account-remove" tabindex="0">Delete account</a></li>
 				{{else}}
 				<li><a class="button" href="/login">Create account or log in</a></li>
 				{{/if}}
