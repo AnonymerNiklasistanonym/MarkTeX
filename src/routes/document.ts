@@ -80,18 +80,21 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     if (!documentInfo.pdfOptions.footer) { documentInfo.pdfOptions.footer = {}; }
                     const pdfOptions: viewRendering.pdfOptions.PdfOption[] = [ {
                         attribute: documentInfo.pdfOptions.useTitle ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Use title",
                         labelAfter: true,
                         name: "use-title",
                         type: "checkbox"
                     }, {
                         attribute: documentInfo.pdfOptions.useAuthors ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Use authors",
                         labelAfter: true,
                         name: "use-authors",
                         type: "checkbox"
                     }, {
                         attribute: documentInfo.pdfOptions.useDate ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Use date",
                         labelAfter: true,
                         name: "use-date",
@@ -99,12 +102,14 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     }, {
                         attribute: documentInfo.pdfOptions.paperSize === PdfOptionsPaperSize.A4
                             ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "A4 paper",
                         labelAfter: true,
                         name: "a4-paper",
                         type: "checkbox"
                     }, {
                         attribute: documentInfo.pdfOptions.tableOfContents.enabled ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Table of contents",
                         labelAfter: true,
                         name: "table-of-contents",
@@ -118,6 +123,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     }, {
                         attribute: documentInfo.pdfOptions.pageNumbers === undefined
                             || documentInfo.pdfOptions.pageNumbers ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Page numbers",
                         labelAfter: true,
                         name: "page-numbers",
@@ -136,6 +142,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                         value: documentInfo.pdfOptions.footer.text
                     }, {
                         attribute: documentInfo.pdfOptions.header.enabled ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Header",
                         labelAfter: true,
                         name: "header",
@@ -143,24 +150,28 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                         value: "???"
                     }, {
                         attribute: documentInfo.pdfOptions.footer.enabled ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Footer",
                         labelAfter: true,
                         name: "footer",
                         type: "checkbox"
                     }, {
                         attribute: documentInfo.pdfOptions.landscape ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Landscape",
                         labelAfter: true,
                         name: "landscape",
                         type: "checkbox"
                     }, {
                         attribute: documentInfo.pdfOptions.twoColumns ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Two columns",
                         labelAfter: true,
                         name: "two-columns",
                         type: "checkbox"
                     }, {
                         attribute: documentInfo.pdfOptions.isPresentation ? "checked" : undefined,
+                        isCheckbox: true,
                         label: "Is presentation",
                         labelAfter: true,
                         name: "is-presentation",

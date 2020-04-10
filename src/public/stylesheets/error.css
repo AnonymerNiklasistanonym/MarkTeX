@@ -14,6 +14,14 @@
 	--error-color-transition-speed-button: 150ms;
 }
 
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--error-color-theme: black;
+		--error-color-text: #ff0000;
+	}
+}
+
 body {
 	background-color: var(--global-color-background);
 	font-family: var(--global-font-family);

@@ -1,5 +1,17 @@
 :root {
 	--markdown-editor-textarea-padding: 1em;
+	--markdown-editor-border: none;
+	--markdown-editor-background-color: white;
+	--markdown-editor-text-color: black;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--markdown-editor-border: 1px solid white;
+		--markdown-editor-background-color: black;
+		--markdown-editor-text-color: white;
+	}
 }
 
 div.container-marktex-editor {
@@ -27,6 +39,8 @@ div.container-marktex-editor.only-view>div.container-marktex-editor-input {
 }
 
 div.container-marktex-editor>div.container-marktex-editor-input>textarea {
+	background-color: var(--markdown-editor-background-color);
+	color: var(--markdown-editor-text-color);
 	width: calc(100% - 2 * var(--markdown-editor-textarea-padding));
 	padding: var(--markdown-editor-textarea-padding);
 	resize: none;
@@ -37,7 +51,6 @@ div.container-marktex-editor>div.container-marktex-editor-input>textarea {
 div.container-marktex-editor>div.container-marktex-editor-output {
 	width: 100%;
 	display: block;
-	background-color: white;
 	height: 100%;
 	overflow-y: scroll;
 	overflow-x: hidden;
@@ -62,6 +75,9 @@ div.container-marktex-editor>div.container-marktex-editor-output>div {
 
 .markdown-body,
 .markdown-body-page {
+	color: var(--markdown-editor-text-color);
+	border: var(--markdown-editor-border);
+	background-color: var(--markdown-editor-background-color);
 	box-sizing: border-box;
 	min-width: 200px;
 	max-width: 980px;

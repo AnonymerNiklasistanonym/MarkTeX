@@ -5,6 +5,7 @@ export interface PdfOption {
     labelAfter?: boolean
     labelBefore?: boolean
     name: string
+    isCheckbox?: boolean
     type: "checkbox" | "text" | "number"
     value?: (string|number)
 }

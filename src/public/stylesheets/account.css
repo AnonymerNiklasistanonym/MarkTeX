@@ -1,5 +1,5 @@
 body {
-	background-color: var(--global-color-background);
+	background-color: var(--global-color-background-body);
 	font-family: var(--global-font-family);
 	font-size: var(--global-font-size-body);
 	color: var(--global-color-text);
@@ -7,6 +7,8 @@ body {
 }
 
 div.container-account {
+	/* Custom background color for card background */
+	background-color: var(--global-color-background);
 	/* Center container in the middle of the site with a maximum width */
 	margin: auto;
 	max-width: var(--global-responsive-maximum-width);

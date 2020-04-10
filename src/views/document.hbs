@@ -87,7 +87,7 @@
 				<input type="text" id="document-info-date" class="input-text" name="document-date" value="{{document.date}}">
 
 				<br>
-				<input  type="checkbox" id="document-info-public" name="document-public" {{#if document.public}}checked{{/if}}>
+				<input  type="checkbox" id="document-info-public" class="input-checkbox" name="document-public" {{#if document.public}}checked{{/if}}>
 				<label for="document-public">Public</label>
 			</form>
 		</section>
@@ -99,7 +99,7 @@
 				{{#if this.labelBefore}}
 				<label for="pdf-options-{{this.name}}">{{this.label}}</label><br>
 				{{/if}}
-				<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" class="input-text" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
+				<input type="{{this.type}}" id="input-pdf-options-{{this.name}}" class="{{#if this.isCheckbox}}input-checkbox{{else}}input-text{{/if}}" name="pdf-options-{{this.name}}" value="{{this.value}}" {{this.attribute}}>
 				{{#if this.labelAfter}}
 				<label for="pdf-options-{{this.name}}">{{this.label}}</label>
 				{{/if}}

@@ -23,6 +23,10 @@
 	--global-color-theme-primary: #5658e9;
 	--global-color-theme-accent: #ffd000;
 	--global-color-background: #f7f7f7;
+	--global-color-background-body: #ffffff;
+	--global-color-background-message:#d7d7d7;
+	--global-color-background-toolbar: #333;
+	--global-color-background-toolbar-element-hovered: #111;
 	--global-color-text: #000000;
 	--global-font-family: Helvetica;
 	/* --global-font-family: 'Local Open Sans'; */
@@ -40,12 +44,36 @@
 	--global-button-background-hovered: var(--global-color-theme-primary);
 	--global-button-background-dangerous-hovered: #eb1d1d;
 	--global-button-background-update-hovered: #39ae03;
+	--global-input-text-background-color: #ffffff;
+	--global-input-text-text-color: #000000;
+	--global-input-text-border-color: #ddd;
+	--global-input-text-box-shadow: inset 0 1px 3px var(--global-input-text-border-color);
 	--global-input-text-padding-top-bottom: 1em;
 	--global-input-text-padding-right-left: 1.5em;
 	--global-input-margin: 0.5em;
 	--global-font-size-text: 1em;
 	--global-font-size-button: 1.1em;
 	--global-font-size-input: 1em;
+}
+
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--global-color-background: #000000;
+		--global-color-background-body: #262626;
+		--global-color-background-message:#393939;
+		--global-color-background-toolbar: #000000;
+		--global-color-background-toolbar-element-hovered: #ffffff61;
+		--global-color-text: #ffffff;
+		--global-button-background: #5658e95c;
+		--global-button-background-dangerous: #eb1d1d5c;
+		--global-button-background-update: #39ae035c;
+		--global-input-text-background-color: #000000;
+		--global-input-text-border-color: #ffffff;
+		--global-input-text-text-color: #ffffff;
+		--global-input-text-box-shadow: none;
+	}
 }
 
 /*
@@ -162,13 +190,20 @@ a.button.selected {
 }
 
 input.input-text {
+	background-color: var(--global-input-text-background-color);
+	color: var(--global-input-text-text-color);
 	width: calc(100% - 2 * var(--global-input-text-padding-right-left) - 2px);
 	margin: var(--global-input-margin) 0;
 	font-size: var(--global-font-size-input);
-	border: 1px solid #ccc;
-	box-shadow: inset 0 1px 3px #ddd;
+	border: 1px solid var(--global-input-text-border-color);
+	box-shadow: var(--global-input-text-box-shadow);
 	border-radius: var(--global-responsive-border-radius-input);
 	padding: var(--global-input-text-padding-top-bottom) var(--global-input-text-padding-right-left);
+}
+
+input.input-checkbox {
+	margin: var(--global-input-margin) 0;
+	font-size: var(--global-font-size-input);
 }
 
 ul.actions,
@@ -190,13 +225,13 @@ ul.messages {
 }
 
 ul.messages>li {
-	background-color: #d7d7d7;
+	background-color: var(--global-color-background-message);
 	padding: 0.2em 1em;
 	border-radius: 4px;
 }
 
 .can-be-toggled {
-	max-height: 100vh;
+	max-height: 1000vh;
 	overflow: hidden;
 	transition: max-height .25s ease-in-out;
 }
@@ -215,7 +250,7 @@ div.container-navigation-bar>ul.navigation-bar-links {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
-	background-color: #333;
+	background-color: var(--global-color-background-toolbar);
 }
 
 div.container-navigation-bar>ul.navigation-bar-links>li:not(.align-right) {
@@ -235,7 +270,7 @@ div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link {
 }
 
 div.container-navigation-bar>ul.navigation-bar-links>li>a.navigation-bar-link:hover {
-	background-color: #111;
+	background-color: var(--global-color-background-toolbar-element-hovered);
 }
 
 .invisible {
