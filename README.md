@@ -28,10 +28,10 @@ The current (next) features that are being developed are:
 
 | Program | Version required | Version tested |
 | ------- | ---------------- | -------------- |
-| `nodejs` | 13.9+ | 13.12.0 |
-| `pandoc` | 2.9+ | 2.9.2 |
-| `xetex`  | | 0.999991 |
-| `inkscape` | 1.0+ (**1.0 did not hit stable yet!!!**) | 1.1.dev |
+| `nodejs` | 13.9+ | 14.1.0 |
+| `pandoc` | 2.9+ | 2.9.2.1 |
+| `xetex`  | 0.999991+ | 0.999991 |
+| `inkscape` | 1.0+ | 1.0 |
 
 ### Tested on
 

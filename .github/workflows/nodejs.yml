@@ -16,14 +16,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [13.x]
+        node-version: [ '14' ]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ matrix.node }}
     - run: npm ci
     - run: npm run tests:general
     - run: npm run build
