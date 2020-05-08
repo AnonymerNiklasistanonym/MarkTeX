@@ -16,7 +16,7 @@ import path from "path";
 const debug = debuglog("app");
 
 // Version
-const marktexVersion = "1.0.0";
+const marktexVersion = "1.0.1";
 
 // Read command line arguments
 let ignoreWarnings = false;
