@@ -1,7 +1,21 @@
-FROM pandoc/latex:2.9.2
+FROM alpine:edge
 
-# Install npm/nodejs
-RUN apk add --update npm inkscape
+# Install programs
+# TODO Should version numbers be included?
+# TODO Remove python3 as soon as sqlite3 npm install is fixed
+RUN apk update
+
+RUN apk search --no-cache make
+RUN apk search --no-cache python3
+RUN apk search --no-cache npm
+RUN apk search --no-cache inkscape
+RUN apk search --no-cache pandoc
+RUN apk search --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing pandoc
+RUN apk search --no-cache texlive-full
+
+RUN apk add make=4.3-r0 python3=3.8.2-r7 npm==12.16.3-r0 inkscape==1.0-r0 texlive-full==20190410-r12
+# TODO When pandoc is in stable/edge add to previous command
+RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing pandoc==2.9.2.1-r0
 
 # Create app directory
 WORKDIR /usr/src/app
