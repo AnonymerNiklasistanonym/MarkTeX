@@ -11,8 +11,8 @@ chai.should();
 
 export default (databasePath: string, APP: Express): Mocha.Suite => {
     return describe("browser", () => {
-        describe("GET (not logged in)", () => {
-            api.database.reset(databasePath);
+        describe("GET (not logged in)", async () => {
+            await api.database.reset(databasePath);
             it("/ (home)", async () => {
                 await chai.request(APP)
                     .get("/")

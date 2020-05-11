@@ -18,7 +18,6 @@ describe("inkscape [shell]", () => {
         chai.expect(version.minor).to.be.a("number");
         chai.expect(version.minor).to.satisfy(Number.isInteger);
         chai.expect(version.patch).to.be.a("string");
-        chai.expect(version.patch.length).to.be.greaterThan(0);
     });
     it("convert pdf to svg", async () => {
         const files: pandoc.PandocMd2PdfInputFile[] = [

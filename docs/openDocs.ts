@@ -21,13 +21,20 @@ const startStaticDocumentationServer = (port = 8081): Promise<string> => new Pro
         await fs.access(defaultDocsOutputDir);
     } catch (err) {
         if (err.code === "ENOENT") {
-            console.error(`Error: Docs output directory was not found (${defaultDocsOutputDir}).`);
+            throw Error(`Docs output directory was not found (${defaultDocsOutputDir}).`);
         } else {
-            console.error(err);
+            throw err;
         }
-        return process.exit(1);
     }
-    const url = await startStaticDocumentationServer();
-    // Opens the main page of the documentation
-    await open(url);
-})();
+
+    try {
+        const url = await startStaticDocumentationServer();
+        // Opens the main page of the documentation
+        await open(url);
+    } catch (err) {
+        throw err;
+    }
+})().catch(error => {
+    console.error(error);
+    process.exit(1);
+});

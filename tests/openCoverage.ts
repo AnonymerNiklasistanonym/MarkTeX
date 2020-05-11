@@ -29,7 +29,14 @@ const startStaticCoverageServer = (port = 8082): Promise<string> => new Promise(
         }
         return process.exit(1);
     }
-    const url = await startStaticCoverageServer();
-    // Opens the main page of the documentation
-    await open(url);
-})();
+    try {
+        const url = await startStaticCoverageServer();
+        // Opens the main page of the documentation
+        await open(url);
+    } catch (err) {
+        throw err;
+    }
+})().catch(error => {
+    console.error(error);
+    process.exit(1);
+});

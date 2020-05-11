@@ -144,7 +144,9 @@ const databasePath = process.env.DATABASE_PATH && process.env.DATABASE_PATH !== 
         }
 
     } catch (error) {
-        console.error(error);
-        process.exit(1);
+        throw error;
     }
-})();
+})().catch(error => {
+    console.error(error);
+    process.exit(1);
+});

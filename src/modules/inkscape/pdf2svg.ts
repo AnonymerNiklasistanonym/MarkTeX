@@ -51,16 +51,21 @@ export const pdf2Svg = async (input: InkscapePdf2SvgInput): Promise<InkscapePdf2
     child.stdout.on("data", (chunk: Buffer) => { bufferStdout.push(chunk); });
     child.stderr.on("data", (chunk: Buffer) => { bufferStderr.push(chunk); });
     return new Promise((resolve, reject) => {
-        child.on("close", code => {
+        child.on("close", async (code) => {
             const stderr = bufferStderr.toString();
             if (code !== 0) {
-                helper.fileSystem.rmDirRecursive(workingDirName);
+                await helper.fileSystem.rmDirRecursive(workingDirName);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr})`));
             }
             const stdout = bufferStdout.toString();
-            fs.readFile(temporarySvg, { encoding: "utf8" }).then(svgData => {
+            try {
+                const svgData = await fs.readFile(temporarySvg, { encoding: "utf8" });
+                await helper.fileSystem.rmDirRecursive(workingDirName);
                 resolve({ stderr, stdout, svgData });
-            }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
+            } catch (error) {
+                await helper.fileSystem.rmDirRecursive(workingDirName);
+                return reject(error);
+            }
         });
     });
 };

@@ -60,18 +60,24 @@ export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
     child.stdout.on("data", (chunk: Buffer) => { bufferStdout.push(chunk); });
     child.stderr.on("data", (chunk: Buffer) => { bufferStderr.push(chunk); });
     return new Promise((resolve, reject) => {
-        child.on("close", code => {
+        child.on("close", async (code) => {
             debug(`tex2Pdf finished out='${temporaryPdf}'`);
             const stderr = bufferStderr.toString();
             const stdout = bufferStdout.toString();
             if (code !== 0) {
-                helper.fileSystem.rmDirRecursive(workingDirName);
+                await helper.fileSystem.rmDirRecursive(workingDirName);
                 return reject(Error(`Child process exited with code ${code} (stderr=${stderr},`
                                     + `stdout=${stdout})`));
             }
-            fs.readFile(temporaryPdf).then(pdfData => {
+
+            try {
+                const pdfData = await fs.readFile(temporaryPdf);
+                await helper.fileSystem.rmDirRecursive(workingDirName);
                 resolve({ pdfData, stderr, stdout });
-            }).catch(reject).then(() => helper.fileSystem.rmDirRecursive(workingDirName));
+            } catch (error) {
+                await helper.fileSystem.rmDirRecursive(workingDirName);
+                return reject(error);
+            }
         });
     });
 };
