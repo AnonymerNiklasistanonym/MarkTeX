@@ -24,20 +24,27 @@ The current (next) features that are being developed are:
 
 ## Requirements
 
-*(it could be that later versions are required, but the tested versions are guaranteed to work)*
+(*it could be that later versions are required, but the tested versions are guaranteed to work*)
 
 | Program | Version required | Version tested |
 | ------- | ---------------- | -------------- |
+| `npm` | 12.16+ | 6.14.4 |
 | `nodejs` | 13.9+ | 14.1.0 |
 | `pandoc` | 2.9+ | 2.9.2.1 |
-| `xetex`  | 0.999991+ | 0.999991 |
+| `xetex` (`texlive-full`)  | 0.999991+ | 0.999991 |
 | `inkscape` | 1.0+ | 1.0 |
+
+Possible other requirements could be:
+
+- `python`, `make`: For building `sqlite3` with `npm` from source
 
 ### Tested on
 
-- Linux [5.5.13-1-MANJARO] (x64)
+- Linux [5.6.10-3-MANJARO] (x64)
 - Linux [raspberrypi 4.19.66-v7+] (armv7l) *very slow*
 - Windows [10.0.18363] (x64)
+
+There is a [Pacman AUR package](https://aur.archlinux.org/packages/marktex/).
 
 ## Quickstart
 
@@ -177,13 +184,7 @@ These dependencies are not necessary to run this service but to build it or for 
 
 Run and build this project via docker with: (`sudo`) `make`
 
-| Command |  Description |
-| ------- | ------------ |
-| (`sudo`) `docker ps` | Get the container ID and port |
-| (`sudo`) `docker inspect <CONTAINER_ID>` | Get IP address (`grep IPAddress`) and other information of docker machine |
-
-TODO: Currently there is a problem when forwarding the port from the docker machine to the host computer - some paths do not work and you get 404s everywhere.
-Until this is resolved you can access the website via the IP address from `docker inspect <CONTAINER_ID> | grep IPAddress` and the original port (`8080`) [instead of `localhost:8080/xyz` visit `DOCKER_CONTAINER_IP_ADDRESS:8080/xyz`].
+The container accesses per default the database in the local directory `~/.marktex`.
 
 ### Start/Stop docker service after installation
 
@@ -204,6 +205,15 @@ sudo docker ps
 # Stop running docker container
 sudo docker stop CONTAINER_ID
 ```
+
+### Info about container
+
+| Command |  Description |
+| ------- | ------------ |
+| (`sudo`) `docker ps` | Get the container ID and port |
+| (`sudo`) `docker inspect <CONTAINER_ID>` | Get IP address (`grep IPAddress`) and other information of docker machine |
+
+You can also access the website directly from the container via the IP address from `docker inspect <CONTAINER_ID> | grep IPAddress` and the original port (`8080`) [instead of `localhost:8080/xyz` visit `DOCKER_CONTAINER_IP_ADDRESS:8080/xyz`].
 
 ### Clean **ALL** docker files
 
