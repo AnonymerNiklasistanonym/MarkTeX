@@ -174,6 +174,7 @@ These dependencies are not necessary to run this service but to build it or for 
 | `mocha` | Perform and create tests |
 | `nodemon` | Nodemon watches files for changes and automatically restarts the Node.js application when changes are detected which is useful during the development |
 | `npm-run-all` | Use to execute multiple npm scripts sequentially or in parallel (only used in `package.json`)  |
+| `nyc` | Calculate and inspect test coverage |
 | `open` | Open files with their default application |
 | `shelljs` | Use to execute shell commands such as to copy files and remove directories |
 | `ts-node` | Run TypeScript files directly (otherwise they must first be compiled to JavaScript files) |
