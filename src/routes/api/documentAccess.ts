@@ -57,7 +57,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("Creation of document access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 
@@ -103,7 +103,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("Creation of document access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 
@@ -137,7 +137,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("Update of document access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 
@@ -169,7 +169,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("Removal of document access was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 

@@ -1,12 +1,12 @@
 interface HbsLayoutErrorLink {
     link: string
     text: string
-};
+}
 
 export interface HbsLayoutError {
     error: HbsLayoutErrorError
     production?: boolean
-};
+}
 
 interface HbsLayoutErrorError {
     status: number
@@ -14,4 +14,4 @@ interface HbsLayoutErrorError {
     stack?: string
     explanation?: string
     links?: HbsLayoutErrorLink[]
-};
+}

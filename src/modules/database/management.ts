@@ -1,4 +1,5 @@
 import * as sqlite3 from "sqlite3";
+import { ErrorCodePostRequest } from "./requests";
 import { promises as fs } from "fs";
 
 
@@ -7,6 +8,10 @@ import { promises as fs } from "fs";
 
 export enum ErrorCodeOpen {
     SQLITE_CANTOPEN = "SQLITE_CANTOPEN"
+}
+
+export interface SqliteInternalError extends Error {
+    code: ErrorCodePostRequest | ErrorCodeOpen
 }
 
 export interface OpenDatabaseOptions {

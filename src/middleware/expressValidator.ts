@@ -17,6 +17,10 @@ export interface ValidateWithTerminationOnErrorOptions {
     ) => void
 }
 
+interface InternalValidationErrorFix extends Error {
+    msg: string
+}
+
 /**
  * Terminate early on validation error.
  * https://express-validator.github.io/docs/running-imperatively.html
@@ -44,7 +48,9 @@ export const validateWithError = (
             } else if (options.customOnError) {
                 options.customOnError(req, res, next, errors);
             } else {
-                next(createHttpError(422, errors.array().map(a => a.msg).join(", ")));
+                next(createHttpError(422, errors.array().map(
+                    a => (a as unknown as InternalValidationErrorFix).msg
+                ).join(", ")));
             }
         }
     };

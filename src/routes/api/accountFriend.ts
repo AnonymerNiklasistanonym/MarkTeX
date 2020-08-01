@@ -53,7 +53,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("There was an error during the response creation of the friend entry");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 
@@ -94,7 +94,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("There was an error during the response creation of the friend entry");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 
@@ -126,7 +126,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("Internal error: Account friend entry info was not returned");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 
@@ -158,7 +158,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 throw Error("Internal error: Account friend entry removal was not successful");
             } catch (error) {
                 if (!options.production) { console.error(error); }
-                res.status(500).json({ error: error.message ? error.message : error });
+                return res.status(500).json({ error: (error as Error).message });
             }
         });
 

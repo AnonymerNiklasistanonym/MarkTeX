@@ -37,6 +37,7 @@ module.exports = {
                 }
             }
         ],
+        "@typescript-eslint/restrict-template-expressions": ["error", { allowBoolean: true }],
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-misused-promises": [ "error", { checksVoidReturn: false } ],

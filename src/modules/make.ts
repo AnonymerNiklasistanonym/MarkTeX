@@ -9,13 +9,13 @@ export interface MakeInput {
      *      commands
      */
     jobs: MakeInputJob[]
-};
+}
 
 /** @example name=value */
 export interface MakeInputDefinition {
     name: string
     value: string
-};
+}
 
 /**
  * @example
@@ -30,7 +30,7 @@ export interface MakeInputJob {
     default?: boolean
     dependencies?: string[]
     commands: string[]
-};
+}
 
 export const createMakefileVersion = "1.0.0";
 

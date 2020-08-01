@@ -180,10 +180,11 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     const header = viewRendering.getHeaderDefaults(options, { marktexRenderer: true, sockets: true });
                     header.stylesheets.push({ path: "/stylesheets/document.css" });
                     header.scripts.push({ path: `/scripts/document_bundle.js${options.production ? ".gz" : ""}` });
-                    header.title = `${documentInfo.title} by ${documentInfo.authors}`;
-                    header.description = `${documentInfo.title} by ${documentInfo.authors} from ${documentInfo.date}`;
+                    header.title = `${documentInfo.title} by ${JSON.stringify(documentInfo.authors)}`;
+                    header.description = `${documentInfo.title} by ${JSON.stringify(documentInfo.authors)} from ${
+                        JSON.stringify(documentInfo.date)}`;
                     header.metaValues = [
-                        { content: `${accountId}`, name: "accountId" },
+                        { content: JSON.stringify(accountId), name: "accountId" },
                         { content: `${documentId}`, name: "documentId" }
                     ];
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });

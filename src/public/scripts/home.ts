@@ -58,7 +58,8 @@ window.addEventListener("load", () => {
                 buttonDocumentRemove.parentNode.parentNode.removeChild(buttonDocumentRemove.parentNode);
             }
         } catch (err) {
-            await notifications.showError(`Something went wrong when removing the document ${documentName}`, err);
+            await notifications.showError(`Something went wrong when removing the document '${
+                JSON.stringify(documentName)}'`, err);
         }
     };
 
@@ -79,7 +80,8 @@ window.addEventListener("load", () => {
                     title: "New document"
                 });
                 await notifications.show({
-                    body: `${apiResponse.title} by ${apiResponse.authors} from ${apiResponse.date}`,
+                    body: `${apiResponse.title} by ${JSON.stringify(apiResponse.authors)} from ${
+                        JSON.stringify(apiResponse.date)}`,
                     onClickUrl: `/document/${apiResponse.id}`,
                     title: "New document was created"
                 });
@@ -97,7 +99,7 @@ window.addEventListener("load", () => {
             const fileReader = new FileReader();
             fileReader.onload = (): void => {
                 const text = String(fileReader.result);
-                jsonData = JSON.parse(text);
+                jsonData = JSON.parse(text) as api.document.CreateRequest;
                 if (DEBUG_APP) { console.warn("Read and parsed JSON file", text, jsonData); }
                 // Trigger button to import again
                 buttonDocumentImportJson.click();
@@ -130,7 +132,8 @@ window.addEventListener("load", () => {
                 // Clear JSON data again for another import
                 jsonData = undefined;
                 await notifications.show({
-                    body: `${response.title} by ${response.authors} from ${response.date}`,
+                    body: `${response.title} by ${JSON.stringify(response.authors)} from ${
+                        JSON.stringify(response.date)}`,
                     onClickUrl: `/document/${response.id}`,
                     title: "New document was created"
                 });
@@ -176,7 +179,8 @@ window.addEventListener("load", () => {
                 buttonGroupRemove.parentNode.parentNode.removeChild(buttonGroupRemove.parentNode);
             }
         } catch (err) {
-            await notifications.showError(`Something went wrong when removing the group ${groupName}`, err);
+            await notifications.showError(`Something went wrong when removing the group '${
+                JSON.stringify(groupName)}'`, err);
         }
     };
 
@@ -234,7 +238,8 @@ window.addEventListener("load", () => {
                 buttonFriendRemove.parentNode.parentNode.removeChild(buttonFriendRemove.parentNode);
             }
         } catch (err) {
-            await notifications.showError(`Something went wrong when removing the friend ${friendName}`, err);
+            await notifications.showError(`Something went wrong when removing the friend '${
+                JSON.stringify(friendName)}'`, err);
         }
     };
 

@@ -36,7 +36,8 @@ export default (databasePath: string): Mocha.Suite => {
                 await database.open(databasePath);
             } catch (error) {
                 throwsException1 = true;
-                chai.expect(error.code).to.deep.equal(database.ErrorCodeOpen.SQLITE_CANTOPEN);
+                chai.expect((error as database.SqliteInternalError).code)
+                    .to.deep.equal(database.ErrorCodeOpen.SQLITE_CANTOPEN);
             }
             chai.expect(throwsException1).to.equal(true);
 
@@ -46,7 +47,8 @@ export default (databasePath: string): Mocha.Suite => {
                 await database.open(databasePath, { readOnly: true });
             } catch (error) {
                 throwsException2 = true;
-                chai.expect(error.code).to.deep.equal(database.ErrorCodeOpen.SQLITE_CANTOPEN);
+                chai.expect((error as database.SqliteInternalError).code)
+                    .to.deep.equal(database.ErrorCodeOpen.SQLITE_CANTOPEN);
             }
             chai.expect(throwsException2).to.equal(true);
         });

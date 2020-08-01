@@ -12,7 +12,7 @@ export interface InputSchemaValidationExistingDocumentId {
 
 export const getDocumentIdExists = (
     input: InputSchemaValidationExistingDocumentId
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
@@ -32,7 +32,7 @@ export interface InputSchemaValidationExistingGroupId {
 
 export const getGroupIdExists = (
     input: InputSchemaValidationExistingGroupId
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
@@ -52,7 +52,7 @@ export interface InputSchemaValidationExistingAccountFriendId {
 
 export const getAccountFriendIdExists = (
     input: InputSchemaValidationExistingAccountFriendId
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
@@ -72,7 +72,7 @@ export interface InputSchemaValidationExistingAccountId {
 
 export const getAccountIdExists = (
     input: InputSchemaValidationExistingAccountId
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
@@ -92,7 +92,7 @@ export interface InputSchemaValidationExistingAccountName {
 
 export const getAccountNameExists = (
     input: InputSchemaValidationExistingAccountName
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (name: string): Promise<boolean> => {
@@ -112,7 +112,7 @@ export interface InputSchemaValidationExistingDocumentAccess {
 
 export const getDocumentAccessIdExists = (
     input: InputSchemaValidationExistingDocumentAccess
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
@@ -132,7 +132,7 @@ export interface InputSchemaValidationExistingGroupAccess {
 
 export const getGroupAccessIdExists = (
     input: InputSchemaValidationExistingGroupAccess
-): expressValidator.ValidationParamSchema => {
+): expressValidator.ParamSchema => {
     return {
         custom: {
             options: async (id: number): Promise<boolean> => {
@@ -153,7 +153,7 @@ export interface GetApiVersionSupportedOptions {
 
 export const getApiVersionSupported = (
     options: GetApiVersionSupportedOptions = {}
-): expressValidator.ValidationParamSchema => ({
+): expressValidator.ParamSchema => ({
     custom: {
         options: (apiVersion: number): boolean => {
             const supportedApiVersions = options.supportedApiVersions ? options.supportedApiVersions : [1];
@@ -172,7 +172,7 @@ export const getApiVersionSupported = (
     isInt: options.couldBeString ? undefined : true
 });
 
-export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema => ({
+export const getDocumentPdfOptions = (): expressValidator.ParamSchema => ({
     custom: {
         // eslint-disable-next-line complexity
         options: (pdfOptions: PdfOptions): boolean => {
@@ -205,12 +205,12 @@ export const getDocumentPdfOptions = (): expressValidator.ValidationParamSchema 
                 throw Error(`The key 'pageNumbers' must be a boolean (is=${typeof pdfOptions.pageNumbers})`);
             }
             if (pdfOptions.paperSize !== undefined && pdfOptions.paperSize !== PdfOptionsPaperSize.A4) {
-                throw Error(`The key 'paperSize' has an unsupported value (is=${pdfOptions.paperSize},supported=[${
-                    PdfOptionsPaperSize.A4}])`);
+                throw Error(`The key 'paperSize' has an unsupported value (is=${
+                    JSON.stringify(pdfOptions.paperSize)},supported=[${PdfOptionsPaperSize.A4}])`);
             }
             if (pdfOptions.paperSize !== undefined && pdfOptions.paperSize !== PdfOptionsPaperSize.A4) {
-                throw Error(`The key 'paperSize' has an unsupported value (is=${pdfOptions.paperSize},supported=[${
-                    PdfOptionsPaperSize.A4}])`);
+                throw Error(`The key 'paperSize' has an unsupported value (is=${
+                    JSON.stringify(pdfOptions.paperSize)},supported=[${PdfOptionsPaperSize.A4}])`);
             }
             if (pdfOptions.tableOfContents !== undefined && typeof pdfOptions.tableOfContents !== "object") {
                 throw Error(`The key 'tableOfContents' must be an object (is=${typeof pdfOptions.tableOfContents})`);

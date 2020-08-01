@@ -112,11 +112,11 @@ export interface Document2PdfInput {
     date?: string
     pdfOptions?: PdfOptions
     title: string
-};
+}
 
 export interface Document2PdfOutput {
     pdfData: Buffer
-};
+}
 
 export const createPdf = async (input: Document2PdfInput): Promise<Document2PdfOutput> => {
     debug(`document2Pdf: ${JSON.stringify(input)}`);
@@ -146,11 +146,11 @@ export interface CreateSourceZipInput {
     date?: string
     pdfOptions?: PdfOptions
     title: string
-};
+}
 
 export interface CreateSourceZipOutput {
     zipData: Buffer
-};
+}
 
 export const createSourceZip = async (input: CreateSourceZipInput): Promise<CreateSourceZipOutput> => {
     debug(`document2Zip: ${JSON.stringify(input)}`);

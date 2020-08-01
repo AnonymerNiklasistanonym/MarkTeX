@@ -15,7 +15,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
         const header = viewRendering.getHeaderDefaults(options, { marktexRenderer: true, sockets: true });
         header.stylesheets.push({ path: "/stylesheets/testing.css" });
         header.scripts.push({ path: `/scripts/testing_bundle.js${options.production ? ".gz" : ""}` });
-        header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
+        header.metaValues = [{ content: JSON.stringify(accountId), name: "accountId" }];
         const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
         res.render("testing", {
             header,

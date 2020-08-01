@@ -151,8 +151,10 @@ export const select = (tableName: string, columns: (string|SelectColumn)[], opti
         if (options.whereColumn) {
             if (typeof options.whereColumn === "string") {
                 whereStr = ` WHERE ${options.whereColumn}=?`;
-            } else {
+            } else if (options.whereColumn.tableName !== undefined) {
                 whereStr = ` WHERE ${options.whereColumn.tableName}.${options.whereColumn.columnName}=?`;
+            } else {
+                whereStr = ` WHERE ${tableName}.${options.whereColumn.columnName}=?`;
             }
         }
         if (options.orderBy) {
@@ -195,7 +197,7 @@ export enum CreateTableColumnType {
     INTEGER = "INTEGER",
     REAL = "REAL",
     BLOB = "BLOB"
-};
+}
 
 export interface CreateTableColumnOptions {
     notNull?: boolean

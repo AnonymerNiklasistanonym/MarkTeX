@@ -40,14 +40,14 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
                 console.warn(res.text);
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const addResponse: apiRequests.accountFriend.AddResponse = res.body;
+                const addResponse = res.body as apiRequests.accountFriend.AddResponse;
                 addResponse.id.should.be.a("number");
-                delete addResponse.id;
                 addResponse.should.be.deep.equal({
                     accountId: testAccountId,
                     accountName: testAccountCredentials.name,
                     friendAccountId: testFriendAccountId,
-                    friendAccountName: testFriendAccountCredentials.name
+                    friendAccountName: testFriendAccountCredentials.name,
+                    id: addResponse.id
                 });
             });
         });
@@ -68,7 +68,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/account_friend/get").send(getRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const getResponse: apiRequests.accountFriend.GetResponse = res.body;
+                const getResponse = res.body as apiRequests.accountFriend.GetResponse;
                 getResponse.should.be.deep.equal({
                     accountId: testAccountId,
                     friendId: testFriendAccountId,
@@ -93,7 +93,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/account_friend/remove").send(removeRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const removeResponse: apiRequests.accountFriend.RemoveResponse = res.body;
+                const removeResponse = res.body as apiRequests.accountFriend.RemoveResponse;
                 removeResponse.should.be.deep.equal({
                     id: testAccountFriendEntryId
                 });

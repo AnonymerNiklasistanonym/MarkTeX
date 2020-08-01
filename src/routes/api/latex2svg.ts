@@ -100,9 +100,9 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                 };
                 return res.status(200).json(response);
             } catch (err) {
-                debug(`latex2svg: Error when converting tex to pdf: ${err}`);
+                debug(`latex2svg: Error when converting tex to pdf: ${JSON.stringify(err)}`);
                 return res.status(500).json({
-                    error: err,
+                    error: JSON.stringify(err),
                     id: input.latexStringHash
                 });
             }

@@ -60,9 +60,7 @@ export interface PandocMd2Pdf {
 export const md2Pdf = async (input: PandocMd2PdfInput): Promise<PandocMd2Pdf> => {
     debug(`md2Pdf: ${JSON.stringify(input)}`);
     // Create working directory
-    const workDirName = String(
-        Date.now() + crypto.createHash("md5").update(JSON.stringify(input)).digest("hex")
-    );
+    const workDirName = `${Date.now()}${crypto.createHash("md5").update(JSON.stringify(input)).digest("hex")}`;
     const workDir = path.join(os.tmpdir(), workDirName);
     await fs.mkdir(workDir);
     // Copy all files to working directory

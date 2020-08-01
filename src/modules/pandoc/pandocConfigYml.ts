@@ -73,10 +73,30 @@ export enum PandocConfigYmlInputVerbosity {
 
 export const createPandocConfigFileVersion = "1.0.0";
 
+interface InternalConfigObjectMetadata {
+    author?: string[]
+    title?: string
+    date?: string
+}
+
+interface InternalConfigObject {
+    from?: string
+    metadata?: InternalConfigObjectMetadata
+    to?: string
+    toc?: boolean
+    variables?: string | Record<string, unknown>
+    verbosity?: "ERROR"| "INFO" | "WARNING"
+    "input-files"?: string[]
+    "output-file"?: string
+    "pdf-engine-opts"?: string[]
+    "pdf-engine"?: string
+    "toc-depth"?: number
+}
+
 // eslint-disable-next-line complexity
 export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
     debug(`createPandocConfigFile ${JSON.stringify(input)}`);
-    const configObject: any = {};
+    const configObject: InternalConfigObject = {};
     if (input.from) {
         configObject.from = input.from;
     }
@@ -90,8 +110,10 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
         configObject["input-files"] = input.inputFiles;
     }
     if (input.variables) {
-        const reduceVariable = (variable: PandocConfigYmlInputVariable, parentObject: any = {}): any => {
-            if (variable.value && variable.value.length > 0) {
+        const reduceVariable = (
+            variable: PandocConfigYmlInputVariable, parentObject: string | Record<string, unknown> = {}
+        ): string | Record<string, unknown> => {
+            if (typeof parentObject !== "string" && variable.value && variable.value.length > 0) {
                 if (variable.value.length === 1) {
                     parentObject[variable.name] = reduceVariable(variable.value[0]);
                 } else {
@@ -104,8 +126,10 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
             return parentObject;
         };
         try {
-            configObject.variables = input.variables.reduce((finalVariableObject: any, variable) =>
-                reduceVariable(variable, finalVariableObject), {});
+            configObject.variables = input.variables.reduce(
+                (finalVariableObject: string | Record<string, unknown>, variable) =>
+                    reduceVariable(variable, finalVariableObject), {}
+            );
         } catch (e) {
             throw Error(`Problem parsing variables for pandoc config file (input=${
                 JSON.stringify(input.variables)
@@ -113,7 +137,7 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
         }
     }
     if (input.metadata) {
-        const metadataObject: any = {};
+        const metadataObject: InternalConfigObjectMetadata = {};
         if (input.metadata.authors) {
             metadataObject.author = input.metadata.authors;
         }
@@ -148,7 +172,7 @@ export const createPandocConfigFile = (input: PandocConfigYmlInput): string => {
             case PandocConfigYmlInputVerbosity.warning:
                 configObject.verbosity = "WARNING";
                 break;
-        };
+        }
     }
     return yaml.dump(configObject);
 };

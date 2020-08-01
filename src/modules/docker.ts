@@ -4,7 +4,7 @@ export interface DockerInput {
     commands: string[]
     entrypoint: string[]
     cmd: string[]
-};
+}
 
 export const createDockerfileVersion = "1.0.0";
 

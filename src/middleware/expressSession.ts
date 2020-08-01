@@ -8,6 +8,7 @@ const debug = debuglog("app-express-middleware-express-session");
 
 export interface SessionInfo {
     accountId?: number
+    messages?: string[]
 }
 
 export interface SessionInfoAuthenticated {
@@ -20,17 +21,22 @@ export interface AuthenticatedExpressRequestSession {
 
 export const getSessionInfo = (req: express.Request): SessionInfo => {
     if (req.session) {
-        return {
-            accountId: req.session.accountId
-        };
+        const requestSession = req.session as SessionInfo;
+        if (requestSession.accountId) {
+            return {
+                accountId: requestSession.accountId
+            };
+        }
+        throw Error("Session information did not contain the account id");
     }
     throw Error("Session information was undefined");
 };
 
 export const getSessionInfoAuthenticated = (req: express.Request): SessionInfoAuthenticated => {
     if (req.session) {
+        const requestSession = req.session as unknown as SessionInfoAuthenticated;
         return {
-            accountId: req.session.accountId
+            accountId: requestSession.accountId
         };
     }
     throw Error("Session information was undefined");
@@ -38,9 +44,10 @@ export const getSessionInfoAuthenticated = (req: express.Request): SessionInfoAu
 
 export const getSessionDebugString = (req: express.Request): string => {
     if (req.session) {
-        let sessionString = `session=${req.sessionID}`;
-        if (req.session.accountId) {
-            sessionString += `,accountId=${req.session.accountId}`;
+        const requestSession = req.session as SessionInfo;
+        let sessionString = `session=${JSON.stringify(req.sessionID)}`;
+        if (requestSession.accountId) {
+            sessionString += `,accountId=${requestSession.accountId}`;
         }
         return sessionString;
     }
@@ -59,7 +66,8 @@ export const removeAuthentication = (req: express.Request): void => {
     }
 };
 
-export const isAuthenticated = (req: express.Request): boolean => req.session && req.session.accountId;
+export const isAuthenticated = (req: express.Request): boolean =>
+    req.session !== undefined && (req.session as SessionInfo).accountId !== undefined;
 
 export const redirectIfAuthenticated = (url = "/") =>
     (req: express.Request, res: express.Response, next: express.NextFunction): void => {
@@ -95,22 +103,27 @@ export const checkAuthenticationJson = (req: express.Request, res: express.Respo
 export const addMessages = (req: express.Request, ... messages: string[]): void => {
     debug(`Add messages: [${messages.join(", ")}]`);
     if (req.session) {
-        if (req.session.messages) {
-            req.session.messages.push(... messages);
+        const reqSession = req.session as SessionInfo;
+        if (reqSession.messages) {
+            reqSession.messages.push(... messages);
         } else {
-            req.session.messages = messages;
+            reqSession.messages = messages;
         }
     }
 };
 
 export const getMessages = (req: express.Request, clearMessages = true): string[] => {
-    debug(`Get messages: [${JSON.stringify(req.session ? req.session.messages : "Error")}]`);
-    if (req.session && req.session.messages) {
-        const messages = req.session.messages;
-        if (clearMessages) {
-            req.session.messages = [];
+    debug(`Get messages: [${JSON.stringify(req.session ? (req.session as SessionInfo).messages : "Error")}]`);
+    if (req.session) {
+        const reqSession = req.session as SessionInfo;
+        if (reqSession.messages) {
+            // Copy messages by value before clearing them from the session
+            const messages = reqSession.messages.slice();
+            if (clearMessages) {
+                reqSession.messages = [];
+            }
+            return messages;
         }
-        return messages;
     }
     return [];
 };

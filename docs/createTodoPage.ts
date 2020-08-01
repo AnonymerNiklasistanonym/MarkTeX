@@ -39,9 +39,9 @@ glob("**/*.{hbs,ts,html,css,yml}", {
                 extension: fileType,
                 filename: file
             });
-            return leasot.report(todoParser);
+            return leasot.report(todoParser) as Entry;
         })
-        .reduce((a, b) => a.concat(b), []);
+        .reduce((a: Entry[], b: Entry): Entry[] => a.concat(b), []);
 
     /**
      * Render an TODO tag entry to a Markdown table row

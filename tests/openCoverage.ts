@@ -17,12 +17,16 @@ const startStaticCoverageServer = (port = 8082): Promise<string> => new Promise(
     });
 });
 
+interface InternalFsErrorFix extends Error {
+    code: string
+}
+
 (async (): Promise<void> => {
     // Check if the documentation directory exists
     try {
         await fs.access(path.join(coverageDir, "index.html"));
     } catch (err) {
-        if (err.code === "ENOENT") {
+        if ((err as InternalFsErrorFix).code === "ENOENT") {
             console.error(`Error: Coverage HTML output was not found (${coverageDir}).`);
         } else {
             console.error(err);

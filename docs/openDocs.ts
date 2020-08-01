@@ -15,12 +15,16 @@ const startStaticDocumentationServer = (port = 8081): Promise<string> => new Pro
     });
 });
 
+interface InternalFsErrorFix extends Error {
+    code: string
+}
+
 (async (): Promise<void> => {
     // Check if the documentation directory exists
     try {
         await fs.access(defaultDocsOutputDir);
     } catch (err) {
-        if (err.code === "ENOENT") {
+        if ((err as InternalFsErrorFix).code === "ENOENT") {
             throw Error(`Docs output directory was not found (${defaultDocsOutputDir}).`);
         } else {
             throw err;

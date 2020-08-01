@@ -15,7 +15,7 @@ export interface HbsHelperItem {
  * Custom hbs helpers
  */
 export const hbsHelpers: HbsHelperItem[] = [{
-    callback: (input): SafeString => {
+    callback: (input: string | undefined | null): SafeString => {
         if (input !== undefined && input !== null && input !== "") {
             return new SafeString(`${input}<br>Yes it is!`);
         } else {

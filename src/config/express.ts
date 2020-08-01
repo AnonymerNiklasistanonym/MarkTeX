@@ -49,7 +49,7 @@ export const getExpressServer = (
     app.engine("hbs", expressHandlebars({
         defaultLayout: "default",
         extname: "hbs",
-        helpers: hbsHelpers.reduce((map: any, obj) => {
+        helpers: hbsHelpers.reduce((map: { [index: string]: any }, obj) => {
             map[obj.name] = obj.callback;
             // console.log(`Register ${obj.name} as hbs helper`);
             return map;
@@ -129,7 +129,7 @@ export const getExpressServer = (
         }
         const errorRenderContent: HbsLayoutError = {
             error: {
-                explanation: res.locals.explanation,
+                explanation: res.locals.explanation as undefined | string,
                 links,
                 message: err.message,
                 stack: err.stack,

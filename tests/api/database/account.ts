@@ -25,7 +25,7 @@ export default (databasePath: string): Mocha.Suite => {
                 });
             } catch (e) {
                 throwException = true;
-                chai.expect(e.message).equal(api.database.account.CreateError.USER_NAME_ALREADY_EXISTS);
+                chai.expect((e as Error).message).equal(api.database.account.CreateError.USER_NAME_ALREADY_EXISTS);
             }
             chai.expect(throwException).to.equal(true);
         });

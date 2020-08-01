@@ -6,4 +6,4 @@ declare module "raw-loader!*" {
     /** Raw file content */
     const content: string;
     export default content;
-};
+}

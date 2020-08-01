@@ -51,7 +51,7 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     header.scripts.push({ path: `/scripts/group_bundle.js${options.production ? ".gz" : ""}` });
                     header.stylesheets.push({ path: "/stylesheets/group.css" });
                     header.metaValues = [
-                        { content: `${accountId}`, name: "accountId" },
+                        { content: JSON.stringify(accountId), name: "accountId" },
                         { content: `${groupId}`, name: "groupId" }
                     ];
                     res.render("group", {

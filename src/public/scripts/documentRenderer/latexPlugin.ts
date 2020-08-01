@@ -84,7 +84,7 @@ export const register = (md: MarkdownIt): void => {
 
         if (DEBUG_APP) {
             console.debug(`MarkdownIt>Plugin>Latex>Renderer: Render '${latexString}' `
-                          + `with the header includes: '${headerIncludes}'`);
+                          + `with the header includes: '${JSON.stringify(headerIncludes)}'`);
         }
         return `<div class="markdown-latex-block" id="${latexStringHash}" `
                + `header-includes="${headerIncludes.join(" ")}" use-poppler="${usePoppler}" >`
@@ -96,6 +96,7 @@ export const register = (md: MarkdownIt): void => {
 
     md.block.ruler.before("paragraph", "latexBlock", mdRuleLatexBlock);
     md.renderer.rules.latexBlock = (tokens, idx): string => latex2html(tokens[idx].content,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         tokens[idx].meta.headerIncludes, tokens[idx].meta.usePoppler);
 };
 

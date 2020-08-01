@@ -37,7 +37,7 @@ export interface Tex2Pdf {
 export const tex2Pdf = async (input: Tex2PdfInput): Promise<Tex2Pdf> => {
     debug(`tex2Pdf texData=${input.texData}`);
     // Create working directory
-    const workingDirName = String(Date.now() + crypto.createHash("md5").update(input.texData).digest("hex"));
+    const workingDirName = `${Date.now()}${crypto.createHash("md5").update(input.texData).digest("hex")}`;
     await fs.mkdir(workingDirName);
     // Create PDF file
     const temporaryTexName = "temp.tex";

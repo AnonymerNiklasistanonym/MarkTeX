@@ -69,7 +69,8 @@ export default (databasePath: string): Mocha.Suite => {
             } catch (error) {
                 throwsException1 = true;
                 chai.expect(database.requests.isDatabaseError(error)).to.equal(true, JSON.stringify(error));
-                chai.expect(error.code).to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
+                chai.expect((error as database.SqliteInternalError).code)
+                    .to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
             }
             chai.expect(throwsException1).to.equal(true);
 
@@ -81,7 +82,8 @@ export default (databasePath: string): Mocha.Suite => {
             } catch (error) {
                 throwsException2 = true;
                 chai.expect(database.requests.isDatabaseError(error)).to.equal(true, JSON.stringify(error));
-                chai.expect(error.code).to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
+                chai.expect((error as database.SqliteInternalError).code)
+                    .to.equal(database.requests.ErrorCodePostRequest.SQLITE_CONSTRAINT);
             }
             chai.expect(throwsException2).to.equal(true);
         });

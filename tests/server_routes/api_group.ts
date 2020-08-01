@@ -38,7 +38,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/group/get").send(getRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const getResponse: apiRequests.group.GetResponse = res.body;
+                const getResponse = res.body as apiRequests.group.GetResponse;
                 getResponse.should.be.deep.equal({
                     id: testGroupId,
                     name: testGroupName,
@@ -61,10 +61,10 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/group/create").send(createRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const createResponse: apiRequests.group.CreateResponse = res.body;
+                const createResponse = res.body as apiRequests.group.CreateResponse;
                 createResponse.id.should.be.a("number");
-                delete createResponse.id;
                 createResponse.should.be.deep.equal({
+                    id: createResponse.id,
                     name: testGroupName,
                     owner: testAccountId,
                     public: false
@@ -87,10 +87,11 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/group/remove").send(removeRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const removeResponse: apiRequests.group.RemoveResponse = res.body;
+                const removeResponse = res.body as apiRequests.group.RemoveResponse;
                 removeResponse.id.should.be.a("number");
-                delete removeResponse.id;
-                removeResponse.should.be.deep.equal({});
+                removeResponse.should.be.deep.equal({
+                    id: removeResponse.id
+                });
             });
         });
         it("/api/group/update (update)", async () => {
@@ -113,7 +114,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/group/update").send(updateRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const updateResponse: apiRequests.group.UpdateResponse = res.body;
+                const updateResponse = res.body as apiRequests.group.UpdateResponse;
                 updateResponse.should.be.deep.equal({
                     id: testGroupId,
                     name: newName,

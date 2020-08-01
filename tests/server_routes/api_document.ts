@@ -39,7 +39,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/document/get").send(getRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const getResponse: apiRequests.document.GetResponse = res.body;
+                const getResponse = res.body as apiRequests.document.GetResponse;
                 getResponse.should.be.deep.equal({
                     id: testDocumentId,
                     owner: testAccountId,
@@ -63,10 +63,10 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/document/create").send(createRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const createResponse: apiRequests.document.CreateResponse = res.body;
+                const createResponse = res.body as apiRequests.document.CreateResponse;
                 createResponse.id.should.be.a("number");
-                delete createResponse.id;
                 createResponse.should.be.deep.equal({
+                    id: createResponse.id,
                     owner: testAccountId,
                     public: false,
                     title: testDocumentName
@@ -89,10 +89,11 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/document/remove").send(removeRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const removeResponse: apiRequests.document.RemoveResponse = res.body;
+                const removeResponse = res.body as apiRequests.document.RemoveResponse;
                 removeResponse.id.should.be.a("number");
-                delete removeResponse.id;
-                removeResponse.should.be.deep.equal({});
+                removeResponse.should.be.deep.equal({
+                    id: removeResponse.id
+                });
             });
         });
         it("/api/document/update (update)", async () => {
@@ -121,7 +122,7 @@ export default (databasePath: string, APP: Express): Mocha.Suite => {
             await chaiAgent.post("/api/document/update").send(updateRequest).then(res => {
                 res.should.have.status(200);
                 res.type.should.be.equal("application/json");
-                const updateResponse: apiRequests.document.UpdateResponse = res.body;
+                const updateResponse = res.body as apiRequests.document.UpdateResponse;
                 updateResponse.should.be.deep.equal({
                     authors: newAuthors,
                     date: newDate,

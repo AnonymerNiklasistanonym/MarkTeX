@@ -1,4 +1,7 @@
-export const apiRequest = async <INPUT_TYPE extends object, OUTPUT_TYPE extends object>(
+export const apiRequest = async <
+    INPUT_TYPE extends { [key: string]: any },
+    OUTPUT_TYPE extends { [key: string]: any }
+>(
     requestUrl: string, input: INPUT_TYPE
 ): Promise<OUTPUT_TYPE> => {
     try {

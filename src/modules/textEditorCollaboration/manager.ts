@@ -1,12 +1,13 @@
 import * as socketTypes from "./socketTypes";
 import { debuglog } from "util";
 import socketIo from "socket.io";
+import { SocketRequestInfo } from "src/config/sockets";
 
 
 const debug = debuglog("app-text-editor-collaboration-manager");
 
 export interface SocketOptions {
-    getAccountName?: (accountId: number) => Promise<string|undefined>
+    getAccountName?: (accountId?: number) => Promise<string|undefined>
 }
 
 interface TodoInterfaceUser {
@@ -75,7 +76,8 @@ export const registerNewUser = async (
     socket: socketIo.Socket, newUserInfo: socketTypes.NewUserClient, options: SocketOptions = {}
 ): Promise<void> => {
     debug(`register user: socketId=${socket.id},newUserInfo=${JSON.stringify(newUserInfo)}`);
-    if (socket.request.session.accountId === undefined) {
+    const socketRequest = socket.request as SocketRequestInfo;
+    if (socketRequest.session?.accountId === undefined) {
         debug("do not register user because session is not authenticated");
         return;
     }
@@ -99,11 +101,11 @@ export const registerNewUser = async (
         };
         socket.emit("collaboration_editor:server:content_update", responseExistingProgress);
     }
-    const name = options.getAccountName ? await options.getAccountName(socket.request.session.accountId) : "NONE";
+    const name = options.getAccountName ? await options.getAccountName(socketRequest?.session?.accountId) : "NONE";
     // Send to all connected sockets
     for (const connectedUser of documents[indexOfDocument].connectedUsers) {
         const response: socketTypes.NewUserServer = {
-            accountId: socket.request.session.accountId,
+            accountId: socketRequest?.session?.accountId,
             accountName: name ? name : "ERROR",
             connectionId: socket.id
         };
@@ -111,8 +113,12 @@ export const registerNewUser = async (
     }
     // Send all existing user to socket
     for (const connectedUser of documents[indexOfDocument].connectedUsers) {
+        const connectedUserSocketRequest = connectedUser.socket.request as SocketRequestInfo;
+        if (connectedUserSocketRequest.session?.accountId === undefined) {
+            throw Error("This should never be happening because the user should be authenticated");
+        }
         const response: socketTypes.NewUserServer = {
-            accountId: connectedUser.socket.request.session.accountId,
+            accountId: connectedUserSocketRequest?.session?.accountId,
             accountName: connectedUser.name,
             connectionId: connectedUser.socket.id
         };
@@ -147,8 +153,9 @@ export const removeUser = (socket: socketIo.Socket, options: SocketOptions = {})
                 debug("remove document too because no connected users left");
                 documentsToRemove.push(document.documentId);
             } else {
-                debug(`still connected users: [${document.connectedUsers.map(a => a.socket.request.session.accountId)
-                    .join(",")}]`);
+                debug(`still connected users: [${
+                    document.connectedUsers.map(a => (a.socket.request as SocketRequestInfo)?.session?.accountId)
+                        .join(",")}]`);
             }
         }
     });

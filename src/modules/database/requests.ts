@@ -1,6 +1,7 @@
 import { debuglog } from "util";
 import { open } from "../database";
 import sqlite3 from "sqlite3";
+import { SqliteInternalError } from "./management";
 
 
 const debug = debuglog("app-database-request");
@@ -18,7 +19,6 @@ export enum ErrorCodePostRequest {
     SQLITE_ERROR = "SQLITE_ERROR"
 }
 
-
 /**
  * Check if an error is a database error.
  *
@@ -26,11 +26,11 @@ export enum ErrorCodePostRequest {
  * @returns True if database error
  */
 export const isDatabaseError = (error: any): boolean => {
-    if (error && error.code) {
-        if (error.code === ErrorCodePostRequest.SQLITE_CONSTRAINT) {
+    if (error !== undefined && (error as SqliteInternalError).code !== undefined) {
+        if ((error as SqliteInternalError).code === ErrorCodePostRequest.SQLITE_CONSTRAINT) {
             return true;
         }
-        if (error.code === ErrorCodePostRequest.SQLITE_ERROR) {
+        if ((error as SqliteInternalError).code === ErrorCodePostRequest.SQLITE_ERROR) {
             return true;
         }
     }
@@ -45,7 +45,7 @@ export const isDatabaseError = (error: any): boolean => {
  * @param parameters Optional values that are inserted for query `?` symbols
  * @returns Either undefined when no result or the found result
  */
-export const getEach = async <DB_OUT extends object>(
+export const getEach = async <DB_OUT extends { [key: string]: any }>(
     databasePath: string, query: string, parameters: (string|number)[] = []
 ): Promise<(DB_OUT|undefined)> => {
     debug(`Run query get each: "${query}"`);
@@ -58,7 +58,7 @@ export const getEach = async <DB_OUT extends object>(
                 debug(`Database error each row: ${JSON.stringify(err)}`);
                 reject(err);
             } else {
-                requestedElement = row;
+                requestedElement = row as DB_OUT;
             }
         },
         err => {
@@ -87,7 +87,7 @@ export const getEach = async <DB_OUT extends object>(
  * @param parameters Optional values that are inserted for query `?` symbols
  * @returns Either an empty list when no result or the found results
  */
-export const getAll = async <DB_OUT extends object>(
+export const getAll = async <DB_OUT extends { [key: string]: any }>(
     databasePath: string, query: string, parameters: (string|number)[] = []
 ): Promise<DB_OUT[]> => {
     debug(`Run query get all: "${query}"`);

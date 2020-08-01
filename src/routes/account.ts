@@ -26,14 +26,17 @@ export interface RegisterRequest {
 export default (app: express.Application, options: StartExpressServerOptions): void => {
 
     // View logged in account
-    app.get("/account", (req, res) => {
+    app.get("/account", (req, res, next) => {
         // Show profile if logged in else redirect to login page
         if (expressMiddlewareSession.isAuthenticated(req)) {
             const sessionInfo = expressMiddlewareSession.getSessionInfo(req);
-            return res.redirect(`/account/${sessionInfo.accountId}`);
-        } else {
-            res.redirect("/login");
+            if (sessionInfo.accountId) {
+                return res.redirect(`/account/${sessionInfo.accountId}`);
+            } else {
+                return next(createHttpError(500, "User is authenticated but no account id was returned"));
+            }
         }
+        res.redirect("/login");
     });
 
     // View account
@@ -75,7 +78,10 @@ export default (app: express.Application, options: StartExpressServerOptions): v
                     header.title = `${accountInfo.name}`;
                     header.scripts.push({ path: `/scripts/account_bundle.js${options.production ? ".gz" : ""}` });
                     header.stylesheets.push({ path: "/stylesheets/account.css" });
-                    header.metaValues = [{ content: `${accountId}`, name: "accountId" }];
+                    header.metaValues = [];
+                    if (accountId) {
+                        header.metaValues.push({ content: `${accountId}`, name: "accountId" });
+                    }
                     const navigationBar = viewRendering.getNavigationBarDefaults(options, { loggedIn });
                     res.render("account", {
                         account: {

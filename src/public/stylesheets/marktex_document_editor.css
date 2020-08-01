@@ -41,7 +41,7 @@ div.container-marktex-editor.only-view>div.container-marktex-editor-input {
 div.container-marktex-editor>div.container-marktex-editor-input>textarea {
 	background-color: var(--markdown-editor-background-color);
 	color: var(--markdown-editor-text-color);
-	width: calc(100% - 2 * var(--markdown-editor-textarea-padding));
+	width: calc(100% - 3 * var(--markdown-editor-textarea-padding));
 	padding: var(--markdown-editor-textarea-padding);
 	resize: none;
 	/** Initial height as high as screen */
@@ -52,7 +52,7 @@ div.container-marktex-editor>div.container-marktex-editor-output {
 	width: 100%;
 	display: block;
 	height: 100%;
-	overflow-y: scroll;
+	overflow-y: hidden;
 	overflow-x: hidden;
 }
 
@@ -69,9 +69,17 @@ div.container-marktex-editor.only-edit>div.container-marktex-editor-output {
 	display: none;
 }
 
-div.container-marktex-editor>div.container-marktex-editor-output>div {
+div.container-marktex-editor:not(.only-view)>div.container-marktex-editor-output>div.marktex-output {
+	width: 100%;
+	max-height: 80vh;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+div.container-marktex-editor.only-view>div.container-marktex-editor-output>div.marktex-output {
 	width: 100%;
 }
+
 
 .markdown-body,
 .markdown-body-page {

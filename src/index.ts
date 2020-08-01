@@ -2,11 +2,12 @@
 import * as inkscape from "./modules/inkscape";
 import * as latex from "./modules/latex";
 import * as pandoc from "./modules/pandoc";
+import { bindSocketServer, SocketRequestInfo } from "./config/sockets";
 import { findHttp2Keys, startExpressServerHttp1, startExpressServerHttp2 } from "./config/express";
 import api from "./modules/api";
-import { bindSocketServer } from "./config/sockets";
 import { debuglog } from "util";
 import expressSession from "express-session";
+import { Server as HttpServer } from "http";
 import { loadEnvFile } from "./config/env";
 import os from "os";
 import path from "path";
@@ -89,10 +90,16 @@ const databasePath = process.env.DATABASE_PATH && process.env.DATABASE_PATH !== 
         }, { sessionMiddleware });
 
         // Bind socket server to express server
-        const socketServer = bindSocketServer(server, {
-            sessionMiddleware: (socket, next) => { sessionMiddleware(socket.request, socket.request.res, next); },
+        const socketServer = bindSocketServer(server as unknown as HttpServer, {
+            sessionMiddleware: (socket, next) => {
+                const socketRequest = socket.request as SocketRequestInfo;
+                sessionMiddleware(socket.request, socketRequest.res, next);
+            },
             socketOptions: {
-                getAccountName: async (accountId: number): Promise<string|undefined> => {
+                getAccountName: async (accountId?: number): Promise<string|undefined> => {
+                    if (accountId === undefined) {
+                        return undefined;
+                    }
                     const get = await api.database.account.get(databasePath, accountId, { id: accountId });
                     if (get) {
                         return get.name;

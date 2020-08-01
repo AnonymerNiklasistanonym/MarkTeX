@@ -142,7 +142,8 @@ window.addEventListener("load", () => {
             });
             if (response) {
                 await notifications.show({
-                    body: `New document "${response.title}" by "${response.authors}" from "${response.date}"`,
+                    body: `New document "${response.title}" by "${JSON.stringify(response.authors)}" from "${
+                        JSON.stringify(response.date)}"`,
                     onClickUrl: `/document/${response.id}`,
                     title: "New document was created"
                 });
@@ -172,7 +173,8 @@ window.addEventListener("load", () => {
                 title: documentInfoTitle.value
             });
             await notifications.show({
-                body: `Document was saved ${response.title} by ${response.authors} from ${response.date}`,
+                body: `Document was saved ${response.title} by ${JSON.stringify(response.authors)} from ${
+                    JSON.stringify(response.date)}`,
                 title: `Document was saved: ${response.title}`
             });
             documentTitleSpan.innerText = response.title;
@@ -265,7 +267,7 @@ window.addEventListener("load", () => {
             }
         } catch (err) {
             await notifications.showError(
-                `Something went wrong when removing the document access of ${memberAccountName}`, err
+                `Something went wrong when removing the document access of '${JSON.stringify(memberAccountName)}'`, err
             );
         }
     };
@@ -286,21 +288,21 @@ window.addEventListener("load", () => {
                 throw Error("No document id was found");
             }
             if (isNaN(memberId)) {
-                throw Error(`Member id is not a number (${memberId})`);
+                throw Error(`Member id is not a number ('${JSON.stringify(memberId)}')`);
             }
             const response = await apiRequests.documentAccess.update({
                 id: memberId,
                 writeAccess: !memberWriteAccess
             });
             await notifications.show({
-                body: `Write access of '${memberAccountName}' is now ${response.writeAccess}`,
+                body: `Write access of '${JSON.stringify(memberAccountName)}' is now ${response.writeAccess}`,
                 title: "Document access was updated"
             });
             buttonToggle.textContent = response.writeAccess ? "read-write" : "read-only";
             buttonToggle.setAttribute("memberWriteAccess", `${response.writeAccess}`);
         } catch (err) {
             await notifications.showError(
-                `Something went wrong when updating the document access of ${memberAccountName}`, err
+                `Something went wrong when updating the document access of '${JSON.stringify(memberAccountName)}'`, err
             );
         }
     };

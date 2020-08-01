@@ -8,12 +8,12 @@ export { katex };
 
 export interface Options {
     onError?: (error: Error, originalString: string) => void
-};
+}
 
 export interface KatexToHtmlTextOptions {
     /** Set `true` if math should be rendered in displaystyle mode */
     block?: boolean
-};
+}
 
 const markDelimiter = "$";
 const markDelimiterBlock = "$$";

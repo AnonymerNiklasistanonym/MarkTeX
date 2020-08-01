@@ -338,9 +338,9 @@ export const get = async (
     if (runResult) {
         await checkIfAccountHasAccessToGetDocumentInfo(databasePath, accountId, runResult.owner);
 
-        let pdfOptionsObj;
+        let pdfOptionsObj: pdfOptions.PdfOptions | undefined;
         if (runResult.pdfOptions && runResult.pdfOptions !== null) {
-            pdfOptionsObj = JSON.parse(runResult.pdfOptions);
+            pdfOptionsObj = JSON.parse(runResult.pdfOptions) as pdfOptions.PdfOptions;
         }
         return {
             authors: runResult.authors !== null ? runResult.authors : undefined,

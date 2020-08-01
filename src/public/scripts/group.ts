@@ -49,7 +49,7 @@ window.addEventListener("load", () => {
             }
         } catch (err) {
             await notifications.showError(
-                `Something went wrong when removing the group access of ${memberAccountName}`, err
+                `Something went wrong when removing the group access of '${JSON.stringify(memberAccountName)}'`, err
             );
         }
     };
@@ -77,14 +77,14 @@ window.addEventListener("load", () => {
                 writeAccess: !memberWriteAccess
             });
             await notifications.show({
-                body: `Write access of '${memberAccountName}' is now ${response.writeAccess}`,
+                body: `Write access of '${JSON.stringify(memberAccountName)}' is now ${response.writeAccess}`,
                 title: "Group access was updated"
             });
             buttonToggle.textContent = response.writeAccess ? "read-write" : "read-only";
             buttonToggle.setAttribute("memberWriteAccess", `${response.writeAccess}`);
         } catch (err) {
             await notifications.showError(
-                `Something went wrong when updating the group access of ${memberAccountName}`, err
+                `Something went wrong when updating the group access of '${JSON.stringify(memberAccountName)}'`, err
             );
         }
     };

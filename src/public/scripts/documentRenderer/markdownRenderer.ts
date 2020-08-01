@@ -30,8 +30,8 @@ export const md = new MarkdownIt({
                 return `<pre class="hljs"><code> ${hljs.highlight(lang, str, true).value}</code></pre>`;
             } catch (error) {
                 // eslint-disable-next-line no-console
-                console.error(`MarkdownIt>Plugin>Highlight.js: Error when parsing '${str}' [lang=${lang}]: `
-                              + error.message);
+                console.error(`MarkdownIt>Plugin>Highlight.js: Error when parsing '${str}' [lang=${lang}]: ${
+                    (error as Error).message}`);
             }
         }
         return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
