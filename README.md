@@ -28,10 +28,10 @@ The current (next) features that are being developed are:
 
 | Program | Version required | Version tested |
 | ------- | ---------------- | -------------- |
-| `npm` | 12.16+ | 6.14.4 |
-| `nodejs` | 13.9+ | 14.1.0 |
+| `npm` | | 6.14.7 |
+| `nodejs` | 13.9+ | 14.7.0 |
 | `pandoc` | 2.9+ | 2.9.2.1 |
-| `xetex` (`texlive-full`)  | 0.999991+ | 0.999991 |
+| `xetex` (`texlive-full`)  | | 0.999992 |
 | `inkscape` | 1.0+ | 1.0 |
 
 Possible other requirements could be:
@@ -40,7 +40,7 @@ Possible other requirements could be:
 
 ### Tested on
 
-- Linux [5.6.10-3-MANJARO] (x64)
+- Linux [5.7.12-1-MANJARO] (x64)
 - Linux [raspberrypi 4.19.66-v7+] (armv7l) *very slow*
 - Windows [10.0.18363] (x64)
 
