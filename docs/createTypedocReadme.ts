@@ -1,16 +1,15 @@
 import { promises as fs } from "fs";
 import path from "path";
-import shell from "shelljs";
 
 export const createTypedocReadme = async (): Promise<void> => {
 
     // Create build directory if not existing
     const distDir = path.join(__dirname, "dist");
-    shell.mkdir("-p", distDir);
+    await fs.mkdir(distDir, { recursive: true });
 
     // Copy top level README into it
     const finalReadmePath = path.join(distDir, "README.md");
-    shell.cp(path.join(__dirname, "typedocReadme.md"), finalReadmePath);
+    await fs.copyFile(path.join(__dirname, "typedocReadme.md"), finalReadmePath);
 
     // Append extra data to typedoc README
     const dataReadme = await fs.readFile(path.join(__dirname, "..", "README.md"), { encoding: "utf-8" });

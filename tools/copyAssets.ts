@@ -1,34 +1,42 @@
 import * as shell from "shelljs";
+import { promises as fs } from "fs";
 import path from "path";
 
 
-const distDir = path.join(__dirname, "..", "dist");
-const distPublicDir = path.join(distDir, "public");
-const distManifestFile = path.join(distPublicDir, "manifest.json");
-const distPublicFaviconDir = path.join(distPublicDir, "favicon");
+(async (): Promise<void> => {
 
-const srcDir = path.join(__dirname, "..", "src");
-const srcViewsDir = path.join(srcDir, "views");
-const srcStylesheetsDir = path.join(srcDir, "public", "stylesheets");
-const srcManifestFile = path.join(srcDir, "public", "manifest.json");
+    const distDir = path.join(__dirname, "..", "dist");
+    const distPublicDir = path.join(distDir, "public");
+    const distManifestFile = path.join(distPublicDir, "manifest.json");
+    const distPublicFaviconDir = path.join(distPublicDir, "favicon");
 
-const resDir = path.join(__dirname, "..", "res");
-const resFaviconDir = path.join(resDir, "favicon");
+    const srcDir = path.join(__dirname, "..", "src");
+    const srcViewsDir = path.join(srcDir, "views");
+    const srcStylesheetsDir = path.join(srcDir, "public", "stylesheets");
+    const srcManifestFile = path.join(srcDir, "public", "manifest.json");
 
-// Create distribution directories if non existing
-shell.mkdir("-p", distDir);
+    const resDir = path.join(__dirname, "..", "res");
+    const resFaviconDir = path.join(resDir, "favicon");
 
-// Copy all the view templates
-shell.cp("-R", srcViewsDir, distDir);
+    // Create distribution directories if non existing
+    await fs.mkdir(distDir, { recursive: true });
 
-// Copy all stylesheets
-shell.mkdir("-p", distPublicDir);
-shell.cp("-R", srcStylesheetsDir, distPublicDir);
+    // Copy all the view templates
+    shell.cp("-R", srcViewsDir, distDir);
 
-// Copy all favicons
-shell.mkdir("-p", distPublicFaviconDir);
-shell.cp(path.join(resFaviconDir, "favicon*"), distPublicFaviconDir);
+    // Copy all stylesheets
+    await fs.mkdir(distPublicDir, { recursive: true });
+    shell.cp("-R", srcStylesheetsDir, distPublicDir);
 
-// Copy web app manifest
-shell.mkdir("-p", distPublicDir);
-shell.cp(srcManifestFile, distManifestFile);
+    // Copy all favicons
+    await fs.mkdir(distPublicFaviconDir, { recursive: true });
+    shell.cp(path.join(resFaviconDir, "favicon*"), distPublicFaviconDir);
+
+    // Copy web app manifest
+    await fs.mkdir(distPublicDir, { recursive: true });
+    await fs.copyFile(srcManifestFile, distManifestFile);
+
+})().catch(error => {
+    console.error(error);
+    process.exit(1);
+});
