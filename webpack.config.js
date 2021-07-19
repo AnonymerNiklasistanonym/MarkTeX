@@ -18,8 +18,7 @@ const plugins = [
 if (production) {
     // Compress scripts in production for smaller file size
     plugins.push(new CompressionPlugin({
-        algorithm: "gzip",
-        cache: true
+        algorithm: "gzip"
     }));
 }
 
@@ -55,6 +54,19 @@ module.exports = {
     },
     plugins,
     resolve: {
+        /* alias: {
+            "handlebars": "handlebars/runtime.js"
+        },*/
+        alias: {
+            "handlebars": "handlebars/dist/cjs/handlebars.runtime",
+            "handlebars/runtime": "handlebars/dist/cjs/handlebars.runtime"
+        },
         extensions: [ ".tsx", ".ts", ".js" ]
-    }
+    }/* ,
+    resolveLoader: {
+        alias: {
+            "handlebars": "handlebars-loader",
+            "hbs": "handlebars-loader"
+        }
+    }*/
 };

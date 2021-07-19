@@ -7,6 +7,7 @@ import * as marktexDocumentEditor from "./marktex_document_editor";
 import * as notifications from "./notifications";
 import { PdfOptions, PdfOptionsPaperSize } from "../../modules/api/databaseManager/documentPdfOptions";
 import handlebarsRenderer from "./handlebarsRenderer";
+import { io } from "socket.io-client";
 
 
 const getDocumentPdfOptions = (): PdfOptions => {

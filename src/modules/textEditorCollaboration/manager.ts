@@ -76,7 +76,7 @@ export const registerNewUser = async (
     socket: socketIo.Socket, newUserInfo: socketTypes.NewUserClient, options: SocketOptions = {}
 ): Promise<void> => {
     debug(`register user: socketId=${socket.id},newUserInfo=${JSON.stringify(newUserInfo)}`);
-    const socketRequest = socket.request as SocketRequestInfo;
+    const socketRequest = socket.request as unknown as SocketRequestInfo;
     if (socketRequest.session?.accountId === undefined) {
         debug("do not register user because session is not authenticated");
         return;
@@ -113,7 +113,7 @@ export const registerNewUser = async (
     }
     // Send all existing user to socket
     for (const connectedUser of documents[indexOfDocument].connectedUsers) {
-        const connectedUserSocketRequest = connectedUser.socket.request as SocketRequestInfo;
+        const connectedUserSocketRequest = connectedUser.socket.request as unknown as SocketRequestInfo;
         if (connectedUserSocketRequest.session?.accountId === undefined) {
             throw Error("This should never be happening because the user should be authenticated");
         }
@@ -154,8 +154,9 @@ export const removeUser = (socket: socketIo.Socket, options: SocketOptions = {})
                 documentsToRemove.push(document.documentId);
             } else {
                 debug(`still connected users: [${
-                    document.connectedUsers.map(a => (a.socket.request as SocketRequestInfo)?.session?.accountId)
-                        .join(",")}]`);
+                    document.connectedUsers.map(a => (
+                        a.socket.request as unknown as SocketRequestInfo
+                    )?.session?.accountId).join(",")}]`);
             }
         }
     });

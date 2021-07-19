@@ -7,7 +7,7 @@ export interface NotificationMessage {
      * Notification image.
      *
      * Web URL or base64 works both.
-     **/
+     */
     image?: string
     /** Notification icon */
     icon?: string

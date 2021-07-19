@@ -1,17 +1,17 @@
 import * as textEditorCollaboration from "../modules/textEditorCollaboration";
+import { Socket, Server as socketIoServer } from "socket.io";
 import { debuglog } from "util";
 import { Server as HttpServer } from "http";
 import { Server as HttpsServer } from "https";
 import { Response } from "express";
 import { SessionInfo } from "../middleware/expressSession";
-import socketIo from "socket.io";
 
 
 const debug = debuglog("app-socketio");
 
 
 export interface BindSocketServerMiddlewareOptions {
-    sessionMiddleware: (socket: socketIo.Socket, next: (err?: any) => void) => void
+    sessionMiddleware: (socket: Socket, next: (err?: any) => void) => void
     socketOptions: textEditorCollaboration.SocketOptions
 }
 
@@ -23,28 +23,28 @@ export interface SocketRequestInfo {
 
 export const bindSocketServer = (
     httpServer: (HttpServer|HttpsServer), middlewareOptions: BindSocketServerMiddlewareOptions
-): socketIo.Server => {
+): socketIoServer => {
 
     // Set up socket.io and bind it to http server
-    const io = socketIo(httpServer);
+    const io = new socketIoServer(httpServer);
 
     // Add socket server middleware
     io.use(middlewareOptions.sessionMiddleware);
 
     // Register when new socket clients are connected
     io.on("connection", socket => {
-        const socketRequest = socket.request as SocketRequestInfo;
+        const socketRequest = socket.request as unknown as SocketRequestInfo;
         if (socket.request === undefined ||
             socketRequest.session === undefined || socketRequest.sessionID === undefined) {
             debug("do nothing because socket is missing session information [socket=%s,session=%s]",
-                socket.client.id, socketRequest.sessionID);
+                socket.id, socketRequest.sessionID);
             return;
         }
         const currentAccountId: undefined | number = socketRequest.session?.accountId;
         debug("new connection [socket=%s,session=%s,accountId=%s]",
-            socket.client.id, socketRequest.sessionID, currentAccountId);
+            socket.id, socketRequest.sessionID, currentAccountId);
         socket.on("disconnect", () => {
-            debug("disconnect [socket=%s,session=%s]", socket.client.id, socketRequest.sessionID);
+            debug("disconnect [socket=%s,session=%s]", socket.id, socketRequest.sessionID);
             textEditorCollaboration.removeUser(socket, middlewareOptions.socketOptions);
         });
 

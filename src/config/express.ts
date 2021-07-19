@@ -9,7 +9,7 @@ import fs from "fs";
 import { hbsHelpers } from "./hbs";
 import { HbsLayoutError } from "../view_rendering/error";
 import http from "http";
-import http2 from "http2";
+// import http2 from "http2";
 import httpErrors from "http-errors";
 import path from "path";
 import routesAccount from "../routes/account";
@@ -197,7 +197,7 @@ export const findHttp2Keys = (): boolean => {
 
 export const startExpressServerHttp2 = (
     options: StartExpressServerOptions, middlewareOptions: StartExpressServerMiddlewareOptions
-): http2.Http2Server => {
+): spdy.server.Server => {
     const sslKeysDir = path.join(__dirname, "..", "..", "keys");
     const httpsOptions: spdy.ServerOptions = {
         ca: fs.readFileSync(path.join(sslKeysDir, "ssl.crt")),
