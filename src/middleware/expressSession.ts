@@ -56,15 +56,13 @@ export const getSessionDebugString = (req: express.Request): string => {
 
 export const authenticate = (req: express.Request, accountId: number): void => {
     if (req.session) {
-        const requestSession = req.session as SessionInfo;
-        requestSession.accountId = accountId;
+        req.session.accountId = accountId;
     }
 };
 
 export const removeAuthentication = (req: express.Request): void => {
     if (req.session) {
-        const requestSession = req.session as SessionInfo;
-        requestSession.accountId = undefined;
+        req.session.accountId = undefined;
     }
 };
 

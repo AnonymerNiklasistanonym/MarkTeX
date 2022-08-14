@@ -1,5 +1,4 @@
 /** Webpack defined variable that is false when in production mode */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const DEBUG_APP: boolean;
 
 /** Definition to load raw file contents into webpack modules */

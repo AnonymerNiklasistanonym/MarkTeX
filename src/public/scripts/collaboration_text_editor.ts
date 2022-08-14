@@ -1,7 +1,6 @@
 import "./webpackVars";
 import * as socketTypes from "../../modules/textEditorCollaboration/socketTypes";
 import Mousetrap from "mousetrap";
-import { Socket } from "socket.io-client";
 
 interface EnableCollaborationTextEditorInput {
     connectedUsersElement: HTMLElement
@@ -10,7 +9,7 @@ interface EnableCollaborationTextEditorInput {
 }
 
 let globalEnabled = false;
-let globalSocket: Socket|undefined;
+let globalSocket: SocketIOClient.Socket|undefined;
 let globalOptions: EnableCollaborationTextEditorInput|undefined;
 
 export const disable = (): void => {
@@ -25,7 +24,7 @@ export const disable = (): void => {
 
 
 export const enable = (
-    socket: Socket, documentId: number, options: EnableCollaborationTextEditorInput
+    socket: SocketIOClient.Socket, documentId: number, options: EnableCollaborationTextEditorInput
 ): void => {
     globalSocket = socket;
     globalEnabled = true;

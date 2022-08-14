@@ -2,7 +2,6 @@ import "./webpackVars";
 import * as collaborationTextEditor from "./collaboration_text_editor";
 import * as helper from "./helper";
 import * as marktexDocumentEditor from "./marktex_document_editor";
-import { io } from "socket.io-client";
 import Mousetrap from "mousetrap";
 
 

@@ -6,7 +6,6 @@ import { bindSocketServer, SocketRequestInfo } from "./config/sockets";
 import { findHttp2Keys, startExpressServerHttp1, startExpressServerHttp2 } from "./config/express";
 import api from "./modules/api";
 import { debuglog } from "util";
-import express from "express";
 import expressSession from "express-session";
 import { Server as HttpServer } from "http";
 import { loadEnvFile } from "./config/env";
@@ -93,8 +92,8 @@ const databasePath = process.env.DATABASE_PATH && process.env.DATABASE_PATH !== 
         // Bind socket server to express server
         const socketServer = bindSocketServer(server as unknown as HttpServer, {
             sessionMiddleware: (socket, next) => {
-                const socketRequest = socket.request as unknown as SocketRequestInfo;
-                sessionMiddleware(socket.request as express.Request, socketRequest.res, next);
+                const socketRequest = socket.request as SocketRequestInfo;
+                sessionMiddleware(socket.request, socketRequest.res, next);
             },
             socketOptions: {
                 getAccountName: async (accountId?: number): Promise<string|undefined> => {

@@ -5,7 +5,6 @@
  * @param sandboxFunc Function that can add events to the rendered HTML elements that are preserved when returned
  * @returns Child node that contains the rendered contents
  */
-// eslint-disable-next-line no-shadow
 export const createChildNode = (htmlContent: string, sandboxFunc?: (element: HTMLElement) => void): ChildNode => {
     const element = document.createElement("div");
     element.innerHTML = htmlContent;

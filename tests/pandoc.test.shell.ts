@@ -54,9 +54,7 @@ describe("pandoc [shell]", () => {
         chai.expect(outputDefault.pdfFile).to.not.equal(undefined);
         chai.expect(outputDefault.zipFile).to.equal(undefined);
 
-        if (outputDefault.pdfFile !== undefined) {
-            await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), outputDefault.pdfFile);
-        }
+        await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), outputDefault.pdfFile);
         await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
 
 
@@ -67,9 +65,7 @@ describe("pandoc [shell]", () => {
         chai.expect(outputPdfOnly.pdfFile).to.not.equal(undefined);
         chai.expect(outputPdfOnly.zipFile).to.equal(undefined);
 
-        if (outputPdfOnly.pdfFile !== undefined) {
-            await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), outputPdfOnly.pdfFile);
-        }
+        await fs.writeFile(path.join(os.tmpdir(), "out.pdf"), outputPdfOnly.pdfFile);
         await fs.unlink(path.join(os.tmpdir(), "out.pdf"));
 
 
@@ -81,13 +77,9 @@ describe("pandoc [shell]", () => {
         chai.expect(outputWithZip.zipFile).to.be.a("Uint8Array");
         chai.expect(outputWithZip.zipFile).to.not.equal(undefined);
 
-        if (outputWithZip.pdfFile !== undefined) {
-            await fs.writeFile(path.join(os.tmpdir(), "out_zip.pdf"), outputWithZip.pdfFile);
-        }
+        await fs.writeFile(path.join(os.tmpdir(), "out_zip.pdf"), outputWithZip.pdfFile);
         await fs.unlink(path.join(os.tmpdir(), "out_zip.pdf"));
-        if (outputWithZip.zipFile !== undefined) {
-            await fs.writeFile(path.join(os.tmpdir(), "out_zip.zip"), outputWithZip.zipFile);
-        }
+        await fs.writeFile(path.join(os.tmpdir(), "out_zip.zip"), outputWithZip.zipFile);
         await fs.unlink(path.join(os.tmpdir(), "out_zip.zip"));
 
     }).timeout(40000);
