@@ -80,7 +80,7 @@
     "katex": "^0.13.11",
     "markdown-it": "^12.1.0",
     "mousetrap": "^1.6.5",
-    "socket.io": "^4.1.3",
+    "socket.io": "^4.5.1",
     "socket.io-client": "^4.1.3",
     "spdy": "^4.0.2",
     "sqlite3": "^5.0.2"
